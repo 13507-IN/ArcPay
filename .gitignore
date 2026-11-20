@@ -1,0 +1,71 @@
+# ==============================================================================
+# ArcPay Monorepo Root .gitignore
+# ==============================================================================
+
+# Dependencies
+node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Environment Variables & Secrets (Keep .env.example)
+.env
+.env.*
+!.env.example
+!*/.env.example
+*.env
+*.env.local
+
+# Production & Build Outputs
+dist/
+*/dist/
+build/
+*/build/
+.next/
+*/.next/
+out/
+*/out/
+*.tsbuildinfo
+
+# Hardhat & Foundry Artifacts (Smart Contracts)
+artifacts/
+*/artifacts/
+cache/
+*/cache/
+typechain-types/
+*/typechain-types/
+broadcast/
+*/broadcast/
+
+# SQLite & Local Databases
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-journal
+backend/data/*.sqlite*
+
+# Test Coverage & Tool Cache
+coverage/
+*/coverage/
+coverage.json
+*.lcov
+.nyc_output
+
+# IDE, Editor & OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.sublime-project
+*.sublime-workspace
+
+# Temporary Test / Skill Artifacts
+.taste-skill/
