@@ -1,0 +1,70 @@
+import "dotenv/config";
+import express, { Request, Response } from "express";
+import cors from "cors";
+import { initDb, getSyncState } from "./db.js";
+import {
+  startIndexer,
+  getLiveBlockHeight,
+  INDEXER_CURSOR_KEY,
+} from "./indexer.js";
+import milestonesRouter from "./routes/milestones.js";
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+const CONTRACT_ADDRESS = process.env.ESCROW_CONTRACT_ADDRESS || "Not configured";
+const RPC_URL = process.env.ARC_TESTNET_RPC || "https://rpc.testnet.arc.io";
+
+app.use(cors());
+app.use(express.json({ limit: "32kb" }));
+
+// Initialize SQLite database
+initDb();
+
+// Register API Routes
+app.use("/api/milestones", milestonesRouter);
+
+/**
+ * GET /api/health
+ * Verifies live RPC connection to Arc Testnet and returns current block height.
+ */
+app.get("/api/health", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const liveBlock = await getLiveBlockHeight();
+    const lastSynced = getSyncState(INDEXER_CURSOR_KEY);
+
+    res.json({
+      status: "healthy",
+      network: "Arc Testnet",
+      chainId: 5042002,
+      rpcUrl: RPC_URL,
+      contractAddress: CONTRACT_ADDRESS,
+      liveBlockHeight: liveBlock.toString(),
+      lastSyncedBlock: lastSynced || "Not started",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    res.status(503).json({
+      status: "degraded",
+      network: "Arc Testnet",
+      chainId: 5042002,
+      rpcUrl: RPC_URL,
+      error: err?.message || "Failed to reach Arc Testnet RPC",
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Start Background Indexer
+startIndexer();
+
+// Start Express Server
+app.listen(PORT, () => {
+  console.log(`===============================================`);
+  console.log(`   ArcPay Backend API running on port ${PORT} `);
+  console.log(`   Target RPC : ${RPC_URL}                      `);
+  console.log(`   Chain ID   : 5042002 (Arc Testnet)           `);
+  console.log(`   Health     : http://localhost:${PORT}/api/health`);
+  console.log(`===============================================`);
+});
+
+export default app;

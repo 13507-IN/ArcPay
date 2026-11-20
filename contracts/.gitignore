@@ -1,0 +1,31 @@
+# ==============================================================================
+# ArcPay Contracts .gitignore (Hardhat & Foundry)
+# ==============================================================================
+
+# Dependencies
+node_modules/
+
+# Hardhat Build Outputs
+cache/
+artifacts/
+typechain-types/
+
+# Foundry Build Outputs
+out/
+broadcast/
+cache_forge/
+
+# Environment Variables & Private Keys
+.env
+.env.*
+!.env.example
+
+# Test Coverage
+coverage/
+coverage.json
+*.lcov
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
