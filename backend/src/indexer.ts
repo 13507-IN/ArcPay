@@ -112,7 +112,7 @@ async function syncContractStateDirectly(): Promise<void> {
       const status = statusMap[m.status] || "Funded";
       const createdAt = Number(m.createdAt);
 
-      upsertMilestone({
+      await upsertMilestone({
         id,
         client: m.client,
         freelancer: m.freelancer,
@@ -124,7 +124,7 @@ async function syncContractStateDirectly(): Promise<void> {
       });
 
       if (m.deliverableIpfsOrUrl) {
-        updateDeliverable(id, m.deliverableIpfsOrUrl);
+        await updateDeliverable(id, m.deliverableIpfsOrUrl);
       }
     }
   } catch (err: any) {
@@ -147,7 +147,7 @@ async function syncEventLogs(): Promise<void> {
 
   try {
     const currentBlock = await publicClient.getBlockNumber();
-    const lastSyncedStr = getSyncState(INDEXER_CURSOR_KEY);
+    const lastSyncedStr = await getSyncState(INDEXER_CURSOR_KEY);
 
     let fromBlock: bigint;
 
@@ -197,7 +197,7 @@ async function syncEventLogs(): Promise<void> {
         await processLog(log);
       }
 
-      setSyncState(INDEXER_CURSOR_KEY, chunkEnd.toString());
+      await setSyncState(INDEXER_CURSOR_KEY, chunkEnd.toString());
       cursor = chunkEnd + 1n;
 
       // Small throttle pause between chunks if multiple
@@ -241,7 +241,7 @@ async function processLog(log: Log) {
       const { id, client, freelancer, amount, title, deadline } = args as any;
       const milestoneId = Number(id);
 
-      upsertMilestone({
+      await upsertMilestone({
         id: milestoneId,
         client,
         freelancer,
@@ -253,7 +253,7 @@ async function processLog(log: Log) {
         txHash,
       });
 
-      recordEvent(milestoneId, "MilestoneCreated", txHash, Number(log.blockNumber), timestamp, {
+      await recordEvent(milestoneId, "MilestoneCreated", txHash, Number(log.blockNumber), timestamp, {
         client,
         freelancer,
         amount: amount.toString(),
@@ -266,9 +266,9 @@ async function processLog(log: Log) {
       const { id, freelancer, deliverableUrl } = args as any;
       const milestoneId = Number(id);
 
-      updateDeliverable(milestoneId, deliverableUrl, txHash);
+      await updateDeliverable(milestoneId, deliverableUrl, txHash);
 
-      recordEvent(milestoneId, "WorkSubmitted", txHash, Number(log.blockNumber), timestamp, {
+      await recordEvent(milestoneId, "WorkSubmitted", txHash, Number(log.blockNumber), timestamp, {
         freelancer,
         deliverableUrl,
       });
@@ -278,9 +278,9 @@ async function processLog(log: Log) {
       const { id, client, freelancer, amount } = args as any;
       const milestoneId = Number(id);
 
-      updateStatus(milestoneId, "Released", "released_tx_hash", txHash);
+      await updateStatus(milestoneId, "Released", "released_tx_hash", txHash);
 
-      recordEvent(milestoneId, "PaymentReleased", txHash, Number(log.blockNumber), timestamp, {
+      await recordEvent(milestoneId, "PaymentReleased", txHash, Number(log.blockNumber), timestamp, {
         client,
         freelancer,
         amount: amount.toString(),
@@ -291,9 +291,9 @@ async function processLog(log: Log) {
       const { id, client, refundedBy, amount } = args as any;
       const milestoneId = Number(id);
 
-      updateStatus(milestoneId, "Refunded", "refunded_tx_hash", txHash);
+      await updateStatus(milestoneId, "Refunded", "refunded_tx_hash", txHash);
 
-      recordEvent(milestoneId, "ClientRefunded", txHash, Number(log.blockNumber), timestamp, {
+      await recordEvent(milestoneId, "ClientRefunded", txHash, Number(log.blockNumber), timestamp, {
         client,
         refundedBy,
         amount: amount.toString(),

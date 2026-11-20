@@ -19,8 +19,8 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
   try {
     const address = req.query.address as string | undefined;
 
-    const milestones = getMilestones(address);
-    const stats = calculateStats(address);
+    const milestones = await getMilestones(address);
+    const stats = await calculateStats(address);
 
     res.json({
       success: true,
@@ -51,7 +51,7 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const milestone = getMilestoneById(id);
+    const milestone = await getMilestoneById(id);
     if (!milestone) {
       res.status(404).json({ success: false, error: "Milestone not found" });
       return;
@@ -143,7 +143,7 @@ router.post("/:id/metadata", async (req: Request, res: Response): Promise<void> 
       }
     }
 
-    const milestone = getMilestoneById(id);
+    const milestone = await getMilestoneById(id);
     if (!milestone) {
       res.status(404).json({
         success: false,
@@ -180,7 +180,7 @@ router.post("/:id/metadata", async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const updated = updateMetadata(id, metadata);
+    const updated = await updateMetadata(id, metadata);
     res.json({
       success: true,
       message: "Milestone metadata saved successfully",

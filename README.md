@@ -44,7 +44,7 @@ flowchart TD
 
     subgraph Backend ["ArcPay Indexer & Backend API"]
         IX["Viem Event Indexer<br/>Polls logs & parses Malachite blocks"]
-        DB[(SQLite WAL Database<br/>Milestones & Event Timeline)]
+        DB[(Database: SQLite WAL or MongoDB<br/>Milestones & Event Timeline)]
         API["Express TypeScript API<br/>/api/milestones & /api/health"]
     end
 
@@ -88,7 +88,12 @@ Arc/
 ├── backend/                       # Node.js + Express + TypeScript + viem Indexer
 │   ├── src/
 │   │   ├── index.ts               # Express server & /api/health endpoint
-│   │   ├── db.ts                  # SQLite WAL database & queries
+│   │   ├── db.ts                  # Unified database interface (SQLite & MongoDB)
+│   │   ├── db/                    # Modular database adapters (SQLite, MongoDB)
+│   │   │   ├── types.ts           # DatabaseAdapter interface definition
+│   │   │   ├── sqliteAdapter.ts   # SQLite WAL driver implementation
+│   │   │   ├── mongoAdapter.ts    # Official MongoDB driver implementation
+│   │   │   └── stats.ts           # 18-decimal financial metrics calculator
 │   │   ├── indexer.ts             # Viem log watcher on Arc Testnet
 │   │   ├── arcChain.ts            # Custom Arc Testnet Viem definition & ABI
 │   │   ├── types.ts               # TypeScript data interfaces
@@ -205,7 +210,15 @@ Edit `backend/.env` and paste your deployed contract address:
 PORT=3001
 ARC_TESTNET_RPC=https://rpc.testnet.arc.io
 ESCROW_CONTRACT_ADDRESS=0xYOUR_DEPLOYED_CONTRACT_ADDRESS
+
+# Database choice: "sqlite" (default) or "mongodb"
+DATABASE_TYPE=sqlite
 DATABASE_PATH=./data/arcpay.sqlite
+
+# MongoDB Configuration (used when DATABASE_TYPE=mongodb or MONGODB_URI is provided)
+MONGODB_URI=mongodb://127.0.0.1:27017
+MONGODB_DB_NAME=arcpay
+
 POLL_INTERVAL_MS=3000
 INDEXER_START_BLOCK=0
 ```
@@ -234,7 +247,7 @@ Response:
 
 ---
 
-### 4. Next.js 15 Frontend (`/frontend`)
+### 4. Next.js 15 (v15.2.1) Frontend (`/frontend`)
 
 #### Configure Environment
 Create `frontend/.env.local`:

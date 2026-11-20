@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { initDb, getSyncState } from "./db.js";
+import { initDb, getSyncState, getDatabaseType } from "./db.js";
 import {
   startIndexer,
   getLiveBlockHeight,
@@ -17,23 +17,21 @@ const RPC_URL = process.env.ARC_TESTNET_RPC || "https://rpc.testnet.arc.io";
 app.use(cors());
 app.use(express.json({ limit: "32kb" }));
 
-// Initialize SQLite database
-initDb();
-
 // Register API Routes
 app.use("/api/milestones", milestonesRouter);
 
 /**
  * GET /api/health
- * Verifies live RPC connection to Arc Testnet and returns current block height.
+ * Verifies live RPC connection to Arc Testnet, database status, and current block height.
  */
 app.get("/api/health", async (req: Request, res: Response): Promise<void> => {
   try {
     const liveBlock = await getLiveBlockHeight();
-    const lastSynced = getSyncState(INDEXER_CURSOR_KEY);
+    const lastSynced = await getSyncState(INDEXER_CURSOR_KEY);
 
     res.json({
       status: "healthy",
+      database: getDatabaseType(),
       network: "Arc Testnet",
       chainId: 5042002,
       rpcUrl: RPC_URL,
@@ -45,6 +43,7 @@ app.get("/api/health", async (req: Request, res: Response): Promise<void> => {
   } catch (err: any) {
     res.status(503).json({
       status: "degraded",
+      database: getDatabaseType(),
       network: "Arc Testnet",
       chainId: 5042002,
       rpcUrl: RPC_URL,
@@ -54,17 +53,25 @@ app.get("/api/health", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// Start Background Indexer
-startIndexer();
+// Start Server and Database
+async function startServer() {
+  await initDb();
+  startIndexer();
 
-// Start Express Server
-app.listen(PORT, () => {
-  console.log(`===============================================`);
-  console.log(`   ArcPay Backend API running on port ${PORT} `);
-  console.log(`   Target RPC : ${RPC_URL}                      `);
-  console.log(`   Chain ID   : 5042002 (Arc Testnet)           `);
-  console.log(`   Health     : http://localhost:${PORT}/api/health`);
-  console.log(`===============================================`);
+  app.listen(PORT, () => {
+    console.log(`===============================================`);
+    console.log(`   ArcPay Backend API running on port ${PORT} `);
+    console.log(`   Database   : ${getDatabaseType().toUpperCase()}`);
+    console.log(`   Target RPC : ${RPC_URL}                      `);
+    console.log(`   Chain ID   : 5042002 (Arc Testnet)           `);
+    console.log(`   Health     : http://localhost:${PORT}/api/health`);
+    console.log(`===============================================`);
+  });
+}
+
+startServer().catch((err) => {
+  console.error("Failed to start ArcPay backend:", err);
+  process.exit(1);
 });
 
 export default app;

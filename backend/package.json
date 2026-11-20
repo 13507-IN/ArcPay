@@ -9,7 +9,14 @@
     "test": "node --import tsx --test",
     "start": "node dist/index.js"
   },
-  "keywords": ["arc", "circle", "escrow", "indexer", "viem", "sqlite"],
+  "keywords": [
+    "arc",
+    "circle",
+    "escrow",
+    "indexer",
+    "viem",
+    "sqlite"
+  ],
   "author": "ArcPay Team",
   "license": "MIT",
   "dependencies": {
@@ -17,6 +24,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "mongodb": "^7.9.1",
     "viem": "^2.22.8"
   },
   "devDependencies": {
