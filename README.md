@@ -44,7 +44,7 @@ flowchart TD
 
     subgraph Backend ["ArcPay Indexer & Backend API"]
         IX["Viem Event Indexer<br/>Polls logs & parses Malachite blocks"]
-        DB[(Database: SQLite WAL or MongoDB<br/>Milestones & Event Timeline)]
+        DB[(Database: MongoDB<br/>Milestones & Event Timeline)]
         API["Express TypeScript API<br/>/api/milestones & /api/health"]
     end
 
@@ -88,10 +88,9 @@ Arc/
 ├── backend/                       # Node.js + Express + TypeScript + viem Indexer
 │   ├── src/
 │   │   ├── index.ts               # Express server & /api/health endpoint
-│   │   ├── db.ts                  # Unified database interface (SQLite & MongoDB)
-│   │   ├── db/                    # Modular database adapters (SQLite, MongoDB)
+│   │   ├── db.ts                  # Unified database interface (MongoDB)
+│   │   ├── db/                    # MongoDB database adapter
 │   │   │   ├── types.ts           # DatabaseAdapter interface definition
-│   │   │   ├── sqliteAdapter.ts   # SQLite WAL driver implementation
 │   │   │   ├── mongoAdapter.ts    # Official MongoDB driver implementation
 │   │   │   └── stats.ts           # 18-decimal financial metrics calculator
 │   │   ├── indexer.ts             # Viem log watcher on Arc Testnet
@@ -133,9 +132,12 @@ Arc/
 │   ├── next.config.ts
 │   └── .env.example
 │
-├── package.json                   # Root monorepo workspace scripts
 └── README.md
 ```
+
+---
+
+> Each folder is a standalone npm project with its own `package.json` and `package-lock.json`. There is no root workspace — install and run commands from inside the folder you are working on.
 
 ---
 
@@ -154,7 +156,7 @@ Arc/
 #### Install Dependencies
 ```bash
 cd contracts
-npm install --legacy-peer-deps
+npm install
 ```
 
 #### Run Unit Tests
@@ -211,11 +213,7 @@ PORT=3001
 ARC_TESTNET_RPC=https://rpc.testnet.arc.io
 ESCROW_CONTRACT_ADDRESS=0xYOUR_DEPLOYED_CONTRACT_ADDRESS
 
-# Database choice: "sqlite" (default) or "mongodb"
-DATABASE_TYPE=sqlite
-DATABASE_PATH=./data/arcpay.sqlite
-
-# MongoDB Configuration (used when DATABASE_TYPE=mongodb or MONGODB_URI is provided)
+# MongoDB Configuration
 MONGODB_URI=mongodb://127.0.0.1:27017
 MONGODB_DB_NAME=arcpay
 
@@ -247,7 +245,7 @@ Response:
 
 ---
 
-### 4. Next.js 15 (v15.2.1) Frontend (`/frontend`)
+### 4. Next.js 15 (v15.5.29) Frontend (`/frontend`)
 
 #### Configure Environment
 Create `frontend/.env.local`:
@@ -270,6 +268,32 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=YOUR_WALLETCONNECT_PROJECT_ID
 npm run dev
 ```
 Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+
+---
+
+## 🚀 Deployment
+
+Each app is deployed independently. Smart contracts are already deployed to Arc Testnet (see `contracts/deployments/arcTestnet.json`).
+
+### Frontend → Vercel
+1. Import this repository into Vercel.
+2. Set **Root Directory** to `frontend`.
+3. Add the `NEXT_PUBLIC_*` variables from `frontend/.env.example`.
+4. Vercel runs `npm install` and `npm run build` inside `frontend`.
+
+### Backend → long-running Node host (Render / Railway / Fly / VPS)
+Vercel serverless functions cannot keep the indexer's polling loop alive, so host the backend on a platform that supports long-running processes.
+1. Set the project/working directory to `backend`.
+2. Build command: `npm install && npm run build`
+3. Start command: `npm start`
+4. Add the variables from `backend/.env.example` (MongoDB URI, contract address, RPC URL).
+
+### Contracts → Arc Testnet
+Already deployed. To redeploy from `contracts/`:
+```bash
+npm install
+npm run deploy:arc
+```
 
 ---
 

@@ -6,36 +6,20 @@ import {
   MilestoneStatus,
 } from "./types.js";
 import { DatabaseAdapter, DatabaseType, EnrichedMilestone } from "./db/types.js";
-import { SqliteAdapter } from "./db/sqliteAdapter.js";
 import { MongoAdapter } from "./db/mongoAdapter.js";
 
 export { DatabaseAdapter, DatabaseType, EnrichedMilestone };
-export { SqliteAdapter, MongoAdapter };
+export { MongoAdapter };
 
 export function getDatabaseType(): DatabaseType {
-  const configured = (process.env.DATABASE_TYPE || "").toLowerCase().trim();
-  if (configured === "mongodb" || configured === "mongo") {
-    return "mongodb";
-  }
-  if (configured === "sqlite") {
-    return "sqlite";
-  }
-  if (process.env.MONGODB_URI) {
-    return "mongodb";
-  }
-  return "sqlite";
+  return "mongodb";
 }
 
 let activeAdapter: DatabaseAdapter | null = null;
 
 export function getAdapter(): DatabaseAdapter {
   if (!activeAdapter) {
-    const type = getDatabaseType();
-    if (type === "mongodb") {
-      activeAdapter = new MongoAdapter();
-    } else {
-      activeAdapter = new SqliteAdapter();
-    }
+    activeAdapter = new MongoAdapter();
   }
   return activeAdapter;
 }
@@ -140,37 +124,3 @@ export async function setSyncState(
 ): Promise<void> {
   return getAdapter().setSyncState(key, value);
 }
-
-// Backward-compatibility export for direct SQLite handle access if needed
-export const db = {
-  get type() {
-    return getDatabaseType();
-  },
-  get adapter() {
-    return getAdapter();
-  },
-  prepare(sql: string) {
-    const adapter = getAdapter();
-    if (adapter instanceof SqliteAdapter) {
-      return adapter.getRawDb().prepare(sql);
-    }
-    throw new Error(
-      `Direct db.prepare() is only supported on SQLite adapter (current: ${getDatabaseType()})`
-    );
-  },
-  exec(sql: string) {
-    const adapter = getAdapter();
-    if (adapter instanceof SqliteAdapter) {
-      return adapter.getRawDb().exec(sql);
-    }
-    throw new Error(
-      `Direct db.exec() is only supported on SQLite adapter (current: ${getDatabaseType()})`
-    );
-  },
-  pragma(sql: string) {
-    const adapter = getAdapter();
-    if (adapter instanceof SqliteAdapter) {
-      return adapter.getRawDb().pragma(sql);
-    }
-  },
-};

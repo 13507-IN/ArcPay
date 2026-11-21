@@ -1,5 +1,5 @@
 # ==============================================================================
-# ArcPay Backend .gitignore (Express, TypeScript, SQLite)
+# ArcPay Backend .gitignore (Express, TypeScript, MongoDB)
 # ==============================================================================
 
 # Dependencies
@@ -8,13 +8,6 @@ node_modules/
 # TypeScript Build Output
 dist/
 *.tsbuildinfo
-
-# Local SQLite Database Files
-data/*.sqlite*
-*.sqlite
-*.sqlite-wal
-*.sqlite-shm
-*.db
 
 # Environment Variables
 .env

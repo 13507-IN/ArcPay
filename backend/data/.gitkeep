@@ -1,1 +1,1 @@
-# Keep data directory tracked while ignoring SQLite runtime databases
+# Keep data directory tracked for local runtime artifacts

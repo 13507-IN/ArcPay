@@ -37,14 +37,11 @@ typechain-types/
 */typechain-types/
 broadcast/
 */broadcast/
+.cache/
 
-# SQLite & Local Databases
-*.sqlite
-*.sqlite-wal
-*.sqlite-shm
-*.db
-*.db-journal
-backend/data/*.sqlite*
+# Local Runtime Data
+backend/data/*
+!backend/data/.gitkeep
 
 # Test Coverage & Tool Cache
 coverage/

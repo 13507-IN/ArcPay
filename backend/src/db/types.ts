@@ -6,7 +6,7 @@ import {
   MilestoneStatus,
 } from "../types.js";
 
-export type DatabaseType = "sqlite" | "mongodb";
+export type DatabaseType = "mongodb";
 
 export type EnrichedMilestone = MilestoneRecord & {
   events: (MilestoneEventRecord & { payload: any })[];
