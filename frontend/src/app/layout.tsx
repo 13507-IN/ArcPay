@@ -1,6 +1,20 @@
 import type { Metadata } from "next";
+import { Inter, Space_Grotesk } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
+
+const bodyFont = Inter({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const displayFont = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+  weight: ["500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "ArcPay — Global Milestone Escrow & Instant USDC Payroll on Circle Arc",
@@ -17,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-[#0B0F19] text-slate-100 antialiased selection:bg-blue-600 selection:text-white">
+    <html lang="en" className={`${bodyFont.variable} ${displayFont.variable}`}>
+      <body className="antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

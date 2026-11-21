@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 export default function ErrorPage({
   error,
@@ -15,33 +15,34 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0B0F19] px-4 text-center text-slate-100">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/10 text-rose-400">
-        <AlertTriangle className="h-8 w-8" />
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center text-ink">
+      <p className="font-display text-7xl font-semibold tracking-tight text-lav-300">
+        Oops
+      </p>
 
-      <h1 className="mt-6 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-        Something went wrong
+      <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+        Something went wrong.
       </h1>
 
-      <p className="mt-2 max-w-md text-xs text-slate-400">
+      <p className="mt-3 max-w-md text-base leading-relaxed text-ink-soft">
         {error.message || "An unexpected error occurred while loading this page."}
       </p>
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <button
+          type="button"
           onClick={() => reset()}
-          className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-glow transition-all hover:bg-blue-500"
+          className="inline-flex items-center gap-2 rounded-full bg-lav-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-lav-700"
         >
-          <RotateCcw className="h-3.5 w-3.5" />
-          <span>Try again</span>
+          <RotateCcw className="h-4 w-4" aria-hidden="true" />
+          Try again
         </button>
 
         <a
           href="/"
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-300 transition-all hover:bg-slate-700 hover:text-white"
+          className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:text-lav-700"
         >
-          Return Home
+          Back to home
         </a>
       </div>
     </div>

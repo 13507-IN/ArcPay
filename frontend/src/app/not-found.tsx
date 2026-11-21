@@ -1,28 +1,35 @@
 import Link from "next/link";
-import { AlertCircle, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0B0F19] px-4 text-center text-slate-100">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-500/20 bg-blue-500/10 text-blue-400 shadow-glow">
-        <AlertCircle className="h-8 w-8" />
-      </div>
-
-      <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-        404 — Page Not Found
-      </h1>
-
-      <p className="mt-3 max-w-md text-sm text-slate-400">
-        The page, milestone, or resource you are looking for does not exist or has been moved.
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center text-ink">
+      <p className="font-display text-7xl font-semibold tracking-tight text-lav-300">
+        404
       </p>
 
-      <div className="mt-8">
+      <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+        This page is not here.
+      </h1>
+
+      <p className="mt-3 max-w-md text-base leading-relaxed text-ink-soft">
+        The page, milestone, or resource you are looking for does not exist or
+        has moved.
+      </p>
+
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 text-xs font-semibold text-white shadow-glow transition-all hover:from-blue-500 hover:to-blue-600 active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-full bg-lav-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-lav-700"
         >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Return to ArcPay Dashboard</span>
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to home
+        </Link>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:text-lav-700"
+        >
+          Open the app
         </Link>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useBalance } from "wagmi";
 import { formatUnits } from "viem";
@@ -27,7 +28,7 @@ export function Navbar() {
     <header className="w-full border-b border-slate-800 bg-[#0B0F19]">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo & Chain Tag */}
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <Coins aria-hidden="true" className="h-6 w-6 text-blue-400" />
           <div>
             <div className="flex items-center gap-2">
@@ -42,7 +43,7 @@ export function Navbar() {
               Native USDC <span aria-hidden="true">·</span> Chain 5042002
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Center / Actions */}
         <div className="flex items-center gap-2 sm:gap-3">

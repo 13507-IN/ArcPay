@@ -40,9 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {mounted ? (
             children
           ) : (
-            <div className="min-h-screen bg-[#0B0F19] text-slate-100 antialiased">
-              {children}
-            </div>
+            <div className="min-h-screen antialiased">{children}</div>
           )}
         </RainbowKitProvider>
       </QueryClientProvider>
