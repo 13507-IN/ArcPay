@@ -97,7 +97,7 @@ export default function DashboardPage() {
       <Navbar />
 
       {/* Main Content Area */}
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[1480px] flex-1 space-y-8 px-6 py-8 sm:px-10 lg:px-16 xl:px-20">
         <section className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export default function DashboardPage() {
 
       {/* Footer */}
       <footer className="border-t border-lav-200/60 bg-white py-8 text-center text-xs text-ink-soft mt-12">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mx-auto max-w-[1480px] w-full px-6 sm:px-10 lg:px-16 xl:px-20 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-lav-600 text-white">
               <Coins className="h-3.5 w-3.5" />

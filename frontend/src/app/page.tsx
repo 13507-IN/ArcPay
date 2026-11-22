@@ -35,7 +35,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white font-body text-ink">
       <ScrollReveal />
       <header className="sticky top-0 z-40 bg-white">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
+        <div className="mx-auto flex h-20 max-w-[1480px] w-full items-center justify-between px-6 sm:px-10 lg:px-16 xl:px-20">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lav-600 text-white">
               <Coins className="h-4 w-4" aria-hidden="true" />
@@ -69,12 +69,12 @@ export default function LandingPage() {
 
       <main>
         <section className="bg-white">
-          <div className="mx-auto grid max-w-7xl gap-16 px-6 pb-24 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16 lg:px-8 lg:pb-32 lg:pt-20">
-            <div className="max-w-2xl">
+          <div className="mx-auto grid max-w-[1480px] w-full gap-12 px-6 pb-24 pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16 lg:px-16 xl:px-20 lg:pb-32 lg:pt-20">
+            <div className="max-w-3xl">
               <h1 className="landing-rise font-display text-5xl font-semibold leading-[0.98] tracking-[-0.035em] text-ink sm:text-6xl lg:text-7xl">
                 Escrow for global teams.
               </h1>
-              <p className="landing-rise landing-rise-1 mt-6 max-w-xl text-lg leading-relaxed text-ink sm:text-xl">
+              <p className="landing-rise landing-rise-1 mt-6 max-w-2xl text-lg leading-relaxed text-ink sm:text-xl">
                 ArcPay holds each milestone&rsquo;s funds in an on-chain contract
                 and releases native USDC to freelancers the moment work is
                 approved — on Circle&rsquo;s Arc Layer-1.
@@ -110,7 +110,7 @@ export default function LandingPage() {
         </section>
 
         <section id="how" className="bg-white">
-          <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">
+          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
             <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
               <div className="lg:sticky lg:top-28 lg:self-start">
                 <h2 className="reveal font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-5xl">
@@ -202,7 +202,7 @@ export default function LandingPage() {
         </section>
 
         <section id="network" className="bg-lav-100">
-          <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">
+          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
             <div className="max-w-2xl">
               <h2 className="reveal font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-5xl">
                 Settled on Circle Arc.
@@ -245,7 +245,7 @@ export default function LandingPage() {
         </section>
 
         <section id="teams" className="bg-white">
-          <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">
+          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
             <h2 className="reveal max-w-2xl font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-5xl">
               One contract, both sides of the table.
             </h2>
@@ -351,7 +351,7 @@ export default function LandingPage() {
         </section>
 
         <section className="bg-lav-600">
-          <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-28">
+          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-28">
             <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
               <h2 className="reveal font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-white sm:text-5xl">
                 Put the next project in escrow.
@@ -375,7 +375,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+        <div className="mx-auto max-w-[1480px] w-full px-6 py-16 sm:px-10 lg:px-16 xl:px-20">
           <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <Link
