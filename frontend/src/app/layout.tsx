@@ -32,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${bodyFont.variable} ${displayFont.variable}`}>
-      <body className="antialiased">
+      <body className="bg-[#FAF8FE] text-ink font-body antialiased selection:bg-lav-200 selection:text-ink">
         <Providers>{children}</Providers>
       </body>
     </html>

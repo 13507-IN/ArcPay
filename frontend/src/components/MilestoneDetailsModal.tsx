@@ -3,16 +3,9 @@
 import React, { useState, useEffect } from "react";
 import {
   X,
-  Clock,
-  CheckCircle2,
   ExternalLink,
-  ShieldCheck,
   FileText,
-  User,
-  DollarSign,
-  ArrowRight,
   Loader2,
-  Calendar,
 } from "lucide-react";
 import { Milestone, MilestoneEvent } from "../types";
 import { fetchMilestoneDetails } from "../lib/api";
@@ -75,106 +68,106 @@ export function MilestoneDetailsModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-800 bg-[#111827] p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[28px] border border-lav-200 bg-white p-6 sm:p-8 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="flex items-center justify-between border-b border-lav-100 pb-4">
           <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lav-100 text-lav-600">
               <FileText className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-blue-400">
+                <span className="text-xs font-mono font-bold text-lav-700 bg-lav-100 px-2 py-0.5 rounded-full">
                   #{milestoneId}
                 </span>
-                <h2 className="text-base font-bold text-white">
+                <h2 className="font-display text-lg font-semibold text-ink">
                   {details?.title || "Milestone Escrow Details"}
                 </h2>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-ink-soft">
                 Circle Arc Layer-1 Escrow Timeline & On-Chain Audit Log
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            className="rounded-full p-2 text-ink-soft hover:bg-lav-50 hover:text-ink transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-16 text-slate-400 space-y-3">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <div className="flex flex-col items-center justify-center py-16 text-ink-soft space-y-3">
+            <Loader2 className="h-8 w-8 animate-spin text-lav-600" />
             <span className="text-xs">Fetching timeline from Arc Testnet...</span>
           </div>
         ) : errorMsg ? (
-          <div className="py-12 text-center text-sm text-rose-400">{errorMsg}</div>
+          <div className="py-12 text-center text-sm text-rose-700">{errorMsg}</div>
         ) : details ? (
-          <div className="mt-5 space-y-6">
+          <div className="mt-6 space-y-6">
             {/* Summary Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="rounded-xl bg-slate-900 border border-slate-800 p-3">
-                <span className="text-[11px] text-slate-400 block">Amount</span>
-                <span className="font-mono text-base font-bold text-white">
+              <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-3.5">
+                <span className="text-xs text-ink-soft block font-medium">Amount</span>
+                <span className="font-display text-lg font-semibold text-ink tabular-nums">
                   {formatUSDC(details.amount)}
                 </span>
-                <span className="text-[10px] text-blue-400 font-bold block">USDC (Native)</span>
+                <span className="text-[11px] text-lav-700 font-bold block">USDC (Native)</span>
               </div>
 
-              <div className="rounded-xl bg-slate-900 border border-slate-800 p-3">
-                <span className="text-[11px] text-slate-400 block">Status</span>
-                <span className="inline-block mt-0.5 rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-3.5">
+                <span className="text-xs text-ink-soft block font-medium">Status</span>
+                <span className="inline-block mt-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-lav-100 text-lav-700 border border-lav-200">
                   {details.status}
                 </span>
               </div>
 
-              <div className="rounded-xl bg-slate-900 border border-slate-800 p-3">
-                <span className="text-[11px] text-slate-400 block">Created</span>
-                <span className="text-xs font-medium text-slate-300 block mt-1">
+              <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-3.5">
+                <span className="text-xs text-ink-soft block font-medium">Created</span>
+                <span className="text-xs font-semibold text-ink block mt-1">
                   {formatDate(details.created_at)}
                 </span>
               </div>
 
-              <div className="rounded-xl bg-slate-900 border border-slate-800 p-3">
-                <span className="text-[11px] text-slate-400 block">Deadline</span>
-                <span className="text-xs font-medium text-slate-300 block mt-1">
+              <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-3.5">
+                <span className="text-xs text-ink-soft block font-medium">Deadline</span>
+                <span className="text-xs font-semibold text-ink block mt-1">
                   {formatDate(details.deadline)}
                 </span>
               </div>
             </div>
 
             {/* Participants */}
-            <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-4 space-y-2.5">
-              <span className="block text-sm font-medium text-slate-300">
+            <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-4 space-y-2.5">
+              <span className="block text-xs font-semibold text-ink uppercase tracking-wider">
                 Counterparties
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="flex items-center justify-between rounded-lg bg-slate-800/60 p-2.5">
-                  <span className="text-slate-400">Client:</span>
+                <div className="flex items-center justify-between rounded-xl bg-white border border-lav-200/70 p-3 shadow-sm">
+                  <span className="text-ink-soft font-medium">Client:</span>
                   <a
                     href={getExplorerAddressUrl(details.client)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono font-semibold text-blue-400 hover:underline flex items-center gap-1"
+                    className="font-mono font-semibold text-lav-700 hover:underline flex items-center gap-1"
                   >
                     {shortenAddress(details.client, 6)}
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="h-3.5 w-3.5 opacity-50" />
                   </a>
                 </div>
 
-                <div className="flex items-center justify-between rounded-lg bg-slate-800/60 p-2.5">
-                  <span className="text-slate-400">Freelancer:</span>
+                <div className="flex items-center justify-between rounded-xl bg-white border border-lav-200/70 p-3 shadow-sm">
+                  <span className="text-ink-soft font-medium">Freelancer:</span>
                   <a
                     href={getExplorerAddressUrl(details.freelancer)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono font-semibold text-blue-400 hover:underline flex items-center gap-1"
+                    className="font-mono font-semibold text-lav-700 hover:underline flex items-center gap-1"
                   >
                     {shortenAddress(details.freelancer, 6)}
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="h-3.5 w-3.5 opacity-50" />
                   </a>
                 </div>
               </div>
@@ -182,11 +175,11 @@ export function MilestoneDetailsModal({
 
             {/* Off-Chain Scope / Brief */}
             {details.brief && (
-              <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-4 space-y-1.5">
-                <span className="block text-sm font-medium text-slate-300">
+              <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-4 space-y-1.5">
+                <span className="block text-xs font-semibold text-ink uppercase tracking-wider">
                   Project Scope & Deliverable Brief
                 </span>
-                <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
+                <p className="text-xs text-ink leading-relaxed whitespace-pre-wrap">
                   {details.brief}
                 </p>
               </div>
@@ -194,15 +187,15 @@ export function MilestoneDetailsModal({
 
             {/* Deliverable Link if available */}
             {details.deliverable_url && (
-              <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-4 space-y-1.5">
-                <span className="block text-sm font-medium text-emerald-300">
+              <div className="rounded-2xl bg-emerald-50 border border-emerald-200/80 p-4 space-y-1.5">
+                <span className="block text-xs font-semibold text-emerald-800 uppercase tracking-wider">
                   Submitted Deliverable / Proof of Work
                 </span>
                 <a
                   href={details.deliverable_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-1.5 text-xs font-mono text-emerald-300 hover:underline break-all"
+                  className="inline-flex items-center space-x-1.5 text-xs font-mono text-emerald-700 hover:underline break-all font-medium"
                 >
                   <span>{details.deliverable_url}</span>
                   <ExternalLink className="h-3.5 w-3.5 shrink-0" />
@@ -212,32 +205,32 @@ export function MilestoneDetailsModal({
 
             {/* On-Chain Event Timeline */}
             <div>
-              <span className="mb-3 block text-sm font-medium text-slate-300">
+              <span className="mb-3 block text-xs font-semibold text-ink uppercase tracking-wider">
                 Malachite BFT On-Chain Audit Timeline
               </span>
 
               {details.events && details.events.length > 0 ? (
-                <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
+                <div className="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-lav-200">
                   {details.events.map((evt, idx) => (
                     <div key={evt.id || idx} className="relative">
-                      <div className="absolute -left-6 top-1 h-3 w-3 rounded-full bg-blue-500 ring-4 ring-slate-900" />
-                      <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-3 space-y-1.5">
+                      <div className="absolute -left-6 top-1.5 h-2.5 w-2.5 rounded-full bg-lav-600 ring-4 ring-white" />
+                      <div className="rounded-2xl bg-white border border-lav-200 p-3.5 space-y-1 shadow-sm">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-white">
+                          <span className="text-xs font-bold text-ink">
                             {evt.event_name}
                           </span>
-                          <span className="text-[11px] text-slate-400 font-mono">
+                          <span className="text-[11px] text-ink-soft font-mono">
                             Block #{evt.block_number}
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between text-[11px] text-slate-400">
+                        <div className="flex items-center justify-between text-[11px] text-ink-soft">
                           <span>{formatDate(evt.timestamp)}</span>
                           <a
                             href={getExplorerTxUrl(evt.tx_hash)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-mono text-blue-400 hover:underline flex items-center gap-1"
+                            className="font-mono text-lav-700 hover:underline flex items-center gap-1 font-medium"
                           >
                             <span>{shortenAddress(evt.tx_hash, 6)}</span>
                             <ExternalLink className="h-3 w-3" />
@@ -248,7 +241,7 @@ export function MilestoneDetailsModal({
                   ))}
                 </div>
               ) : (
-                <div className="rounded-xl bg-slate-900 border border-slate-800 p-4 text-center text-xs text-slate-400">
+                <div className="rounded-2xl bg-lav-50 border border-lav-200 p-4 text-center text-xs text-ink-soft">
                   No indexed events found yet. The indexer updates in real-time.
                 </div>
               )}

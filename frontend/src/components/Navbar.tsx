@@ -25,21 +25,23 @@ export function Navbar() {
   const isZeroBalance = balance?.value === 0n;
 
   return (
-    <header className="w-full border-b border-slate-800 bg-[#0B0F19]">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 w-full border-b border-lav-200/60 bg-white/90 backdrop-blur-md">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo & Chain Tag */}
         <Link href="/" className="flex items-center gap-3">
-          <Coins aria-hidden="true" className="h-6 w-6 text-blue-400" />
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lav-600 text-white shadow-sm transition-transform hover:scale-105">
+            <Coins aria-hidden="true" className="h-4 w-4" />
+          </span>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg font-semibold tracking-tight text-white">
+              <span className="font-display text-lg font-semibold tracking-tight text-ink">
                 ArcPay
               </span>
-              <span className="hidden text-sm text-slate-300 sm:inline">
+              <span className="hidden rounded-full bg-lav-100 px-2 py-0.5 text-xs font-semibold text-lav-700 sm:inline">
                 Arc Testnet
               </span>
             </div>
-            <p className="text-xs text-slate-300">
+            <p className="text-xs text-ink-soft">
               Native USDC <span aria-hidden="true">·</span> Chain 5042002
             </p>
           </div>
@@ -52,13 +54,13 @@ export function Navbar() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Get Testnet USDC from Circle's faucet"
-            className={`flex min-h-10 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors sm:px-3 ${
+            className={`flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-all ${
               isZeroBalance && isConnected
-                ? "border-amber-500/50 bg-amber-950/40 text-amber-200 hover:bg-amber-950/70"
-                : "border-slate-700 text-slate-200 hover:bg-slate-800"
+                ? "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 shadow-sm"
+                : "border-lav-200 bg-white text-ink-soft hover:bg-lav-50 hover:text-ink hover:border-lav-300"
             }`}
           >
-            <Droplets className="h-3.5 w-3.5 text-blue-400" />
+            <Droplets className="h-3.5 w-3.5 text-lav-600" />
             <span className="hidden sm:inline">
               {isZeroBalance && isConnected ? "Get Testnet USDC" : "Faucet"}
             </span>
@@ -72,7 +74,7 @@ export function Navbar() {
             href="https://explorer.testnet.arc.io"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden min-h-10 items-center gap-1.5 rounded-md border border-slate-700 px-3 text-xs font-medium text-slate-200 transition-colors hover:bg-slate-800 sm:flex"
+            className="hidden min-h-9 items-center gap-1.5 rounded-full border border-lav-200 bg-white px-3.5 text-xs font-medium text-ink-soft transition-all hover:bg-lav-50 hover:text-ink hover:border-lav-300 sm:flex"
           >
             <span>Arc Explorer</span>
             <ExternalLink className="h-3 w-3 opacity-60" />
@@ -82,9 +84,9 @@ export function Navbar() {
         {/* Right Section: Balance & Connect Wallet */}
         <div className="flex items-center space-x-3">
           {isConnected && (
-            <div className="hidden sm:flex items-center space-x-2 rounded-xl bg-slate-900 border border-slate-800 px-3 py-1.5 text-xs">
-              <span className="text-slate-400">Native USDC:</span>
-              <span className="font-mono font-semibold tabular-nums text-white">
+            <div className="hidden sm:flex items-center space-x-2 rounded-full bg-lav-50 border border-lav-200/80 px-3.5 py-1.5 text-xs font-medium">
+              <span className="text-ink-soft">Native USDC:</span>
+              <span className="font-mono font-semibold tabular-nums text-lav-700">
                 {isBalanceLoading ? "..." : formattedBalance} USDC
               </span>
             </div>
@@ -100,8 +102,7 @@ export function Navbar() {
               openChainModal,
               openConnectModal,
             }) => {
-              const ready =
-                mounted && authenticationStatus !== "loading";
+              const ready = mounted && authenticationStatus !== "loading";
 
               return (
                 <div
@@ -116,7 +117,7 @@ export function Navbar() {
                     <button
                       type="button"
                       onClick={openConnectModal}
-                      className="min-h-10 whitespace-nowrap rounded-md bg-blue-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-500"
+                      className="min-h-9 whitespace-nowrap rounded-full bg-lav-600 px-5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-lav-700 active:scale-[0.98]"
                     >
                       Connect
                     </button>
@@ -124,7 +125,7 @@ export function Navbar() {
                     <button
                       type="button"
                       onClick={openChainModal}
-                      className="min-h-10 whitespace-nowrap rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
+                      className="min-h-9 whitespace-nowrap rounded-full bg-amber-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-amber-500 shadow-sm"
                     >
                       Switch network
                     </button>
@@ -134,7 +135,7 @@ export function Navbar() {
                       onClick={openAccountModal}
                       title={account.address}
                       aria-label={`Connected wallet ${account.address}. Open wallet menu.`}
-                      className="min-h-10 max-w-36 truncate rounded-md border border-slate-700 px-3 text-sm font-medium text-slate-100 transition-colors hover:bg-slate-800"
+                      className="min-h-9 max-w-40 truncate rounded-full border border-lav-200 bg-white px-4 text-sm font-medium text-ink shadow-sm transition-all hover:bg-lav-50 hover:border-lav-300"
                     >
                       {account.displayName}
                     </button>
@@ -146,9 +147,9 @@ export function Navbar() {
         </div>
       </div>
       {isConnected && (
-        <div className="border-t border-slate-800 px-4 py-2 text-right text-xs text-slate-300 sm:hidden">
+        <div className="border-t border-lav-100 bg-lav-50/50 px-4 py-2 text-right text-xs text-ink-soft sm:hidden">
           Native USDC:{" "}
-          <span className="font-mono font-semibold tabular-nums text-white">
+          <span className="font-mono font-semibold tabular-nums text-lav-700">
             {isBalanceLoading ? "..." : formattedBalance} USDC
           </span>
         </div>

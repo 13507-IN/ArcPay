@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAccount, usePublicClient } from "wagmi";
-import { Coins } from "lucide-react";
+import { Coins, Sparkles } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { OverviewMetrics } from "@/components/OverviewMetrics";
 import { MilestoneDashboard } from "@/components/MilestoneDashboard";
@@ -92,19 +92,27 @@ export default function DashboardPage() {
   }, [loadMilestonesData]);
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#FAF8FE] text-ink font-body flex flex-col selection:bg-lav-200 selection:text-ink">
       {/* Top Navbar */}
       <Navbar />
 
       {/* Main Content Area */}
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-        <section>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">
-            Milestones
-          </h1>
-          <p className="mt-1 text-sm text-slate-300">
-            Arc Testnet <span aria-hidden="true">·</span> Native USDC (18 decimals)
-          </p>
+      <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+        <section className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-ink">
+                Escrow Dashboard
+              </h1>
+              <span className="inline-flex items-center gap-1 rounded-full bg-lav-100 px-3 py-1 text-xs font-semibold text-lav-700">
+                <Sparkles className="h-3 w-3 text-lav-600" />
+                Live on Arc
+              </span>
+            </div>
+            <p className="mt-1 text-sm text-ink-soft">
+              Circle Arc Testnet <span aria-hidden="true">·</span> Native 18-decimal USDC <span aria-hidden="true">·</span> Sub-second finality
+            </p>
+          </div>
         </section>
 
         {/* Overview Metrics Bar */}
@@ -115,10 +123,10 @@ export default function DashboardPage() {
         {/* Role-Filtered Milestone Dashboard */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white tracking-tight">
+            <h2 className="font-display text-xl font-semibold text-ink tracking-tight">
               Your milestones
             </h2>
-            <span className="text-sm text-slate-300">
+            <span className="rounded-full bg-lav-100/70 px-3 py-1 text-xs font-medium text-ink-soft">
               Auto-refreshes every 6 seconds
             </span>
           </div>
@@ -135,37 +143,41 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-[#0B0F19] py-6 text-center text-xs text-slate-400">
+      <footer className="border-t border-lav-200/60 bg-white py-8 text-center text-xs text-ink-soft mt-12">
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
-            <Coins className="h-4 w-4 text-blue-500" />
-            <span className="font-bold text-slate-300">ArcPay</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-lav-600 text-white">
+              <Coins className="h-3.5 w-3.5" />
+            </span>
+            <span className="font-semibold text-ink">ArcPay</span>
             <span>— Built for Circle Arc Layer-1 Testnet</span>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
             <a
               href="https://rpc.testnet.arc.io"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-white"
+              className="text-ink-soft transition-colors hover:text-lav-700"
             >
               RPC: rpc.testnet.arc.io
             </a>
+            <span className="text-lav-200">·</span>
             <a
               href="https://explorer.testnet.arc.io"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-white"
+              className="text-ink-soft transition-colors hover:text-lav-700"
             >
               Arc Explorer
             </a>
+            <span className="text-lav-200">·</span>
             <a
               href="https://faucet.circle.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-white"
+              className="text-ink-soft transition-colors hover:text-lav-700"
             >
-              Faucet
+              Circle Faucet
             </a>
           </div>
         </div>

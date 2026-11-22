@@ -3,14 +3,11 @@
 import React, { useState, useMemo } from "react";
 import { useAccount } from "wagmi";
 import {
-  Filter,
   Search,
   RotateCw,
   Plus,
   Briefcase,
   UserCheck,
-  CheckCircle2,
-  Clock,
   Layers,
 } from "lucide-react";
 import { Milestone, RoleFilter, StatusFilter } from "../types";
@@ -91,40 +88,40 @@ export function MilestoneDashboard({
       {/* Dashboard Top Navigation & Controls */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Role Segment Tabs */}
-        <div className="flex max-w-full items-center overflow-x-auto rounded-lg border border-slate-800 bg-slate-900 p-1">
+        <div className="flex max-w-full items-center overflow-x-auto rounded-full border border-lav-200 bg-lav-100/60 p-1 shadow-sm">
           <button
             onClick={() => setRoleFilter("all")}
-            className={`flex min-h-10 flex-none items-center gap-1.5 whitespace-nowrap rounded-md px-3 text-sm font-semibold transition-colors ${
+            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
               roleFilter === "all"
-                ? "bg-blue-600 text-white"
-                : "text-slate-400 hover:text-white"
+                ? "bg-white text-ink shadow-sm"
+                : "text-ink-soft hover:text-ink"
             }`}
           >
-            <Layers className="h-3.5 w-3.5" />
+            <Layers className="h-3.5 w-3.5 text-lav-600" />
             <span>All ({milestones.length})</span>
           </button>
 
           <button
             onClick={() => setRoleFilter("client")}
-            className={`flex min-h-10 flex-none items-center gap-1.5 whitespace-nowrap rounded-md px-3 text-sm font-semibold transition-colors ${
+            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
               roleFilter === "client"
-                ? "bg-blue-600 text-white"
-                : "text-slate-400 hover:text-white"
+                ? "bg-white text-ink shadow-sm"
+                : "text-ink-soft hover:text-ink"
             }`}
           >
-            <Briefcase className="h-3.5 w-3.5" />
+            <Briefcase className="h-3.5 w-3.5 text-lav-600" />
             <span>As Client {userAddr ? `(${clientCount})` : ""}</span>
           </button>
 
           <button
             onClick={() => setRoleFilter("freelancer")}
-            className={`flex min-h-10 flex-none items-center gap-1.5 whitespace-nowrap rounded-md px-3 text-sm font-semibold transition-colors ${
+            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
               roleFilter === "freelancer"
-                ? "bg-blue-600 text-white"
-                : "text-slate-400 hover:text-white"
+                ? "bg-white text-ink shadow-sm"
+                : "text-ink-soft hover:text-ink"
             }`}
           >
-            <UserCheck className="h-3.5 w-3.5" />
+            <UserCheck className="h-3.5 w-3.5 text-lav-600" />
             <span>As Freelancer {userAddr ? `(${freelancerCount})` : ""}</span>
           </button>
         </div>
@@ -132,45 +129,45 @@ export function MilestoneDashboard({
         {/* Search & Actions */}
         <div className="flex items-center space-x-3">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+            <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-ink-soft/60" />
             <input
               type="text"
-              placeholder="Filter by title, #ID, or 0x..."
+              placeholder="Search title, #ID, or 0x..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="min-h-10 w-full rounded-md border border-slate-800 bg-slate-900 px-9 pr-3 text-sm text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="min-h-9 w-full rounded-full border border-lav-200 bg-white px-9 pr-3 text-sm text-ink placeholder:text-ink-soft/60 shadow-sm transition-colors focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200"
             />
           </div>
 
           <button
             onClick={onRefresh}
             title="Refresh milestones"
-            className="rounded-xl border border-slate-800 bg-slate-900/80 p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            className="flex min-h-9 min-w-9 items-center justify-center rounded-full border border-lav-200 bg-white p-2 text-ink-soft shadow-sm transition-all hover:bg-lav-50 hover:text-ink hover:border-lav-300"
           >
-            <RotateCw className={`h-4 w-4 ${isLoading ? "animate-spin text-blue-400" : ""}`} />
+            <RotateCw className={`h-4 w-4 ${isLoading ? "animate-spin text-lav-600" : ""}`} />
           </button>
 
           <button
             onClick={onOpenCreateModal}
-            className="flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-md bg-blue-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-500"
+            className="flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full bg-lav-600 px-4 text-sm font-semibold text-white shadow-sm transition-all hover:bg-lav-700 active:scale-[0.98]"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-4 w-4" />
             <span>New Escrow</span>
           </button>
         </div>
       </div>
 
       {/* Status Filter Pills */}
-      <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1 text-sm">
+      <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1 text-xs sm:text-sm">
         {(["all", "Funded", "Submitted", "Released", "Refunded"] as const).map(
           (status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`min-h-10 flex-none whitespace-nowrap rounded-md px-3 py-2 font-medium transition-colors ${
+              className={`min-h-8 flex-none whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
                 statusFilter === status
-                  ? "bg-slate-800 text-blue-400 border border-blue-500/40"
-                  : "bg-slate-900/50 text-slate-400 border border-slate-800/80 hover:text-slate-200"
+                  ? "bg-lav-600 text-white shadow-sm"
+                  : "border border-lav-200/80 bg-white text-ink-soft hover:bg-lav-50 hover:text-ink"
               }`}
             >
               {status === "all" ? "All Statuses" : status}
