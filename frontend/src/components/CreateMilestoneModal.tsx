@@ -20,6 +20,9 @@ import {
   CheckCircle,
   ExternalLink,
   ShieldAlert,
+  Mic,
+  MicOff,
+  Sparkles,
 } from "lucide-react";
 import {
   ESCROW_CONTRACT_ADDRESS,
@@ -71,6 +74,91 @@ export function CreateMilestoneModal({
     id: number;
     txHash: string;
   } | null>(null);
+
+  // Voice Speech-to-Text Input State
+  const [isListening, setIsListening] = useState(false);
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const recognitionRef = React.useRef<any>(null);
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+    }
+    setIsListening(false);
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setSpeechError(
+        "Voice input is not supported in this browser. Try Chrome, Edge, or Safari."
+      );
+      return;
+    }
+
+    try {
+      setSpeechError(null);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        let finalChunk = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalChunk += event.results[i][0].transcript;
+          }
+        }
+        if (finalChunk.trim()) {
+          setBrief((prev) =>
+            prev ? `${prev.trim()} ${finalChunk.trim()}` : finalChunk.trim()
+          );
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("Speech recognition error:", event.error);
+        if (event.error !== "no-speech") {
+          setSpeechError(`Voice input error: ${event.error}`);
+        }
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err: any) {
+      console.error("Speech recognition start failed:", err);
+      setSpeechError("Could not access microphone.");
+      setIsListening(false);
+    }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      stopListening();
+    };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -228,6 +316,7 @@ export function CreateMilestoneModal({
   };
 
   const handleResetAndClose = () => {
+    stopListening();
     setFreelancer("");
     setTitle("");
     setBrief("");
@@ -401,18 +490,59 @@ export function CreateMilestoneModal({
               </div>
             </div>
 
-            {/* Project Brief / Deliverable Specs */}
+            {/* Project Brief / Deliverable Specs with Voice Input */}
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-ink uppercase tracking-wider">
-                Project Scope & Deliverable Notes (Off-Chain)
-              </label>
-              <textarea
-                rows={2}
-                placeholder="Include specifications, deliverables checklist, or GitHub issue link..."
-                value={brief}
-                onChange={(e) => setBrief(e.target.value)}
-                className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-4 py-2 text-xs text-ink placeholder:text-ink-soft/60 focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200 transition-all resize-none"
-              />
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-semibold text-ink uppercase tracking-wider">
+                  Project Scope & Deliverable Notes (Off-Chain)
+                </label>
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+                    isListening
+                      ? "bg-rose-500 text-white shadow-sm ring-2 ring-rose-300 animate-pulse"
+                      : "bg-lav-100 text-lav-700 hover:bg-lav-200"
+                  }`}
+                  title={isListening ? "Click to stop listening" : "Click to dictate notes with your voice"}
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="h-3.5 w-3.5" />
+                      <span>Listening... (Click to stop)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-3.5 w-3.5 text-lav-600" />
+                      <span>Dictate with Voice</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="relative">
+                <textarea
+                  rows={3}
+                  placeholder="Include specifications, deliverables checklist, or GitHub issue link (or click Dictate with Voice)..."
+                  value={brief}
+                  onChange={(e) => setBrief(e.target.value)}
+                  className={`w-full rounded-2xl border bg-lav-50/50 px-4 py-2.5 text-xs text-ink placeholder:text-ink-soft/60 focus:bg-white focus:outline-none focus:ring-2 transition-all resize-none ${
+                    isListening
+                      ? "border-lav-500 ring-2 ring-lav-300/60 bg-white"
+                      : "border-lav-200 focus:border-lav-500 focus:ring-lav-200"
+                  }`}
+                />
+                {isListening && (
+                  <div className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-lav-100 px-2.5 py-0.5 text-[10px] font-semibold text-lav-700 pointer-events-none shadow-sm">
+                    <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping" />
+                    Recording speech...
+                  </div>
+                )}
+              </div>
+
+              {speechError && (
+                <p className="mt-1 text-[11px] text-rose-600 font-medium">{speechError}</p>
+              )}
             </div>
 
             {/* Arc Native Gas Callout */}
