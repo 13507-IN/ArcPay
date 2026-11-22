@@ -87,7 +87,7 @@ export function BalloonBackground() {
     <>
       {/* 1. Fullscreen 3D WebGL Balloon Flight Canvas */}
       {isEnabled && (
-        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none">
+        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none bg-gradient-to-b from-[#0284c7] via-[#38bdf8] to-[#bae6fd]">
           {/* Canvas — 100% crystal clear with no white overlay */}
           <div
             ref={canvasContainerRef}

@@ -97,17 +97,17 @@ export class BalloonFlightEngine {
     this.renderer.toneMappingExposure = 1.1;
     this.container.appendChild(this.renderer.domElement);
 
-    // Rich Sunrise Sky Gradient (Iris Lavender to Warm Golden Sunrise)
+    // Natural Crisp Sky Blue Gradient (Deep Azure Zenith to Airy Pale Blue Horizon)
     const skyCanvas = document.createElement("canvas");
     skyCanvas.width = 4;
     skyCanvas.height = 512;
     const sCtx = skyCanvas.getContext("2d")!;
     const skyGrad = sCtx.createLinearGradient(0, 0, 0, 512);
-    skyGrad.addColorStop(0.0, "#38235d"); // Top: Deep dawn violet
-    skyGrad.addColorStop(0.35, "#6b46c1"); // Upper: Vibrant lavender purple
-    skyGrad.addColorStop(0.65, "#b794f4"); // Mid: Soft orchid
-    skyGrad.addColorStop(0.85, "#f6ad55"); // Horizon: Warm apricot
-    skyGrad.addColorStop(1.0, "#feebc8"); // Ground: Sunrise morning gold
+    skyGrad.addColorStop(0.0, "#0284c7"); // Zenith: Deep sky blue
+    skyGrad.addColorStop(0.3, "#38bdf8"); // Upper sky: Vibrant cyan-blue
+    skyGrad.addColorStop(0.65, "#7dd3fc"); // Mid sky: Soft airy sky blue
+    skyGrad.addColorStop(0.88, "#bae6fd"); // Near horizon: Pale blue
+    skyGrad.addColorStop(1.0, "#e0f2fe"); // Horizon: Very pale crisp blue
     sCtx.fillStyle = skyGrad;
     sCtx.fillRect(0, 0, 4, 512);
     const skyTex = new THREE.CanvasTexture(skyCanvas);
@@ -115,8 +115,7 @@ export class BalloonFlightEngine {
     this.scene.background = skyTex;
 
     this.initBalloons(360);
-    this.initCloudSea(280);
-    this.initThermalSparks(400);
+    // Cloud sea and thermal sparks removed to eliminate all milky white fog and glowing overlays
     this.initPost();
     this.initEvents();
 
@@ -441,13 +440,9 @@ export class BalloonFlightEngine {
 
           vec3 col = tex.rgb;
 
-          // Burner blast warmth
-          vec3 burnerGlow = vec3(1.0, 0.65, 0.25) * uBurner * 0.9;
-          col += burnerGlow + vec3(1.0, 0.92, 0.75) * vGlow * 0.25;
-
-          // Gentle horizon blend only at extreme distance
-          vec3 sunriseHaze = vec3(0.96, 0.75, 0.82);
-          col = mix(sunriseHaze, col, vFog * 0.75 + 0.25);
+          // Pure, natural hot air balloon colors against blue sky — NO GLOW
+          vec3 skyHaze = vec3(0.55, 0.78, 0.95);
+          col = mix(skyHaze, col, vFog * 0.75 + 0.25);
 
           gl_FragColor = vec4(col, tex.a);
         }
@@ -590,15 +585,7 @@ export class BalloonFlightEngine {
   }
 
   private initPost() {
-    if (!this.renderer) return;
-    const { width, height } = this.size();
-    this.composer = new EffectComposer(this.renderer);
-    this.composer.addPass(new RenderPass(this.scene, this.camera));
-
-    // Subtle bloom for glowing burner flames & sun glints
-    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(width, height), 0.35, 0.3, 0.85);
-    this.composer.addPass(this.bloomPass);
-    this.composer.addPass(new OutputPass());
+    // Pure, crisp direct WebGL rendering with no artificial bloom/glow
   }
 
   private initEvents() {
@@ -683,12 +670,7 @@ export class BalloonFlightEngine {
       this.sparkMaterial.uniforms.uTime.value = t;
       this.sparkMaterial.uniforms.uCam.value.set(cx, cz);
     }
-    if (this.bloomPass) {
-      this.bloomPass.strength = 0.35 + this.burnerProgress * 0.4;
-    }
-
-    if (this.composer) this.composer.render(dt);
-    else this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
   };
 
   public destroy() {
