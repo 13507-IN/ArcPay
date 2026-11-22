@@ -97,8 +97,22 @@ export class BalloonFlightEngine {
     this.renderer.toneMappingExposure = 1.1;
     this.container.appendChild(this.renderer.domElement);
 
-    // Warm dawn sky gradient (soft lavender/pink into pale gold)
-    this.scene.background = new THREE.Color(0xf5edf9);
+    // Rich Sunrise Sky Gradient (Iris Lavender to Warm Golden Sunrise)
+    const skyCanvas = document.createElement("canvas");
+    skyCanvas.width = 4;
+    skyCanvas.height = 512;
+    const sCtx = skyCanvas.getContext("2d")!;
+    const skyGrad = sCtx.createLinearGradient(0, 0, 0, 512);
+    skyGrad.addColorStop(0.0, "#38235d"); // Top: Deep dawn violet
+    skyGrad.addColorStop(0.35, "#6b46c1"); // Upper: Vibrant lavender purple
+    skyGrad.addColorStop(0.65, "#b794f4"); // Mid: Soft orchid
+    skyGrad.addColorStop(0.85, "#f6ad55"); // Horizon: Warm apricot
+    skyGrad.addColorStop(1.0, "#feebc8"); // Ground: Sunrise morning gold
+    sCtx.fillStyle = skyGrad;
+    sCtx.fillRect(0, 0, 4, 512);
+    const skyTex = new THREE.CanvasTexture(skyCanvas);
+    skyTex.colorSpace = THREE.SRGBColorSpace;
+    this.scene.background = skyTex;
 
     this.initBalloons(360);
     this.initCloudSea(280);
@@ -333,7 +347,7 @@ export class BalloonFlightEngine {
       pos[i3 + 1] = 6 + Math.random() * 36; // Altitudes: 6m to 42m
       pos[i3 + 2] = Math.random() * D;
 
-      size[i] = 2.4 + Math.pow(Math.random(), 1.4) * 2.8;
+      size[i] = 3.2 + Math.pow(Math.random(), 1.4) * 3.6;
       kind[i] = Math.floor(Math.random() * 6);
       seed[i] = Math.random();
     }
@@ -431,11 +445,11 @@ export class BalloonFlightEngine {
           vec3 burnerGlow = vec3(1.0, 0.65, 0.25) * uBurner * 0.9;
           col += burnerGlow + vec3(1.0, 0.92, 0.75) * vGlow * 0.25;
 
-          // Soft sunrise atmospheric blend
-          vec3 sky = vec3(0.96, 0.93, 0.98);
-          col = mix(sky, col, vFog * 0.85 + 0.15);
+          // Gentle horizon blend only at extreme distance
+          vec3 sunriseHaze = vec3(0.96, 0.75, 0.82);
+          col = mix(sunriseHaze, col, vFog * 0.75 + 0.25);
 
-          gl_FragColor = vec4(col, tex.a * (0.35 + 0.65 * vFog));
+          gl_FragColor = vec4(col, tex.a);
         }
       `,
       transparent: true,

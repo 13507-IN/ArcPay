@@ -88,7 +88,7 @@ export function BalloonBackground() {
       {/* 1. Fullscreen 3D WebGL Balloon Flight Canvas */}
       {isEnabled && (
         <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none">
-          {/* Canvas */}
+          {/* Canvas — 100% crystal clear with no white overlay */}
           <div
             ref={canvasContainerRef}
             className="absolute inset-0 pointer-events-auto"
@@ -96,9 +96,6 @@ export function BalloonBackground() {
             onPointerUp={handleBurnerEnd}
             onPointerLeave={handleBurnerEnd}
           />
-
-          {/* Soft atmospheric wash: ensures 100% crystal contrast for headlines & cards */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/45 to-white/80 pointer-events-none" />
         </div>
       )}
 

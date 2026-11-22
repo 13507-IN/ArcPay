@@ -33,7 +33,7 @@ const freelancerPoints = [
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-[#FAF8FE] font-body text-ink selection:bg-lav-200">
+    <div className="relative min-h-screen bg-transparent font-body text-ink selection:bg-lav-200">
       <ScrollReveal />
       {/* 3D Hot Air Balloon Full-Page Background */}
       <BalloonBackground />
