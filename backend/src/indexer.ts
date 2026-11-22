@@ -17,7 +17,7 @@ import {
 
 const RPC_URL = process.env.ARC_TESTNET_RPC || "https://rpc.testnet.arc.io";
 const CONTRACT_ADDRESS = (process.env.ESCROW_CONTRACT_ADDRESS ||
-  "0x0000000000000000000000000000000000000000") as Address;
+  "0xf17d3214dc10428932B0951e1B6AD21e1d6Ade4a") as Address;
 
 export const INDEXER_CURSOR_KEY = `last_synced_block:${CONTRACT_ADDRESS.toLowerCase()}`;
 

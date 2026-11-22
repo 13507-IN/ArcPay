@@ -11,7 +11,7 @@ import milestonesRouter from "./routes/milestones.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const CONTRACT_ADDRESS = process.env.ESCROW_CONTRACT_ADDRESS || "Not configured";
+const CONTRACT_ADDRESS = process.env.ESCROW_CONTRACT_ADDRESS || "0xf17d3214dc10428932B0951e1B6AD21e1d6Ade4a";
 const RPC_URL = process.env.ARC_TESTNET_RPC || "https://rpc.testnet.arc.io";
 
 app.use(cors());
