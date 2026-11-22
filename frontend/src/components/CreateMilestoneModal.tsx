@@ -218,6 +218,14 @@ export function CreateMilestoneModal({
       return;
     }
 
+    if (
+      !ESCROW_CONTRACT_ADDRESS ||
+      ESCROW_CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000"
+    ) {
+      setErrorMsg("Escrow contract address is not configured.");
+      return;
+    }
+
     if (!isAddress(freelancer)) {
       setErrorMsg("Please enter a valid Ethereum checksum address for the freelancer.");
       return;

@@ -2,7 +2,7 @@ import { Address } from "viem";
 
 export const ESCROW_CONTRACT_ADDRESS = (process.env
   .NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS ||
-  "0x0000000000000000000000000000000000000000") as Address;
+  "0xf17d3214dc10428932B0951e1B6AD21e1d6Ade4a") as Address;
 
 export const ARC_MILESTONE_ESCROW_ABI = [
   {
