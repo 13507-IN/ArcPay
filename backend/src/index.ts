@@ -71,6 +71,19 @@ async function startServer() {
 
 startServer().catch((err) => {
   console.error("Failed to start ArcPay backend:", err);
+  const errMsg = String(err?.message || "") + String(err?.cause?.message || "");
+  if (errMsg.includes("SSL alert number 80") || errMsg.includes("tlsv1 alert internal error") || err?.name === "MongoServerSelectionError") {
+    console.error("\n=======================================================");
+    console.error(" [MongoDB Atlas Diagnostic Tip]");
+    console.error(" 'SSL alert number 80' / 'tlsv1 alert internal error' indicates MongoDB Atlas is blocking Render's IP address.");
+    console.error(" Resolution:");
+    console.error(" 1. Go to cloud.mongodb.com -> Select your Cluster");
+    console.error(" 2. In the left sidebar, click 'Network Access'");
+    console.error(" 3. Click '+ Add IP Address'");
+    console.error(" 4. Choose 'Allow Access from Anywhere' (0.0.0.0/0)");
+    console.error(" 5. Click 'Confirm' and wait 1 minute for it to apply.");
+    console.error("=======================================================\n");
+  }
   process.exit(1);
 });
 
