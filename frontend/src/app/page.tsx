@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, Coins } from "lucide-react";
-import { MilestoneDemo } from "@/components/landing/MilestoneDemo";
+import { BalloonHeroInteractive } from "@/components/landing/BalloonHeroInteractive";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 
 const steps = [
@@ -102,9 +102,7 @@ export default function LandingPage() {
             </div>
 
             <div className="landing-rise landing-rise-2">
-              <div className="rounded-[40px] bg-lav-100 p-5 sm:p-8 lg:p-10">
-                <MilestoneDemo />
-              </div>
+              <BalloonHeroInteractive />
             </div>
           </div>
         </section>

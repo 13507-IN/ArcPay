@@ -12,6 +12,7 @@
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.1",
     "@tanstack/react-query": "^5.62.8",
+    "@types/three": "^0.187.0",
     "@x402/core": "^2.31.0",
     "@x402/evm": "^2.31.0",
     "@x402/svm": "^2.31.0",
@@ -22,6 +23,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.5.5",
+    "three": "^0.187.0",
     "viem": "^2.22.8",
     "wagmi": "^2.14.9"
   },
