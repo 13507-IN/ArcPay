@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, Coins } from "lucide-react";
 import { MilestoneDemo } from "@/components/landing/MilestoneDemo";
-import { BalloonBackground } from "@/components/landing/BalloonBackground";
+import { AnimeShadowBackground } from "@/components/landing/AnimeShadowBackground";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 
 const steps = [
@@ -33,37 +33,37 @@ const freelancerPoints = [
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-transparent font-body text-ink selection:bg-lav-200">
+    <div className="relative min-h-screen bg-transparent font-body text-ink selection:bg-rose-200">
       <ScrollReveal />
-      {/* 3D Hot Air Balloon Full-Page Background */}
-      <BalloonBackground />
+      {/* Aesthetic Anime & Shadow Fight Background with Falling Sakura Petals */}
+      <AnimeShadowBackground />
 
-      <header className="sticky top-0 z-40 bg-white/75 backdrop-blur-md border-b border-lav-200/40 transition-opacity duration-300">
+      <header className="sticky top-0 z-40 bg-slate-950/40 backdrop-blur-md border-b border-white/10 transition-opacity duration-300">
         <div className="mx-auto flex h-20 max-w-[1480px] w-full items-center justify-between px-6 sm:px-10 lg:px-16 xl:px-20">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lav-600 text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-rose-600 to-lav-600 text-white shadow-md shadow-rose-950/50">
               <Coins className="h-4 w-4" aria-hidden="true" />
             </span>
-            <span className="font-display text-lg font-semibold tracking-tight text-ink">
+            <span className="font-display text-lg font-semibold tracking-tight text-white">
               ArcPay
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft sm:flex">
-            <a href="#how" className="transition-colors hover:text-ink">
+          <nav className="hidden items-center gap-8 text-sm font-medium text-rose-100/80 sm:flex">
+            <a href="#how" className="transition-colors hover:text-white">
               How it works
             </a>
-            <a href="#network" className="transition-colors hover:text-ink">
+            <a href="#network" className="transition-colors hover:text-white">
               Network
             </a>
-            <a href="#teams" className="transition-colors hover:text-ink">
+            <a href="#teams" className="transition-colors hover:text-white">
               For teams
             </a>
           </nav>
 
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-full bg-lav-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-lav-700"
+            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-600 to-lav-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-600/30 transition-all hover:scale-105 hover:from-rose-500 hover:to-lav-500 active:scale-95"
           >
             Launch app
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
@@ -75,10 +75,10 @@ export default function LandingPage() {
         <section className="bg-transparent">
           <div className="mx-auto grid max-w-[1480px] w-full gap-12 px-6 pb-24 pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16 lg:px-16 xl:px-20 lg:pb-32 lg:pt-20">
             <div className="max-w-3xl">
-              <h1 className="landing-rise font-display text-5xl font-semibold leading-[0.98] tracking-[-0.035em] text-ink sm:text-6xl lg:text-7xl">
+              <h1 className="landing-rise font-display text-5xl font-semibold leading-[0.98] tracking-[-0.035em] text-white drop-shadow-md sm:text-6xl lg:text-7xl">
                 Escrow for global teams.
               </h1>
-              <p className="landing-rise landing-rise-1 mt-6 max-w-2xl text-lg leading-relaxed text-ink sm:text-xl">
+              <p className="landing-rise landing-rise-1 mt-6 max-w-2xl text-lg leading-relaxed text-rose-100/90 sm:text-xl">
                 ArcPay holds each milestone&rsquo;s funds in an on-chain contract
                 and releases native USDC to freelancers the moment work is
                 approved — on Circle&rsquo;s Arc Layer-1.
@@ -86,27 +86,27 @@ export default function LandingPage() {
               <div className="landing-rise landing-rise-2 mt-10 flex flex-wrap items-center gap-4">
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-full bg-lav-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-lav-600/25 transition-all hover:bg-lav-700 hover:scale-105 active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-lav-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-rose-950/40 transition-all hover:from-rose-500 hover:to-lav-500 hover:scale-105 active:scale-95"
                 >
                   Launch app
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <a
                   href="#how"
-                  className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-ink bg-white/70 backdrop-blur-md border border-lav-200/50 shadow-sm transition-all hover:text-lav-700 hover:bg-white"
+                  className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white bg-white/10 backdrop-blur-md border border-white/20 shadow-sm transition-all hover:bg-white/20 hover:text-white"
                 >
                   See how it works
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
-              <p className="landing-rise landing-rise-3 mt-10 text-sm text-ink-soft">
+              <p className="landing-rise landing-rise-3 mt-10 text-sm text-rose-200/75">
                 Built on Circle Arc Testnet · Chain 5042002 · Native 18-decimal
                 USDC
               </p>
             </div>
 
             <div className="landing-rise landing-rise-2">
-              <div className="rounded-[40px] bg-lav-100/85 backdrop-blur-md p-5 sm:p-8 lg:p-10 border border-lav-200/70 shadow-lg">
+              <div className="rounded-[40px] bg-white/95 backdrop-blur-xl p-5 sm:p-8 lg:p-10 border border-white/40 shadow-2xl shadow-rose-950/30">
                 <MilestoneDemo />
               </div>
             </div>
