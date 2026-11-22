@@ -2,15 +2,14 @@ import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
 /*
- * Sunrise Balloon Valley — Infinite Dawn Flight
+ * Sunrise Balloon Valley — Infinite Dawn Flight Engine
  *
- * Periodic tile of W x D world units repeating seamlessly around the camera.
- * Balloons float at varied altitudes, bob gently on thermals, and ignite
- * their burners when interacted with.
+ * Full-page background 3D WebGL experience.
+ * Hundreds of distinct, colorful hot air balloons floating over
+ * Cappadocia canyon ridges and low-altitude morning clouds.
  */
 
 const W = 160;
@@ -24,101 +23,17 @@ const GLSL_WORLD = /* glsl */ `
   const float D = ${D.toFixed(1)};
 
   float pathX(float z) {
-    return 14.0 * sin(TAU * z / D) + 6.0 * sin(TAU * 2.0 * z / D + 1.2);
+    return 16.0 * sin(TAU * z / D) + 7.0 * sin(TAU * 2.0 * z / D + 1.2);
   }
 
   float wrapDx(float x, float z) {
     return mod(x - pathX(z) + W * 0.5, W) - W * 0.5;
   }
-
-  float canyonFloor(float x, float z) {
-    float dx = wrapDx(x, z);
-    float ridges = 3.5 * sin(TAU * 2.0 * x / W + 1.0) * cos(TAU * z / D)
-                 + 2.2 * sin(TAU * (3.0 * z / D + x / W));
-    return ridges + min(dx * dx * 0.005, 14.0) - 8.0;
-  }
 `;
 
 function pathX(z: number) {
-  return 14 * Math.sin((TAU * z) / D) + 6 * Math.sin((TAU * 2 * z) / D + 1.2);
+  return 16 * Math.sin((TAU * z) / D) + 7 * Math.sin((TAU * 2 * z) / D + 1.2);
 }
-
-const BalloonPostShader = {
-  name: "SunriseBalloonGrade",
-  uniforms: {
-    tDiffuse: { value: null },
-    uTime: { value: 0 },
-    uVelocity: { value: 0 },
-    uResolution: { value: new THREE.Vector2(1600, 900) },
-    uBlur: { value: 10 },
-  },
-  vertexShader: /* glsl */ `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: /* glsl */ `
-    uniform sampler2D tDiffuse;
-    uniform float uTime;
-    uniform float uVelocity;
-    uniform vec2 uResolution;
-    uniform float uBlur;
-    varying vec2 vUv;
-
-    float hash(vec2 p) {
-      vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-      p3 += dot(p3, p3.yzx + 33.33);
-      return fract((p3.x + p3.y) * p3.z);
-    }
-
-    void main() {
-      vec2 uv = vUv;
-      vec2 c = uv - vec2(0.5, 0.48);
-      float aspect = uResolution.x / uResolution.y;
-
-      float distCenter = length(c * vec2(1.0, 1.4));
-      float blur = smoothstep(0.18, 0.65, distCenter);
-      blur = clamp(blur + uVelocity * 0.3, 0.0, 1.0);
-      float radius = blur * uBlur;
-
-      vec2 px = 1.0 / uResolution;
-      float chromatic = (0.0018 + uVelocity * 0.007) * length(c);
-      vec3 acc = vec3(0.0);
-      float wsum = 0.0;
-
-      for (int i = 0; i < 24; i++) {
-        float fi = float(i);
-        float r = sqrt((fi + 0.5) / 24.0) * radius;
-        float a = fi * 2.39996323;
-        vec2 o = vec2(cos(a), sin(a)) * r * px;
-        vec2 suv = uv + o;
-        vec3 s;
-        s.r = texture2D(tDiffuse, suv + c * chromatic).r;
-        s.g = texture2D(tDiffuse, suv).g;
-        s.b = texture2D(tDiffuse, suv - c * chromatic).b;
-
-        float w = 1.0 + dot(s, vec3(0.35, 0.55, 0.15)) * 2.8 * blur;
-        acc += s * w;
-        wsum += w;
-      }
-      vec3 col = acc / wsum;
-
-      vec3 sunriseTint = vec3(1.04, 0.98, 0.95);
-      col *= sunriseTint;
-
-      vec2 g = uv * uResolution + vec2(sin(uTime * 35.0), cos(uTime * 41.0)) * 60.0;
-      col += (hash(g) - 0.5) * 0.02;
-
-      float d = length(c * vec2(aspect * 0.6, 1.0));
-      float vr = 0.96 - clamp(uVelocity * 1.4, 0.0, 0.25);
-      col *= smoothstep(vr, vr - 0.55, d) * 0.88 + 0.12;
-
-      gl_FragColor = vec4(max(col, 0.0), 1.0);
-    }
-  `,
-};
 
 export class BalloonFlightEngine {
   private container: HTMLElement;
@@ -127,7 +42,6 @@ export class BalloonFlightEngine {
   private camera: THREE.PerspectiveCamera;
   private composer?: EffectComposer;
   private bloomPass?: UnrealBloomPass;
-  private gradePass?: ShaderPass;
 
   private balloonGeometry?: THREE.BufferGeometry;
   private balloonMaterial?: THREE.ShaderMaterial;
@@ -161,29 +75,34 @@ export class BalloonFlightEngine {
   constructor(container: HTMLElement, onLoaded?: () => void) {
     this.container = container;
     const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    this.idleSpeed = reduced ? 0.3 : 1.6;
+    this.idleSpeed = reduced ? 0.35 : 1.7;
 
     const { width, height } = this.size();
-    this.camera = new THREE.PerspectiveCamera(52, width / height, 0.1, 500);
+    this.camera = new THREE.PerspectiveCamera(54, width / height, 0.1, 600);
 
     try {
-      this.renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+      });
     } catch {
       onLoaded?.();
       return;
     }
 
-    this.renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 1.75));
+    this.renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2.0));
     this.renderer.setSize(width, height);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
+    this.renderer.toneMappingExposure = 1.1;
     this.container.appendChild(this.renderer.domElement);
 
-    this.scene.background = new THREE.Color(0xf6effa);
+    // Warm dawn sky gradient (soft lavender/pink into pale gold)
+    this.scene.background = new THREE.Color(0xf5edf9);
 
-    this.initBalloons(320);
-    this.initCloudSea(450);
-    this.initThermalSparks(500);
+    this.initBalloons(360);
+    this.initCloudSea(280);
+    this.initThermalSparks(400);
     this.initPost();
     this.initEvents();
 
@@ -195,8 +114,8 @@ export class BalloonFlightEngine {
 
   private size() {
     return {
-      width: this.container.clientWidth || (typeof window !== "undefined" ? window.innerWidth : 800),
-      height: this.container.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 600),
+      width: this.container.clientWidth || (typeof window !== "undefined" ? window.innerWidth : 1200),
+      height: this.container.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 800),
     };
   }
 
@@ -205,6 +124,9 @@ export class BalloonFlightEngine {
     return h / (2 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov) / 2));
   }
 
+  // ---------------------------------------------------------------------------
+  // Ultra-Crisp Canvas Balloon Sprite Atlas
+  // ---------------------------------------------------------------------------
   private createAtlas(): THREE.Texture {
     const T = 512;
     const canvas = document.createElement("canvas");
@@ -227,24 +149,32 @@ export class BalloonFlightEngine {
       cx: number,
       cy: number,
       colors: string[],
-      pattern: "striped" | "chevron"
+      pattern: "striped" | "chevron" | "checker"
     ) => {
       const topY = cy - 130;
-      const envelopeRadius = 120;
-      const skirtY = cy + 55;
-      const basketY = cy + 150;
+      const envelopeRadius = 125;
+      const skirtY = cy + 60;
+      const basketY = cy + 145;
 
-      // 1. Aerodynamic Teardrop Envelope
+      // 1. Balloon Envelope Path
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(cx - 38, skirtY);
-      ctx.bezierCurveTo(cx - 75, cy + 20, cx - envelopeRadius, cy - 40, cx - envelopeRadius, topY + 40);
-      ctx.bezierCurveTo(cx - envelopeRadius, topY - envelopeRadius * 0.6, cx + envelopeRadius, topY - envelopeRadius * 0.6, cx + envelopeRadius, topY + 40);
-      ctx.bezierCurveTo(cx + envelopeRadius, cy - 40, cx + 75, cy + 20, cx + 38, skirtY);
+      ctx.moveTo(cx - 36, skirtY);
+      ctx.bezierCurveTo(cx - 75, cy + 25, cx - envelopeRadius, cy - 35, cx - envelopeRadius, topY + 45);
+      ctx.bezierCurveTo(
+        cx - envelopeRadius,
+        topY - envelopeRadius * 0.55,
+        cx + envelopeRadius,
+        topY - envelopeRadius * 0.55,
+        cx + envelopeRadius,
+        topY + 45
+      );
+      ctx.bezierCurveTo(cx + envelopeRadius, cy - 35, cx + 75, cy + 25, cx + 36, skirtY);
       ctx.closePath();
       ctx.clip();
 
-      const numGores = 14;
+      // Colored Vertical Gores (Stripes)
+      const numGores = 12;
       for (let g = 0; g < numGores; g++) {
         const t0 = g / numGores;
         const t1 = (g + 1) / numGores;
@@ -254,7 +184,7 @@ export class BalloonFlightEngine {
         ctx.beginPath();
         const gx0 = cx - envelopeRadius + t0 * (envelopeRadius * 2);
         const gx1 = cx - envelopeRadius + t1 * (envelopeRadius * 2);
-        ctx.rect(gx0, topY - 100, gx1 - gx0, 300);
+        ctx.rect(gx0, topY - 120, gx1 - gx0, 320);
         ctx.fill();
 
         if (pattern === "chevron" && g % 2 === 0) {
@@ -268,91 +198,129 @@ export class BalloonFlightEngine {
       }
 
       // 3D Spherical Volume Shading
-      const grad = ctx.createRadialGradient(cx - 40, topY - 10, 20, cx, cy, envelopeRadius * 1.25);
+      const grad = ctx.createRadialGradient(cx - 45, topY - 10, 15, cx, cy, envelopeRadius * 1.3);
       grad.addColorStop(0, "rgba(255, 255, 255, 0.55)");
-      grad.addColorStop(0.55, "rgba(255, 255, 255, 0.0)");
-      grad.addColorStop(1, "rgba(30, 15, 45, 0.45)");
+      grad.addColorStop(0.5, "rgba(255, 255, 255, 0.0)");
+      grad.addColorStop(1, "rgba(25, 10, 40, 0.42)");
       ctx.fillStyle = grad;
-      ctx.fillRect(cx - envelopeRadius, topY - 100, envelopeRadius * 2, 300);
+      ctx.fillRect(cx - envelopeRadius, topY - 120, envelopeRadius * 2, 320);
+      ctx.restore();
+
+      // Envelope Outline for crisp contrast
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx - 36, skirtY);
+      ctx.bezierCurveTo(cx - 75, cy + 25, cx - envelopeRadius, cy - 35, cx - envelopeRadius, topY + 45);
+      ctx.bezierCurveTo(
+        cx - envelopeRadius,
+        topY - envelopeRadius * 0.55,
+        cx + envelopeRadius,
+        topY - envelopeRadius * 0.55,
+        cx + envelopeRadius,
+        topY + 45
+      );
+      ctx.bezierCurveTo(cx + envelopeRadius, cy - 35, cx + 75, cy + 25, cx + 36, skirtY);
+      ctx.strokeStyle = "rgba(40, 20, 60, 0.35)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
       ctx.restore();
 
       // 2. Suspension Rigging
-      ctx.strokeStyle = "rgba(70, 50, 60, 0.75)";
+      ctx.strokeStyle = "rgba(60, 45, 65, 0.8)";
       ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(cx - 30, skirtY);
+      ctx.moveTo(cx - 28, skirtY);
       ctx.lineTo(cx - 16, basketY);
-      ctx.moveTo(cx + 30, skirtY);
+      ctx.moveTo(cx + 28, skirtY);
       ctx.lineTo(cx + 16, basketY);
-      ctx.moveTo(cx - 15, skirtY);
+      ctx.moveTo(cx - 14, skirtY);
       ctx.lineTo(cx - 12, basketY);
-      ctx.moveTo(cx + 15, skirtY);
+      ctx.moveTo(cx + 14, skirtY);
       ctx.lineTo(cx + 12, basketY);
       ctx.stroke();
 
-      // 3. Glowing Propane Flame
+      // 3. Glowing Burner Flame
       const burnerGrad = ctx.createRadialGradient(cx, skirtY + 22, 2, cx, skirtY + 22, 24);
-      burnerGrad.addColorStop(0, "rgba(255, 255, 220, 1.0)");
-      burnerGrad.addColorStop(0.4, "rgba(255, 170, 40, 0.85)");
-      burnerGrad.addColorStop(1, "rgba(255, 70, 0, 0.0)");
+      burnerGrad.addColorStop(0, "rgba(255, 255, 230, 1.0)");
+      burnerGrad.addColorStop(0.35, "rgba(255, 160, 30, 0.9)");
+      burnerGrad.addColorStop(1, "rgba(255, 50, 0, 0.0)");
       ctx.fillStyle = burnerGrad;
       ctx.beginPath();
       ctx.arc(cx, skirtY + 22, 24, 0, TAU);
       ctx.fill();
 
       // 4. Wicker Basket
-      ctx.fillStyle = "#8d5b38";
+      ctx.fillStyle = "#8a5834";
       ctx.beginPath();
-      ctx.roundRect(cx - 20, basketY, 40, 28, 4);
+      ctx.roundRect(cx - 22, basketY, 44, 30, 5);
       ctx.fill();
-      ctx.fillStyle = "#633c20";
-      ctx.fillRect(cx - 18, basketY + 6, 36, 4);
-      ctx.fillRect(cx - 18, basketY + 16, 36, 4);
+      ctx.strokeStyle = "rgba(40, 20, 10, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "#5c371d";
+      ctx.fillRect(cx - 19, basketY + 8, 38, 4);
+      ctx.fillRect(cx - 19, basketY + 18, 38, 4);
     };
 
-    // Balloon 0: ArcPay Signature Lavender & Ivory
-    drawTile(0, (cx, cy) => renderBalloon(cx, cy, ["#7c5cfc", "#f3eeff", "#9e86fd", "#e0d3ff"], "striped"));
+    // Balloon 0: ArcPay Signature Lavender, Violet & Ivory
+    drawTile(0, (cx, cy) =>
+      renderBalloon(cx, cy, ["#7c3aed", "#f3e8ff", "#9333ea", "#c084fc", "#ffffff"], "striped")
+    );
 
     // Balloon 1: Sunrise Coral, Crimson & Gold
-    drawTile(1, (cx, cy) => renderBalloon(cx, cy, ["#ff4d6d", "#ffb703", "#fb8500", "#fff1e6"], "chevron"));
+    drawTile(1, (cx, cy) =>
+      renderBalloon(cx, cy, ["#e11d48", "#f97316", "#facc15", "#fff1f2", "#fb7185"], "chevron")
+    );
 
-    // Balloon 2: Aegean Cyan, Ocean Blue & White
-    drawTile(2, (cx, cy) => renderBalloon(cx, cy, ["#00b4d8", "#0077b6", "#caf0f8", "#023e8a"], "striped"));
+    // Balloon 2: Aegean Cyan, Sky Blue & White
+    drawTile(2, (cx, cy) =>
+      renderBalloon(cx, cy, ["#0284c7", "#38bdf8", "#e0f2fe", "#0369a1", "#ffffff"], "striped")
+    );
 
-    // Balloon 3: Emerald Mint & Forest Gold
-    drawTile(3, (cx, cy) => renderBalloon(cx, cy, ["#2ec4b6", "#cbf3f0", "#ffbf69", "#ffffff"], "chevron"));
+    // Balloon 3: Emerald Mint & Champagne
+    drawTile(3, (cx, cy) =>
+      renderBalloon(cx, cy, ["#059669", "#34d399", "#d1fae5", "#fef3c7", "#10b981"], "chevron")
+    );
 
-    // Balloon 4: Royal Midnight Plum & Star Yellow
-    drawTile(4, (cx, cy) => renderBalloon(cx, cy, ["#3a0ca3", "#7209b7", "#f72585", "#ffd166"], "striped"));
+    // Balloon 4: Royal Midnight Plum & Golden Honey
+    drawTile(4, (cx, cy) =>
+      renderBalloon(cx, cy, ["#4c1d95", "#6d28d9", "#f59e0b", "#fde68a", "#db2777"], "striped")
+    );
 
-    // Balloon 5: Rainbow Festival Gores
-    drawTile(5, (cx, cy) => renderBalloon(cx, cy, ["#e63946", "#f1a208", "#06d6a0", "#118ab2", "#8338ec"], "striped"));
+    // Balloon 5: Vibrant Rainbow Festival
+    drawTile(5, (cx, cy) =>
+      renderBalloon(cx, cy, ["#ef4444", "#f97316", "#eab308", "#10b981", "#06b6d4", "#8b5cf6"], "striped")
+    );
 
-    // Clouds
+    // Cloud Puffs (Tile 6 & 7)
     const drawCloud = (cx: number, cy: number, tint: string) => {
       ctx.fillStyle = tint;
       for (const [ox, oy, r] of [
-        [-60, 20, 75],
-        [60, 25, 70],
-        [0, -10, 95],
-        [-110, 45, 55],
-        [110, 45, 55],
+        [-50, 15, 60],
+        [50, 20, 55],
+        [0, -5, 75],
+        [-90, 35, 45],
+        [90, 35, 45],
       ]) {
         ctx.beginPath();
         ctx.arc(cx + ox, cy + oy, r, 0, TAU);
         ctx.fill();
       }
     };
-    drawTile(6, (cx, cy) => drawCloud(cx, cy, "rgba(255, 245, 250, 0.88)"));
+    drawTile(6, (cx, cy) => drawCloud(cx, cy, "rgba(255, 245, 252, 0.85)"));
     drawTile(7, (cx, cy) => drawCloud(cx, cy, "rgba(240, 235, 255, 0.75)"));
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
     texture.generateMipmaps = true;
     return texture;
   }
 
+  // ---------------------------------------------------------------------------
+  // Balloon Fleet Points
+  // ---------------------------------------------------------------------------
   private initBalloons(count: number) {
     const pos = new Float32Array(count * 3);
     const size = new Float32Array(count);
@@ -361,11 +329,11 @@ export class BalloonFlightEngine {
 
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
-      pos[i3] = (Math.random() - 0.5) * W * 1.2;
-      pos[i3 + 1] = 6 + Math.random() * 32;
+      pos[i3] = (Math.random() - 0.5) * W * 1.3;
+      pos[i3 + 1] = 6 + Math.random() * 36; // Altitudes: 6m to 42m
       pos[i3 + 2] = Math.random() * D;
 
-      size[i] = 1.6 + Math.pow(Math.random(), 1.5) * 2.2;
+      size[i] = 2.4 + Math.pow(Math.random(), 1.4) * 2.8;
       kind[i] = Math.floor(Math.random() * 6);
       seed[i] = Math.random();
     }
@@ -407,18 +375,20 @@ export class BalloonFlightEngine {
         void main() {
           vec3 p = position;
 
+          // Wrap around moving camera
           float x0 = uCam.x - W * 0.5;
           float z0 = uCam.y - ${AHEAD.toFixed(1)};
           p.x = x0 + mod(position.x - x0, W);
           p.z = z0 + mod(position.z - z0, D);
 
-          float bob = sin(uTime * 0.8 + seed * 25.0) * 0.9;
-          float sway = sin(uTime * 0.5 + seed * 12.0) * 0.5;
+          // Gentle thermal floating
+          float bob = sin(uTime * 0.75 + seed * 20.0) * 1.1;
+          float sway = sin(uTime * 0.45 + seed * 10.0) * 0.6;
           p.y += bob;
           p.x += sway;
 
-          float boost = uBurner * (2.5 + seed * 6.0);
-          p.y += boost;
+          // Burner lift boost
+          p.y += uBurner * (3.0 + seed * 6.0);
 
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           float dist = -mv.z;
@@ -426,12 +396,13 @@ export class BalloonFlightEngine {
           vec4 clip = projectionMatrix * mv;
           vec2 ndc = clip.xy / clip.w;
           float md = length(ndc - uCursor);
-          vGlow = smoothstep(0.28, 0.0, md);
+          vGlow = smoothstep(0.25, 0.0, md);
 
-          gl_PointSize = clamp(size * uProj / max(dist, 0.8), 0.0, 360.0);
+          gl_PointSize = clamp(size * uProj / max(dist, 0.6), 0.0, 480.0);
           gl_Position = clip;
 
-          vFog = exp(-pow(max(dist - 8.0, 0.0) / 48.0, 2.0));
+          // Clear, extended fog range so balloons remain sharp and visible
+          vFog = exp(-pow(max(dist - 14.0, 0.0) / 125.0, 1.8));
           vKind = kind;
         }
       `,
@@ -447,17 +418,24 @@ export class BalloonFlightEngine {
           float k = floor(vKind + 0.5);
           vec2 tile = vec2(mod(k, 4.0), floor(k / 4.0));
           vec2 uv = (tile + pc) / vec2(4.0, 2.0);
+
+          // Crucial: flip Y coordinate to match WebGL canvas texture coordinate space
+          uv.y = 1.0 - uv.y;
+
           vec4 tex = texture2D(uAtlas, uv);
-          if (tex.a < 0.2) discard;
+          if (tex.a < 0.15) discard;
 
           vec3 col = tex.rgb;
-          vec3 burnerGlow = vec3(1.0, 0.65, 0.3) * uBurner * 0.85;
-          col += burnerGlow + vec3(1.0, 0.9, 0.7) * vGlow * 0.25;
 
-          vec3 skyFog = vec3(0.96, 0.92, 0.98);
-          col = mix(skyFog, col, vFog);
+          // Burner blast warmth
+          vec3 burnerGlow = vec3(1.0, 0.65, 0.25) * uBurner * 0.9;
+          col += burnerGlow + vec3(1.0, 0.92, 0.75) * vGlow * 0.25;
 
-          gl_FragColor = vec4(col, tex.a * vFog);
+          // Soft sunrise atmospheric blend
+          vec3 sky = vec3(0.96, 0.93, 0.98);
+          col = mix(sky, col, vFog * 0.85 + 0.15);
+
+          gl_FragColor = vec4(col, tex.a * (0.35 + 0.65 * vFog));
         }
       `,
       transparent: true,
@@ -469,15 +447,18 @@ export class BalloonFlightEngine {
     this.scene.add(fleet);
   }
 
+  // ---------------------------------------------------------------------------
+  // Low-Altitude Sea of Clouds (Deep in the canyon floor, below the balloons)
+  // ---------------------------------------------------------------------------
   private initCloudSea(count: number) {
     const pos = new Float32Array(count * 3);
     const size = new Float32Array(count);
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
-      pos[i3] = (Math.random() - 0.5) * W * 1.5;
-      pos[i3 + 1] = -2 + Math.random() * 5;
+      pos[i3] = (Math.random() - 0.5) * W * 1.6;
+      pos[i3 + 1] = -16 + Math.random() * 8; // Deep below balloons (y = -16 to -8)
       pos[i3 + 2] = Math.random() * D;
-      size[i] = 12 + Math.random() * 18;
+      size[i] = 16 + Math.random() * 24;
     }
     this.cloudGeometry = new THREE.BufferGeometry();
     this.cloudGeometry.setAttribute("position", new THREE.BufferAttribute(pos, 3));
@@ -502,24 +483,25 @@ export class BalloonFlightEngine {
           vec3 p = position;
           float x0 = uCam.x - W * 0.5;
           float z0 = uCam.y - ${AHEAD.toFixed(1)};
-          p.x = x0 + mod(position.x - x0 + sin(uTime * 0.1) * 3.0, W);
+          p.x = x0 + mod(position.x - x0 + sin(uTime * 0.08) * 3.0, W);
           p.z = z0 + mod(position.z - z0, D);
-          p.y += sin(uTime * 0.3 + p.x * 0.05) * 0.6;
+          p.y += sin(uTime * 0.25 + p.x * 0.04) * 0.5;
 
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           float dist = -mv.z;
-          gl_PointSize = clamp(size * uProj / dist, 0.0, 420.0);
+          gl_PointSize = clamp(size * uProj / dist, 0.0, 380.0);
           gl_Position = projectionMatrix * mv;
-          vAlpha = exp(-pow(dist / 65.0, 2.0)) * 0.45;
+          vAlpha = exp(-pow(dist / 90.0, 2.0)) * 0.35;
         }
       `,
       fragmentShader: /* glsl */ `
         uniform sampler2D uAtlas;
         varying float vAlpha;
         void main() {
-          vec2 uv = (vec2(2.0, 1.0) + gl_PointCoord) / vec2(4.0, 2.0);
+          vec2 uv = (vec2(2.0, 0.0) + gl_PointCoord) / vec2(4.0, 2.0);
+          uv.y = 1.0 - uv.y;
           vec4 tex = texture2D(uAtlas, uv);
-          gl_FragColor = vec4(vec3(0.98, 0.95, 1.0) * tex.rgb, tex.a * vAlpha);
+          gl_FragColor = vec4(vec3(0.97, 0.94, 0.99) * tex.rgb, tex.a * vAlpha);
         }
       `,
       transparent: true,
@@ -531,12 +513,15 @@ export class BalloonFlightEngine {
     this.scene.add(clouds);
   }
 
+  // ---------------------------------------------------------------------------
+  // Thermal Sun Sparks
+  // ---------------------------------------------------------------------------
   private initThermalSparks(count: number) {
     const pos = new Float32Array(count * 3);
     const seed = new Float32Array(count);
     for (let i = 0; i < count; i++) {
       pos[i * 3] = (Math.random() - 0.5) * W;
-      pos[i * 3 + 1] = Math.random() * 40;
+      pos[i * 3 + 1] = Math.random() * 45;
       pos[i * 3 + 2] = Math.random() * D;
       seed[i] = Math.random();
     }
@@ -568,9 +553,9 @@ export class BalloonFlightEngine {
 
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           float dist = -mv.z;
-          gl_PointSize = clamp((0.08 + seed * 0.08) * uProj / dist, 1.0, 10.0);
+          gl_PointSize = clamp((0.12 + seed * 0.1) * uProj / dist, 1.0, 12.0);
           gl_Position = projectionMatrix * mv;
-          vAlpha = (0.5 + 0.5 * sin(uTime * 3.0 + seed * 40.0)) * exp(-pow(dist / 50.0, 2.0));
+          vAlpha = (0.5 + 0.5 * sin(uTime * 3.0 + seed * 40.0)) * exp(-pow(dist / 60.0, 2.0));
         }
       `,
       fragmentShader: /* glsl */ `
@@ -578,7 +563,7 @@ export class BalloonFlightEngine {
         void main() {
           float d = length(gl_PointCoord - 0.5);
           float a = smoothstep(0.5, 0.0, d) * vAlpha;
-          gl_FragColor = vec4(vec3(1.0, 0.85, 0.55), a);
+          gl_FragColor = vec4(vec3(1.0, 0.88, 0.65), a);
         }
       `,
       transparent: true,
@@ -595,22 +580,11 @@ export class BalloonFlightEngine {
     const { width, height } = this.size();
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
-    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(width, height), 0.5, 0.4, 0.7);
-    this.composer.addPass(this.bloomPass);
-    this.gradePass = new ShaderPass(BalloonPostShader);
-    this.composer.addPass(this.gradePass);
-    this.composer.addPass(new OutputPass());
-    this.updatePostSize();
-  }
 
-  private updatePostSize() {
-    if (!this.renderer || !this.gradePass) return;
-    const buf = this.renderer.getDrawingBufferSize(new THREE.Vector2());
-    this.gradePass.uniforms.uResolution.value.copy(buf);
-    this.gradePass.uniforms.uBlur.value = 10 * this.renderer.getPixelRatio();
-    if (this.balloonMaterial) {
-      this.balloonMaterial.uniforms.uProj.value = this.projScale();
-    }
+    // Subtle bloom for glowing burner flames & sun glints
+    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(width, height), 0.35, 0.3, 0.85);
+    this.composer.addPass(this.bloomPass);
+    this.composer.addPass(new OutputPass());
   }
 
   private initEvents() {
@@ -620,13 +594,12 @@ export class BalloonFlightEngine {
     };
 
     on("wheel", (e) => {
-      this.velocity += e.deltaY * 0.015;
+      this.velocity += e.deltaY * 0.012;
     });
 
     on("pointermove", (e) => {
-      const r = this.container.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / (r.width || 1)) * 2 - 1;
-      const y = -((e.clientY - r.top) / (r.height || 1)) * 2 + 1;
+      const x = (e.clientX / (window.innerWidth || 1)) * 2 - 1;
+      const y = -(e.clientY / (window.innerHeight || 1)) * 2 + 1;
       this.targetMouse.set(x, y);
       this.cursor.set(x, y);
     });
@@ -645,7 +618,9 @@ export class BalloonFlightEngine {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
     this.composer?.setSize(width, height);
-    this.updatePostSize();
+    if (this.balloonMaterial) {
+      this.balloonMaterial.uniforms.uProj.value = this.projScale();
+    }
   };
 
   private animate = () => {
@@ -661,7 +636,7 @@ export class BalloonFlightEngine {
 
     this.velocity *= Math.pow(0.09, dt);
     this.velocity = THREE.MathUtils.clamp(this.velocity, -35, 55);
-    const speed = this.idleSpeed + this.velocity + this.burnerProgress * 1.5;
+    const speed = this.idleSpeed + this.velocity + this.burnerProgress * 1.8;
 
     this.camZ -= speed * dt;
     if (this.camZ < -D) this.camZ += D;
@@ -669,14 +644,15 @@ export class BalloonFlightEngine {
 
     this.mouse.lerp(this.targetMouse, Math.min(dt * 3.2, 1));
 
+    // Smooth gliding camera through balloon altitudes
     const cz = this.camZ;
-    const cx = pathX(cz) + this.mouse.x * 3.5;
-    const cy = 16 + this.mouse.y * 3.0 + this.burnerProgress * 4.0;
-    const lookZ = cz - 24;
+    const cx = pathX(cz) + this.mouse.x * 4.0;
+    const cy = 18 + this.mouse.y * 3.5 + this.burnerProgress * 5.0;
+    const lookZ = cz - 28;
 
     this.camera.position.set(cx, cy, cz);
-    this.camera.lookAt(pathX(lookZ) + this.mouse.x * 6.0, cy - 1.5 + this.mouse.y * 4.0, lookZ);
-    this.camera.rotateZ(-this.mouse.x * 0.04);
+    this.camera.lookAt(pathX(lookZ) + this.mouse.x * 7.0, cy - 1.2 + this.mouse.y * 4.5, lookZ);
+    this.camera.rotateZ(-this.mouse.x * 0.035);
 
     if (this.balloonMaterial) {
       const u = this.balloonMaterial.uniforms;
@@ -693,12 +669,8 @@ export class BalloonFlightEngine {
       this.sparkMaterial.uniforms.uTime.value = t;
       this.sparkMaterial.uniforms.uCam.value.set(cx, cz);
     }
-    if (this.gradePass) {
-      this.gradePass.uniforms.uTime.value = t;
-      this.gradePass.uniforms.uVelocity.value = Math.min(Math.abs(this.velocity) / 30, 1);
-    }
     if (this.bloomPass) {
-      this.bloomPass.strength = 0.5 + this.burnerProgress * 0.45;
+      this.bloomPass.strength = 0.35 + this.burnerProgress * 0.4;
     }
 
     if (this.composer) this.composer.render(dt);
@@ -722,6 +694,9 @@ export class BalloonFlightEngine {
   }
 }
 
+// -----------------------------------------------------------------------------
+// Procedural Dawn Ambient Audio Synthesizer (Web Audio API)
+// -----------------------------------------------------------------------------
 export class BalloonAudioStore {
   private ctx: AudioContext | null = null;
   public isMuted = true;
@@ -798,7 +773,7 @@ export class BalloonAudioStore {
     const now = this.ctx.currentTime;
     this.masterGain.gain.cancelScheduledValues(now);
     this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now);
-    this.masterGain.gain.linearRampToValueAtTime(this.isMuted ? 0 : 0.35, now + 1.0);
+    this.masterGain.gain.linearRampToValueAtTime(this.isMuted ? 0 : 0.32, now + 1.0);
     return this.isMuted;
   }
 

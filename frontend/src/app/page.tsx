@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, Coins } from "lucide-react";
-import { BalloonHeroInteractive } from "@/components/landing/BalloonHeroInteractive";
+import { MilestoneDemo } from "@/components/landing/MilestoneDemo";
+import { BalloonBackground } from "@/components/landing/BalloonBackground";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 
 const steps = [
@@ -32,9 +33,12 @@ const freelancerPoints = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-body text-ink">
+    <div className="relative min-h-screen bg-[#FAF8FE] font-body text-ink selection:bg-lav-200">
       <ScrollReveal />
-      <header className="sticky top-0 z-40 bg-white">
+      {/* 3D Hot Air Balloon Full-Page Background */}
+      <BalloonBackground />
+
+      <header className="sticky top-0 z-40 bg-white/75 backdrop-blur-md border-b border-lav-200/40 transition-opacity duration-300">
         <div className="mx-auto flex h-20 max-w-[1480px] w-full items-center justify-between px-6 sm:px-10 lg:px-16 xl:px-20">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lav-600 text-white">
@@ -67,8 +71,8 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main>
-        <section className="bg-white">
+      <main className="relative z-10 transition-opacity duration-300">
+        <section className="bg-transparent">
           <div className="mx-auto grid max-w-[1480px] w-full gap-12 px-6 pb-24 pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16 lg:px-16 xl:px-20 lg:pb-32 lg:pt-20">
             <div className="max-w-3xl">
               <h1 className="landing-rise font-display text-5xl font-semibold leading-[0.98] tracking-[-0.035em] text-ink sm:text-6xl lg:text-7xl">
@@ -82,14 +86,14 @@ export default function LandingPage() {
               <div className="landing-rise landing-rise-2 mt-10 flex flex-wrap items-center gap-4">
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-full bg-lav-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-lav-700"
+                  className="inline-flex items-center gap-2 rounded-full bg-lav-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-lav-600/25 transition-all hover:bg-lav-700 hover:scale-105 active:scale-95"
                 >
                   Launch app
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <a
                   href="#how"
-                  className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-ink transition-colors hover:text-lav-700"
+                  className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-ink bg-white/70 backdrop-blur-md border border-lav-200/50 shadow-sm transition-all hover:text-lav-700 hover:bg-white"
                 >
                   See how it works
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -102,12 +106,14 @@ export default function LandingPage() {
             </div>
 
             <div className="landing-rise landing-rise-2">
-              <BalloonHeroInteractive />
+              <div className="rounded-[40px] bg-lav-100/85 backdrop-blur-md p-5 sm:p-8 lg:p-10 border border-lav-200/70 shadow-lg">
+                <MilestoneDemo />
+              </div>
             </div>
           </div>
         </section>
 
-        <section id="how" className="bg-white">
+        <section id="how" className="bg-white/80 backdrop-blur-md border-t border-lav-200/40">
           <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
             <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
               <div className="lg:sticky lg:top-28 lg:self-start">
@@ -199,7 +205,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="network" className="bg-lav-100">
+        <section id="network" className="bg-lav-100/85 backdrop-blur-md border-t border-lav-200/40">
           <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
             <div className="max-w-2xl">
               <h2 className="reveal font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-5xl">
@@ -242,7 +248,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="teams" className="bg-white">
+        <section id="teams" className="bg-white/80 backdrop-blur-md border-t border-lav-200/40">
           <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
             <h2 className="reveal max-w-2xl font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-5xl">
               One contract, both sides of the table.
@@ -372,7 +378,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="bg-white">
+      <footer className="bg-white/90 backdrop-blur-md border-t border-lav-200/50 transition-opacity duration-300">
         <div className="mx-auto max-w-[1480px] w-full px-6 py-16 sm:px-10 lg:px-16 xl:px-20">
           <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
             <div>
