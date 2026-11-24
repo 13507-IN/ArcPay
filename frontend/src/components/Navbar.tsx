@@ -6,6 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useBalance } from "wagmi";
 import { formatUnits } from "viem";
 import { Coins, Droplets, ExternalLink } from "lucide-react";
+import { NetworkSwitcher } from "./NetworkSwitcher";
 
 export function Navbar() {
   const { address, isConnected } = useAccount();
@@ -33,13 +34,13 @@ export function Navbar() {
             <Coins aria-hidden="true" className="h-4 w-4" />
           </span>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <span className="font-display text-lg font-semibold tracking-tight text-ink">
                 ArcPay
               </span>
-              <span className="hidden rounded-full bg-lav-100 px-2 py-0.5 text-xs font-semibold text-lav-700 sm:inline">
-                Arc Testnet
-              </span>
+              <div className="hidden sm:inline-block">
+                <NetworkSwitcher variant="light" />
+              </div>
             </div>
             <p className="text-xs text-ink-soft">
               Native USDC <span aria-hidden="true">·</span> Chain 5042002

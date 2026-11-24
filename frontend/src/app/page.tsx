@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpRight, Check, Coins } from "lucide-react";
 import { MilestoneDemo } from "@/components/landing/MilestoneDemo";
 import { AnimeShadowBackground } from "@/components/landing/AnimeShadowBackground";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
+import { NetworkSwitcher } from "@/components/NetworkSwitcher";
 
 const steps = [
   {
@@ -40,14 +41,19 @@ export default function LandingPage() {
 
       <header className="sticky top-0 z-40 bg-slate-950/40 backdrop-blur-md border-b border-white/10 transition-opacity duration-300">
         <div className="mx-auto flex h-20 max-w-[1480px] w-full items-center justify-between px-6 sm:px-10 lg:px-16 xl:px-20">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-rose-600 to-lav-600 text-white shadow-md shadow-rose-950/50">
-              <Coins className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <span className="font-display text-lg font-semibold tracking-tight text-white">
-              ArcPay
-            </span>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-rose-600 to-lav-600 text-white shadow-md shadow-rose-950/50">
+                <Coins className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span className="font-display text-lg font-semibold tracking-tight text-white">
+                ArcPay
+              </span>
+            </Link>
+            <div className="hidden sm:inline-block">
+              <NetworkSwitcher variant="dark" />
+            </div>
+          </div>
 
           <nav className="hidden items-center gap-8 text-sm font-medium text-rose-100/80 sm:flex">
             <a href="#how" className="transition-colors hover:text-white">
