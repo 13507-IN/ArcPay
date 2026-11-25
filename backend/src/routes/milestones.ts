@@ -208,7 +208,7 @@ router.post("/verify", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const report = inspectDeliverable({ deliverableUrl, title, brief });
+    const report = await inspectDeliverable({ deliverableUrl, title, brief });
     res.json({
       success: true,
       data: report,
@@ -250,7 +250,7 @@ router.post("/:id/verify", async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const report = inspectDeliverable({
+    const report = await inspectDeliverable({
       deliverableUrl,
       title: milestone.title,
       brief: milestone.brief || undefined,

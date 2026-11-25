@@ -213,6 +213,7 @@ export function MilestoneDetailsModal({
                 <AiVerificationReport
                   deliverableUrl={details.deliverable_url}
                   milestoneTitle={details.title}
+                  milestoneBrief={details.brief || undefined}
                   milestoneId={details.id}
                 />
               </div>

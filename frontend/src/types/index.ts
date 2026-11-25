@@ -76,5 +76,7 @@ export interface VerificationAuditReport {
     securityFlags?: number;
     inspectedAt: string;
     oracleSignature?: string;
+    aiEngine?: string;
+    llmConfigured?: boolean;
   };
 }

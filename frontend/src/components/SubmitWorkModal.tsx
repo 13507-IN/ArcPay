@@ -163,6 +163,7 @@ export function SubmitWorkModal({
                 <AiVerificationReport
                   deliverableUrl={deliverableUrl.trim()}
                   milestoneTitle={milestone.title}
+                  milestoneBrief={milestone.brief || undefined}
                   milestoneId={milestone.id}
                 />
               </div>
