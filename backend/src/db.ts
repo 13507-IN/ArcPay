@@ -4,6 +4,9 @@ import {
   MilestoneMetadataInput,
   MilestoneStats,
   MilestoneStatus,
+  GigCategory,
+  GigApplicationRecord,
+  EnrichedGig,
 } from "./types.js";
 import { DatabaseAdapter, DatabaseType, EnrichedMilestone } from "./db/types.js";
 import { MongoAdapter } from "./db/mongoAdapter.js";
@@ -123,4 +126,57 @@ export async function setSyncState(
   value: string
 ): Promise<void> {
   return getAdapter().setSyncState(key, value);
+}
+
+export async function createGig(input: {
+  client: string;
+  title: string;
+  description: string;
+  category: GigCategory;
+  budget_usdc: string;
+  deadline_days: number;
+  skills: string[];
+}): Promise<EnrichedGig> {
+  return getAdapter().createGig(input);
+}
+
+export async function getGigs(filters?: {
+  status?: string;
+  category?: string;
+  client?: string;
+  search?: string;
+}): Promise<EnrichedGig[]> {
+  return getAdapter().getGigs(filters);
+}
+
+export async function getGigById(id: number): Promise<EnrichedGig | null> {
+  return getAdapter().getGigById(id);
+}
+
+export async function applyToGig(input: {
+  gig_id: number;
+  freelancer: string;
+  pitch: string;
+  portfolio_url?: string | null;
+  proposed_usdc?: string | null;
+}): Promise<GigApplicationRecord> {
+  return getAdapter().applyToGig(input);
+}
+
+export async function selectGigApplicant(
+  gigId: number,
+  applicationId: number
+): Promise<EnrichedGig | null> {
+  return getAdapter().selectGigApplicant(gigId, applicationId);
+}
+
+export async function closeGig(gigId: number): Promise<EnrichedGig | null> {
+  return getAdapter().closeGig(gigId);
+}
+
+export async function linkGigMilestone(
+  gigId: number,
+  milestoneId: number
+): Promise<EnrichedGig | null> {
+  return getAdapter().linkGigMilestone(gigId, milestoneId);
 }

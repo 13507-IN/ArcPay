@@ -80,3 +80,53 @@ export interface VerificationAuditReport {
     llmConfigured?: boolean;
   };
 }
+
+export type GigStatus = "Open" | "Assigned" | "Closed";
+
+export type GigCategory =
+  | "Smart Contracts"
+  | "Frontend & UI"
+  | "Full-Stack"
+  | "Security Audit"
+  | "Design"
+  | "Other";
+
+export type GigApplicationStatus = "Pending" | "Accepted" | "Rejected";
+
+export interface GigApplication {
+  id: number;
+  gig_id: number;
+  freelancer: string;
+  pitch: string;
+  portfolio_url: string | null;
+  proposed_usdc: string | null;
+  status: GigApplicationStatus;
+  created_at: number;
+}
+
+export interface Gig {
+  id: number;
+  client: string;
+  title: string;
+  description: string;
+  category: GigCategory;
+  budget_usdc: string;
+  deadline_days: number;
+  skills: string[];
+  status: GigStatus;
+  selected_freelancer: string | null;
+  linked_milestone_id: number | null;
+  created_at: number;
+  updated_at: number;
+  applications_count: number;
+  applications: GigApplication[];
+}
+
+export interface EscrowPrefill {
+  gigId?: number;
+  freelancer?: string;
+  title?: string;
+  brief?: string;
+  amountUSDC?: string;
+  deadlineDays?: number;
+}

@@ -69,6 +69,12 @@ export default function LandingPage() {
             <a href="#teams" className="transition-colors hover:text-white">
               For teams
             </a>
+            <Link
+              href="/dashboard?tab=gigs"
+              className="transition-colors text-white font-semibold hover:text-rose-200"
+            >
+              Open Gigs
+            </Link>
           </nav>
 
           <Link

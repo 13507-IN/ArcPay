@@ -31,13 +31,17 @@ import {
 import {
   buildMetadataAuthorizationMessage,
   saveMilestoneMetadata,
+  buildGigAuthorizationMessage,
+  linkGigToMilestone,
 } from "../lib/api";
+import { EscrowPrefill } from "../types";
 import { getExplorerTxUrl } from "../lib/utils";
 
 interface CreateMilestoneModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  prefill?: EscrowPrefill | null;
 }
 
 function toLocalDateTimeInput(date: Date): string {
@@ -49,6 +53,7 @@ export function CreateMilestoneModal({
   isOpen,
   onClose,
   onSuccess,
+  prefill,
 }: CreateMilestoneModalProps) {
   const { address, isConnected } = useAccount();
   const publicClient = usePublicClient();
@@ -153,6 +158,22 @@ export function CreateMilestoneModal({
       setIsListening(false);
     }
   };
+
+  React.useEffect(() => {
+    if (isOpen && prefill) {
+      if (prefill.freelancer) setFreelancer(prefill.freelancer);
+      if (prefill.title) setTitle(prefill.title);
+      if (prefill.brief) setBrief(prefill.brief);
+      if (prefill.amountUSDC) setAmountUSDC(prefill.amountUSDC);
+      if (prefill.deadlineDays && prefill.deadlineDays > 0) {
+        setDeadlineDate(
+          toLocalDateTimeInput(
+            new Date(Date.now() + prefill.deadlineDays * 86_400_000)
+          )
+        );
+      }
+    }
+  }, [isOpen, prefill]);
 
   React.useEffect(() => {
     return () => {
@@ -307,6 +328,27 @@ export function CreateMilestoneModal({
         }
 
         await saveOffchainMetadata(createdId);
+
+        if (prefill?.gigId && createdId > 0 && address) {
+          try {
+            const issuedAt = Date.now();
+            const message = buildGigAuthorizationMessage({
+              action: "link-milestone",
+              address,
+              issuedAt,
+              gigId: prefill.gigId,
+              targetId: createdId,
+            });
+            const signature = await signMessageAsync({ message });
+            await linkGigToMilestone(prefill.gigId, createdId, {
+              address,
+              issuedAt,
+              signature,
+            });
+          } catch (linkErr) {
+            console.warn("Escrow created, but failed to link gig record:", linkErr);
+          }
+        }
 
         setSuccessInfo({ id: createdId, txHash: hash });
         onSuccess();

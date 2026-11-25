@@ -4,6 +4,10 @@ import {
   MilestoneMetadataInput,
   MilestoneStats,
   MilestoneStatus,
+  GigRecord,
+  GigCategory,
+  GigApplicationRecord,
+  EnrichedGig,
 } from "../types.js";
 
 export type DatabaseType = "mongodb";
@@ -54,4 +58,38 @@ export interface DatabaseAdapter {
   calculateStats(address?: string): Promise<MilestoneStats>;
   getSyncState(key: string): Promise<string | null>;
   setSyncState(key: string, value: string): Promise<void>;
+
+  // Open Gig Board methods
+  createGig(input: {
+    client: string;
+    title: string;
+    description: string;
+    category: GigCategory;
+    budget_usdc: string;
+    deadline_days: number;
+    skills: string[];
+  }): Promise<EnrichedGig>;
+  getGigs(filters?: {
+    status?: string;
+    category?: string;
+    client?: string;
+    search?: string;
+  }): Promise<EnrichedGig[]>;
+  getGigById(id: number): Promise<EnrichedGig | null>;
+  applyToGig(input: {
+    gig_id: number;
+    freelancer: string;
+    pitch: string;
+    portfolio_url?: string | null;
+    proposed_usdc?: string | null;
+  }): Promise<GigApplicationRecord>;
+  selectGigApplicant(
+    gigId: number,
+    applicationId: number
+  ): Promise<EnrichedGig | null>;
+  closeGig(gigId: number): Promise<EnrichedGig | null>;
+  linkGigMilestone(
+    gigId: number,
+    milestoneId: number
+  ): Promise<EnrichedGig | null>;
 }

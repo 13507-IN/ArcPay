@@ -5,6 +5,10 @@ import {
   MilestoneMetadataInput,
   MilestoneStats,
   MilestoneStatus,
+  GigRecord,
+  GigCategory,
+  GigApplicationRecord,
+  EnrichedGig,
 } from "../types.js";
 import { DatabaseAdapter, EnrichedMilestone } from "./types.js";
 import { calculateMilestoneStats } from "./stats.js";
@@ -88,6 +92,17 @@ export class MongoAdapter implements DatabaseAdapter {
 
     const syncState = this.db.collection("sync_state");
     await syncState.createIndex({ key: 1 }, { unique: true });
+
+    const gigs = this.db.collection("gigs");
+    await gigs.createIndex({ id: 1 }, { unique: true });
+    await gigs.createIndex({ status: 1 });
+    await gigs.createIndex({ category: 1 });
+    await gigs.createIndex({ client: 1 });
+
+    const gigApplications = this.db.collection("gig_applications");
+    await gigApplications.createIndex({ id: 1 }, { unique: true });
+    await gigApplications.createIndex({ gig_id: 1 });
+    await gigApplications.createIndex({ gig_id: 1, freelancer: 1 }, { unique: true });
   }
 
   public async closeDb(): Promise<void> {
@@ -328,5 +343,254 @@ export class MongoAdapter implements DatabaseAdapter {
       { $set: { key, value } },
       { upsert: true }
     );
+  }
+
+  public async createGig(input: {
+    client: string;
+    title: string;
+    description: string;
+    category: GigCategory;
+    budget_usdc: string;
+    deadline_days: number;
+    skills: string[];
+  }): Promise<EnrichedGig> {
+    const db = this.getRawDb();
+    const gigs = db.collection<GigRecord>("gigs");
+    const last = await gigs
+      .find({}, { projection: { id: 1 } })
+      .sort({ id: -1 })
+      .limit(1)
+      .next();
+    const nextId = last && typeof last.id === "number" ? last.id + 1 : 1;
+    const now = Math.floor(Date.now() / 1000);
+
+    const record: GigRecord = {
+      id: nextId,
+      client: input.client.toLowerCase(),
+      title: input.title.trim(),
+      description: input.description.trim(),
+      category: input.category,
+      budget_usdc: input.budget_usdc.trim(),
+      deadline_days: input.deadline_days,
+      skills: input.skills,
+      status: "Open",
+      selected_freelancer: null,
+      linked_milestone_id: null,
+      created_at: now,
+      updated_at: now,
+    };
+
+    await gigs.insertOne({ ...record });
+    return { ...record, applications_count: 0, applications: [] };
+  }
+
+  public async getGigs(filters?: {
+    status?: string;
+    category?: string;
+    client?: string;
+    search?: string;
+  }): Promise<EnrichedGig[]> {
+    const db = this.getRawDb();
+    const gigsCol = db.collection<GigRecord>("gigs");
+    const appsCol = db.collection<GigApplicationRecord>("gig_applications");
+
+    const query: Record<string, any> = {};
+    if (filters?.status && filters.status !== "all") {
+      query.status = filters.status;
+    }
+    if (filters?.category && filters.category !== "all") {
+      query.category = filters.category;
+    }
+    if (filters?.client) {
+      query.client = filters.client.toLowerCase();
+    }
+    if (filters?.search && filters.search.trim()) {
+      const escaped = filters.search
+        .trim()
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escaped, "i");
+      query.$or = [
+        { title: regex },
+        { description: regex },
+        { skills: regex },
+        { client: regex },
+      ];
+    }
+
+    const gigList = await gigsCol
+      .find(query, { projection: { _id: 0 } })
+      .sort({ id: -1 })
+      .toArray();
+
+    if (gigList.length === 0) return [];
+
+    const gigIds = gigList.map((g) => g.id);
+    const allApps = await appsCol
+      .find({ gig_id: { $in: gigIds } }, { projection: { _id: 0 } })
+      .sort({ created_at: -1, id: -1 })
+      .toArray();
+
+    const appsByGig = new Map<number, GigApplicationRecord[]>();
+    for (const app of allApps) {
+      const list = appsByGig.get(app.gig_id) || [];
+      list.push(app as unknown as GigApplicationRecord);
+      appsByGig.set(app.gig_id, list);
+    }
+
+    return gigList.map((g) => {
+      const apps = appsByGig.get(g.id) || [];
+      return {
+        ...(g as unknown as GigRecord),
+        applications_count: apps.length,
+        applications: apps,
+      };
+    });
+  }
+
+  public async getGigById(id: number): Promise<EnrichedGig | null> {
+    const db = this.getRawDb();
+    const gig = await db
+      .collection<GigRecord>("gigs")
+      .findOne({ id }, { projection: { _id: 0 } });
+    if (!gig) return null;
+
+    const apps = await db
+      .collection<GigApplicationRecord>("gig_applications")
+      .find({ gig_id: id }, { projection: { _id: 0 } })
+      .sort({ created_at: -1, id: -1 })
+      .toArray();
+
+    return {
+      ...(gig as unknown as GigRecord),
+      applications_count: apps.length,
+      applications: apps as unknown as GigApplicationRecord[],
+    };
+  }
+
+  public async applyToGig(input: {
+    gig_id: number;
+    freelancer: string;
+    pitch: string;
+    portfolio_url?: string | null;
+    proposed_usdc?: string | null;
+  }): Promise<GigApplicationRecord> {
+    const db = this.getRawDb();
+    const appsCol = db.collection<GigApplicationRecord>("gig_applications");
+    const freelancer = input.freelancer.toLowerCase();
+    const now = Math.floor(Date.now() / 1000);
+
+    const existing = await appsCol.findOne(
+      { gig_id: input.gig_id, freelancer },
+      { projection: { _id: 0 } }
+    );
+
+    if (existing) {
+      await appsCol.updateOne(
+        { gig_id: input.gig_id, freelancer },
+        {
+          $set: {
+            pitch: input.pitch.trim(),
+            portfolio_url: input.portfolio_url?.trim() || null,
+            proposed_usdc: input.proposed_usdc?.trim() || null,
+            created_at: now,
+          },
+        }
+      );
+      return {
+        ...(existing as unknown as GigApplicationRecord),
+        pitch: input.pitch.trim(),
+        portfolio_url: input.portfolio_url?.trim() || null,
+        proposed_usdc: input.proposed_usdc?.trim() || null,
+        created_at: now,
+      };
+    }
+
+    const last = await appsCol
+      .find({}, { projection: { id: 1 } })
+      .sort({ id: -1 })
+      .limit(1)
+      .next();
+    const nextId = last && typeof last.id === "number" ? last.id + 1 : 1;
+
+    const record: GigApplicationRecord = {
+      id: nextId,
+      gig_id: input.gig_id,
+      freelancer,
+      pitch: input.pitch.trim(),
+      portfolio_url: input.portfolio_url?.trim() || null,
+      proposed_usdc: input.proposed_usdc?.trim() || null,
+      status: "Pending",
+      created_at: now,
+    };
+
+    await appsCol.insertOne({ ...record });
+    return record;
+  }
+
+  public async selectGigApplicant(
+    gigId: number,
+    applicationId: number
+  ): Promise<EnrichedGig | null> {
+    const db = this.getRawDb();
+    const gigsCol = db.collection<GigRecord>("gigs");
+    const appsCol = db.collection<GigApplicationRecord>("gig_applications");
+
+    const selectedApp = await appsCol.findOne({
+      id: applicationId,
+      gig_id: gigId,
+    });
+    if (!selectedApp) return null;
+
+    const now = Math.floor(Date.now() / 1000);
+
+    await appsCol.updateOne(
+      { id: applicationId, gig_id: gigId },
+      { $set: { status: "Accepted" } }
+    );
+    await appsCol.updateMany(
+      { gig_id: gigId, id: { $ne: applicationId } },
+      { $set: { status: "Rejected" } }
+    );
+    await gigsCol.updateOne(
+      { id: gigId },
+      {
+        $set: {
+          status: "Assigned",
+          selected_freelancer: selectedApp.freelancer.toLowerCase(),
+          updated_at: now,
+        },
+      }
+    );
+
+    return this.getGigById(gigId);
+  }
+
+  public async closeGig(gigId: number): Promise<EnrichedGig | null> {
+    const db = this.getRawDb();
+    const now = Math.floor(Date.now() / 1000);
+    await db.collection<GigRecord>("gigs").updateOne(
+      { id: gigId },
+      { $set: { status: "Closed", updated_at: now } }
+    );
+    return this.getGigById(gigId);
+  }
+
+  public async linkGigMilestone(
+    gigId: number,
+    milestoneId: number
+  ): Promise<EnrichedGig | null> {
+    const db = this.getRawDb();
+    const now = Math.floor(Date.now() / 1000);
+    await db.collection<GigRecord>("gigs").updateOne(
+      { id: gigId },
+      {
+        $set: {
+          status: "Assigned",
+          linked_milestone_id: milestoneId,
+          updated_at: now,
+        },
+      }
+    );
+    return this.getGigById(gigId);
   }
 }

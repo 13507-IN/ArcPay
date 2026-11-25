@@ -8,6 +8,7 @@ import {
   INDEXER_CURSOR_KEY,
 } from "./indexer.js";
 import milestonesRouter from "./routes/milestones.js";
+import gigsRouter from "./routes/gigs.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,6 +20,7 @@ app.use(express.json({ limit: "32kb" }));
 
 // Register API Routes
 app.use("/api/milestones", milestonesRouter);
+app.use("/api/gigs", gigsRouter);
 
 /**
  * GET /api/health
