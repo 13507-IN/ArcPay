@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check, Coins } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Coins, Sparkles, ShieldCheck, Cpu } from "lucide-react";
 import { MilestoneDemo } from "@/components/landing/MilestoneDemo";
 import { AnimeShadowBackground } from "@/components/landing/AnimeShadowBackground";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
@@ -81,13 +81,17 @@ export default function LandingPage() {
         <section className="bg-transparent">
           <div className="mx-auto grid max-w-[1480px] w-full gap-12 px-6 pb-24 pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16 lg:px-16 xl:px-20 lg:pb-32 lg:pt-20">
             <div className="max-w-3xl">
+              <div className="landing-rise inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3.5 py-1 text-xs font-semibold text-rose-200 backdrop-blur-md mb-6">
+                <Sparkles className="h-3.5 w-3.5 text-rose-300" />
+                <span>Autonomous AI Deliverable Verification · Circle Arc L1</span>
+              </div>
               <h1 className="landing-rise font-display text-5xl font-semibold leading-[0.98] tracking-[-0.035em] text-white drop-shadow-md sm:text-6xl lg:text-7xl">
                 Escrow for global teams.
               </h1>
               <p className="landing-rise landing-rise-1 mt-6 max-w-2xl text-lg leading-relaxed text-rose-100/90 sm:text-xl">
-                ArcPay holds each milestone&rsquo;s funds in an on-chain contract
-                and releases native USDC to freelancers the moment work is
-                approved — on Circle&rsquo;s Arc Layer-1.
+                ArcPay holds each milestone&rsquo;s funds in an on-chain contract,
+                autonomously audits code &amp; deliverables with an AI Oracle, and
+                releases native USDC in under a second — on Circle&rsquo;s Arc Layer-1.
               </p>
               <div className="landing-rise landing-rise-2 mt-10 flex flex-wrap items-center gap-4">
                 <Link

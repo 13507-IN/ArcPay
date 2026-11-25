@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Check, RotateCcw } from "lucide-react";
+import { ArrowRight, Check, RotateCcw, Sparkles, ShieldCheck } from "lucide-react";
 
 type Stage = "Funded" | "Submitted" | "Released";
 
@@ -14,17 +14,17 @@ const meta: Record<
   Funded: {
     label: "Funded",
     action: "Submit deliverable",
-    note: "2,400.00 USDC is locked in the escrow contract.",
+    note: "2,400.00 USDC is locked in the escrow contract on Arc.",
   },
   Submitted: {
     label: "Submitted",
     action: "Approve & release",
-    note: "Work delivered. Waiting on the client's approval.",
+    note: "AI Oracle verified GitHub PR with 100% tests passing & 0 leaks. Ready for release.",
   },
   Released: {
     label: "Released",
     action: "Paid in 0.8s",
-    note: "Payout sent to the freelancer in native USDC.",
+    note: "Payout sent to the freelancer in native USDC in under 1 second.",
   },
 };
 
@@ -46,10 +46,24 @@ export function MilestoneDemo() {
             Website redesign
           </h3>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-lav-100 px-3 py-1 text-sm font-medium text-lav-700">
-          <span className="h-1.5 w-1.5 rounded-full bg-lav-500" aria-hidden="true" />
-          {meta[stage].label}
-        </span>
+        <div className="flex items-center gap-2">
+          {stage === "Submitted" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200 animate-pulse">
+              <Sparkles className="h-3 w-3 text-emerald-600" />
+              AI Verified: 98%
+            </span>
+          )}
+          {stage === "Released" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+              <ShieldCheck className="h-3 w-3 text-emerald-600" />
+              Audited
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-lav-100 px-3 py-1 text-sm font-medium text-lav-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-lav-500" aria-hidden="true" />
+            {meta[stage].label}
+          </span>
+        </div>
       </div>
 
       <div className="mt-8 flex items-end justify-between gap-4">

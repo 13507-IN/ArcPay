@@ -7,6 +7,7 @@ import {
 } from "../db.js";
 import { recoverMetadataSigner } from "../metadataAuth.js";
 import { isAddress } from "viem";
+import { inspectDeliverable } from "../services/aiVerifier.js";
 
 const router = Router();
 
@@ -191,6 +192,80 @@ router.post("/:id/metadata", async (req: Request, res: Response): Promise<void> 
     res.status(500).json({
       success: false,
       error: err?.message || "Internal server error",
+    });
+  }
+});
+
+/**
+ * POST /api/milestones/verify
+ * Public deliverable inspection endpoint (pre-submission check)
+ */
+router.post("/verify", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { deliverableUrl, title, brief } = req.body;
+    if (!deliverableUrl || typeof deliverableUrl !== "string") {
+      res.status(400).json({ success: false, error: "A deliverable URL is required" });
+      return;
+    }
+
+    const report = inspectDeliverable({ deliverableUrl, title, brief });
+    res.json({
+      success: true,
+      data: report,
+    });
+  } catch (err: any) {
+    console.error("Error in POST /api/milestones/verify:", err);
+    res.status(500).json({
+      success: false,
+      error: err?.message || "Verification inspection failed",
+    });
+  }
+});
+
+/**
+ * POST /api/milestones/:id/verify
+ * Audits a specific milestone's submitted deliverable and generates a verifiable audit report
+ */
+router.post("/:id/verify", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = parseInt(rawId, 10);
+    if (isNaN(id) || id <= 0) {
+      res.status(400).json({ success: false, error: "Invalid milestone ID" });
+      return;
+    }
+
+    const milestone = await getMilestoneById(id);
+    if (!milestone) {
+      res.status(404).json({ success: false, error: "Milestone not found" });
+      return;
+    }
+
+    const deliverableUrl = req.body?.deliverableUrl || milestone.deliverable_url;
+    if (!deliverableUrl) {
+      res.status(400).json({
+        success: false,
+        error: "No deliverable URL has been submitted for this milestone",
+      });
+      return;
+    }
+
+    const report = inspectDeliverable({
+      deliverableUrl,
+      title: milestone.title,
+      brief: milestone.brief || undefined,
+      milestoneId: id,
+    });
+
+    res.json({
+      success: true,
+      data: report,
+    });
+  } catch (err: any) {
+    console.error("Error in POST /api/milestones/:id/verify:", err);
+    res.status(500).json({
+      success: false,
+      error: err?.message || "Milestone verification audit failed",
     });
   }
 });

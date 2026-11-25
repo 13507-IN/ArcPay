@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Milestone, MilestoneEvent } from "../types";
 import { fetchMilestoneDetails } from "../lib/api";
+import { AiVerificationReport } from "./AiVerificationReport";
 import {
   formatUSDC,
   formatDate,
@@ -185,21 +186,35 @@ export function MilestoneDetailsModal({
               </div>
             )}
 
-            {/* Deliverable Link if available */}
+            {/* Deliverable Link & AI Verification Audit */}
             {details.deliverable_url && (
-              <div className="rounded-2xl bg-emerald-50 border border-emerald-200/80 p-4 space-y-1.5">
-                <span className="block text-xs font-semibold text-emerald-800 uppercase tracking-wider">
-                  Submitted Deliverable / Proof of Work
-                </span>
-                <a
-                  href={details.deliverable_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-1.5 text-xs font-mono text-emerald-700 hover:underline break-all font-medium"
-                >
-                  <span>{details.deliverable_url}</span>
-                  <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                </a>
+              <div className="space-y-4">
+                <div className="rounded-2xl bg-emerald-50 border border-emerald-200/80 p-4 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="block text-xs font-semibold text-emerald-800 uppercase tracking-wider">
+                      Submitted Deliverable / Proof of Work
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                      On-Chain Linked
+                    </span>
+                  </div>
+                  <a
+                    href={details.deliverable_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-1.5 text-xs font-mono text-emerald-700 hover:underline break-all font-medium"
+                  >
+                    <span>{details.deliverable_url}</span>
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                {/* Autonomous AI Verification Report */}
+                <AiVerificationReport
+                  deliverableUrl={details.deliverable_url}
+                  milestoneTitle={details.title}
+                  milestoneId={details.id}
+                />
               </div>
             )}
 

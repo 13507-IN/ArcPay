@@ -6,6 +6,7 @@ import { X, Send, Link as LinkIcon, AlertCircle, Loader2, CheckCircle, ExternalL
 import { ESCROW_CONTRACT_ADDRESS, ARC_MILESTONE_ESCROW_ABI } from "../config/contracts";
 import { Milestone } from "../types";
 import { getExplorerTxUrl } from "../lib/utils";
+import { AiVerificationReport } from "./AiVerificationReport";
 
 interface SubmitWorkModalProps {
   milestone: Milestone | null;
@@ -155,6 +156,17 @@ export function SubmitWorkModal({
                 Provide a verifiable link to code, Figma design, staging deployment, or IPFS CID.
               </p>
             </div>
+
+            {/* Live AI Deliverable Pre-Audit Preview */}
+            {deliverableUrl.trim().length >= 8 && (
+              <div className="pt-1">
+                <AiVerificationReport
+                  deliverableUrl={deliverableUrl.trim()}
+                  milestoneTitle={milestone.title}
+                  milestoneId={milestone.id}
+                />
+              </div>
+            )}
 
             <div className="flex items-center justify-end space-x-3 pt-2">
               <button

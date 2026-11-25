@@ -50,3 +50,31 @@ export interface MilestoneStats {
 
 export type RoleFilter = "all" | "client" | "freelancer";
 export type StatusFilter = "all" | "Funded" | "Submitted" | "Released" | "Refunded";
+
+export interface VerificationCheck {
+  id: string;
+  name: string;
+  status: "passed" | "warning" | "failed";
+  score: number;
+  detail: string;
+}
+
+export interface VerificationAuditReport {
+  milestoneId?: number;
+  deliverableUrl: string;
+  deliverableType: "github_pr" | "github_repo" | "figma" | "ipfs" | "deployment" | "generic_url";
+  overallScore: number;
+  grade: "A+" | "A" | "B" | "C" | "F";
+  status: "PASSED" | "REVIEW_RECOMMENDED" | "FAILED";
+  recommendation: "SAFE_TO_RELEASE" | "SATISFACTORY" | "MANUAL_REVIEW_REQUIRED";
+  summary: string;
+  checks: VerificationCheck[];
+  metadata: {
+    targetMilestone?: string;
+    filesInspected?: number;
+    testsDetected?: boolean;
+    securityFlags?: number;
+    inspectedAt: string;
+    oracleSignature?: string;
+  };
+}

@@ -26,6 +26,7 @@ import {
   getExplorerTxUrl,
   getExplorerAddressUrl,
 } from "../lib/utils";
+import { AiVerificationBadge } from "./AiVerificationBadge";
 
 interface MilestoneCardProps {
   milestone: Milestone;
@@ -180,7 +181,15 @@ export function MilestoneCard({
           </h3>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5">
+          {(milestone.status === "Submitted" || milestone.status === "Released") && (
+            <div className="hidden sm:inline-block">
+              <AiVerificationBadge
+                score={96}
+                onClick={() => onOpenDetailsModal(milestone.id)}
+              />
+            </div>
+          )}
           {getStatusBadge()}
           <div className="text-right">
             <span className="font-display text-xl font-semibold text-ink tabular-nums">

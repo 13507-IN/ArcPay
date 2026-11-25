@@ -553,6 +553,22 @@ export function CreateMilestoneModal({
               )}
             </div>
 
+            {/* AI Deliverable Verification Oracle Configuration */}
+            <div className="rounded-2xl border border-lav-200/90 bg-gradient-to-r from-lav-50/70 to-indigo-50/40 p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 font-semibold text-xs text-ink">
+                  <Sparkles className="h-3.5 w-3.5 text-lav-600" />
+                  <span>Autonomous AI Deliverable Oracle</span>
+                </div>
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-200">
+                  Active by Default
+                </span>
+              </div>
+              <p className="text-[11px] text-ink-soft leading-relaxed">
+                When your contractor submits work, our AI Oracle will automatically audit code quality, CI test suites, and security integrity to provide a one-click verification score before releasing payment.
+              </p>
+            </div>
+
             {/* Arc Native Gas Callout */}
             <div className="rounded-2xl bg-lav-50 border border-lav-200 p-3.5 text-xs text-ink-soft space-y-1">
               <div className="flex items-center gap-1.5 font-semibold text-lav-700">
