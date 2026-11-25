@@ -427,25 +427,13 @@ async function fetchDeliverableEvidence(
   }
 }
 
-async function callGeminiAudit(params: {
+function buildAuditPrompt(params: {
   title: string;
   brief: string;
   evidence: DeliverableEvidence;
-}): Promise<{
-  overallScore: number;
-  grade: VerificationAuditReport["grade"];
-  status: VerificationAuditReport["status"];
-  recommendation: VerificationAuditReport["recommendation"];
-  summary: string;
-  checks: VerificationCheck[];
-  modelUsed: string;
-} | null> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!apiKey) return null;
-
+}): string {
   const { title, brief, evidence } = params;
-
-  const prompt = `You are the Autonomous Escrow Deliverable Auditor for ArcPay (Circle Arc Layer-1 USDC Escrow).
+  return `You are the Autonomous Escrow Deliverable Auditor for ArcPay (Circle Arc Layer-1 USDC Escrow).
 Your job is to protect the client from paying for wrong, fake, empty, or mismatched deliverables, while fairly approving legitimate matching work.
 
 Be STRICT and ADVERSARIAL. Never assume a repository matches just because it is on GitHub.
@@ -484,6 +472,138 @@ Return ONLY a valid JSON object matching this exact structure:
     { "id": "spec_alignment", "name": "Milestone Scope & Deliverable Alignment", "status": "passed"|"warning"|"failed", "score": 0-100, "detail": "..." }
   ]
 }`;
+}
+
+interface LlmAuditResult {
+  overallScore: number;
+  grade: VerificationAuditReport["grade"];
+  status: VerificationAuditReport["status"];
+  recommendation: VerificationAuditReport["recommendation"];
+  summary: string;
+  checks: VerificationCheck[];
+  modelUsed: string;
+}
+
+function parseAuditJson(rawText: string, modelUsed: string): LlmAuditResult | null {
+  try {
+    const cleaned = rawText
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/```$/i, "")
+      .trim();
+    const parsed = JSON.parse(cleaned);
+    if (
+      typeof parsed.overallScore === "number" &&
+      Array.isArray(parsed.checks) &&
+      parsed.checks.length > 0
+    ) {
+      return {
+        overallScore: Math.max(0, Math.min(100, Math.round(parsed.overallScore))),
+        grade: parsed.grade || "C",
+        status: parsed.status || "REVIEW_RECOMMENDED",
+        recommendation: parsed.recommendation || "MANUAL_REVIEW_REQUIRED",
+        summary: parsed.summary || "AI audit completed.",
+        checks: parsed.checks,
+        modelUsed,
+      };
+    }
+  } catch {
+    // ignore parse failure
+  }
+  return null;
+}
+
+async function callOpenAICompatibleAudit(prompt: string): Promise<LlmAuditResult | null> {
+  const providers: Array<{ name: string; baseUrl: string; apiKey: string; model: string }> = [];
+
+  if (process.env.CEREBRAS_API_KEY) {
+    providers.push({
+      name: "Cerebras",
+      baseUrl: "https://api.cerebras.ai/v1/chat/completions",
+      apiKey: process.env.CEREBRAS_API_KEY,
+      model: process.env.CEREBRAS_MODEL || "llama-3.3-70b",
+    });
+  }
+  if (process.env.GROQ_API_KEY) {
+    providers.push({
+      name: "Groq",
+      baseUrl: "https://api.groq.com/openai/v1/chat/completions",
+      apiKey: process.env.GROQ_API_KEY,
+      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+    });
+  }
+  if (process.env.OPENROUTER_API_KEY) {
+    providers.push({
+      name: "OpenRouter",
+      baseUrl: "https://openrouter.ai/api/v1/chat/completions",
+      apiKey: process.env.OPENROUTER_API_KEY,
+      model: process.env.OPENROUTER_MODEL || "meta-llama/llama-3.3-70b-instruct:free",
+    });
+  }
+  if (process.env.AI_API_KEY && process.env.AI_BASE_URL) {
+    providers.push({
+      name: "CustomAI",
+      baseUrl: process.env.AI_BASE_URL,
+      apiKey: process.env.AI_API_KEY,
+      model: process.env.AI_MODEL || "llama-3.3-70b-versatile",
+    });
+  }
+
+  for (const p of providers) {
+    try {
+      const res = await fetch(p.baseUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${p.apiKey}`,
+        },
+        signal: AbortSignal.timeout(15000),
+        body: JSON.stringify({
+          model: p.model,
+          temperature: 0.1,
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "system",
+              content: "You are a strict escrow deliverable auditor. Always respond with valid JSON only.",
+            },
+            { role: "user", content: prompt },
+          ],
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.warn(`${p.name} (${p.model}) failed (${res.status}):`, errText.slice(0, 250));
+        continue;
+      }
+
+      const json: any = await res.json();
+      const rawText = json?.choices?.[0]?.message?.content;
+      if (!rawText) continue;
+
+      const parsed = parseAuditJson(rawText, `${p.name}: ${p.model}`);
+      if (parsed) return parsed;
+    } catch (err: any) {
+      console.warn(`${p.name} error:`, err?.message);
+    }
+  }
+  return null;
+}
+
+async function callGeminiAudit(params: {
+  title: string;
+  brief: string;
+  evidence: DeliverableEvidence;
+}): Promise<LlmAuditResult | null> {
+  const prompt = buildAuditPrompt(params);
+
+  // Try high-limit OpenAI-compatible free providers first (Cerebras, Groq, OpenRouter, Custom)
+  const openAiResult = await callOpenAICompatibleAudit(prompt);
+  if (openAiResult) return openAiResult;
+
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!apiKey) return null;
 
   const models = ["gemini-2.5-flash", "gemini-2.0-flash"];
   for (const model of models) {
