@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check, Coins, Sparkles, ShieldCheck, Cpu } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Sparkles, ShieldCheck, Cpu } from "lucide-react";
 import { MilestoneDemo } from "@/components/landing/MilestoneDemo";
 import { AnimeShadowBackground } from "@/components/landing/AnimeShadowBackground";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
@@ -42,9 +42,13 @@ export default function LandingPage() {
       <header className="sticky top-0 z-40 bg-slate-950/40 backdrop-blur-md border-b border-white/10 transition-opacity duration-300">
         <div className="mx-auto flex h-20 max-w-[1480px] w-full items-center justify-between px-6 sm:px-10 lg:px-16 xl:px-20">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-rose-600 to-lav-600 text-white shadow-md shadow-rose-950/50">
-                <Coins className="h-4 w-4" aria-hidden="true" />
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <span className="flex h-9 w-12 items-center justify-center rounded-xl bg-black border border-white/15 p-1 shadow-md shadow-rose-950/40 transition-transform group-hover:scale-105 overflow-hidden">
+                <img
+                  src="/logo.png"
+                  alt="ArcPay Logo"
+                  className="h-full w-full object-contain"
+                />
               </span>
               <span className="font-display text-lg font-semibold tracking-tight text-white">
                 ArcPay
@@ -394,9 +398,16 @@ export default function LandingPage() {
             <div>
               <Link
                 href="/"
-                className="font-display text-2xl font-semibold tracking-tight text-ink"
+                className="inline-flex items-center gap-3 font-display text-2xl font-semibold tracking-tight text-ink group"
               >
-                ArcPay
+                <span className="flex h-10 w-14 items-center justify-center rounded-xl bg-black border border-lav-200/80 p-1 shadow-sm transition-transform group-hover:scale-105 overflow-hidden">
+                  <img
+                    src="/logo.png"
+                    alt="ArcPay Logo"
+                    className="h-full w-full object-contain"
+                  />
+                </span>
+                <span>ArcPay</span>
               </Link>
               <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-soft">
                 Milestone escrow and instant USDC payroll on Circle&rsquo;s Arc

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAccount, usePublicClient } from "wagmi";
-import { Coins, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { OverviewMetrics } from "@/components/OverviewMetrics";
 import { MilestoneDashboard } from "@/components/MilestoneDashboard";
@@ -146,8 +146,12 @@ export default function DashboardPage() {
       <footer className="border-t border-lav-200/60 bg-white py-8 text-center text-xs text-ink-soft mt-12">
         <div className="mx-auto max-w-[1480px] w-full px-6 sm:px-10 lg:px-16 xl:px-20 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-lav-600 text-white">
-              <Coins className="h-3.5 w-3.5" />
+            <span className="flex h-7 w-10 items-center justify-center rounded-lg bg-black border border-lav-200/80 p-0.5 overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="ArcPay Logo"
+                className="h-full w-full object-contain"
+              />
             </span>
             <span className="font-semibold text-ink">ArcPay</span>
             <span>— Built for Circle Arc Layer-1 Testnet</span>

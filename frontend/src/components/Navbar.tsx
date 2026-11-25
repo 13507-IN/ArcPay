@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useBalance } from "wagmi";
 import { formatUnits } from "viem";
-import { Coins, Droplets, ExternalLink } from "lucide-react";
+import { Droplets, ExternalLink } from "lucide-react";
 import { NetworkSwitcher } from "./NetworkSwitcher";
 
 export function Navbar() {
@@ -29,9 +29,13 @@ export function Navbar() {
     <header className="sticky top-0 z-40 w-full border-b border-lav-200/60 bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-[1480px] w-full items-center justify-between px-6 sm:px-10 lg:px-16 xl:px-20">
         {/* Brand Logo & Chain Tag */}
-        <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lav-600 text-white shadow-sm transition-transform hover:scale-105">
-            <Coins aria-hidden="true" className="h-4 w-4" />
+        <Link href="/" className="flex items-center gap-3 group">
+          <span className="flex h-10 w-14 items-center justify-center rounded-xl bg-black border border-lav-200/80 p-1 shadow-sm transition-transform group-hover:scale-105 overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="ArcPay Logo"
+              className="h-full w-full object-contain"
+            />
           </span>
           <div>
             <div className="flex items-center gap-2.5">

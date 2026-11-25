@@ -21,7 +21,8 @@ export const metadata: Metadata = {
   description:
     "Enterprise milestone escrow & instant freelance payroll protocol built on Circle's Arc Layer-1 Testnet with sub-second Malachite BFT finality and native 18-decimal USDC.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
 };
 
