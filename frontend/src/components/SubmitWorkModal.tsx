@@ -76,7 +76,7 @@ export function SubmitWorkModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-lg rounded-[28px] border border-lav-200 bg-white p-6 sm:p-8 shadow-2xl">
+      <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl my-6 max-h-[90vh] overflow-y-auto rounded-[28px] border border-lav-200 bg-white p-6 sm:p-8 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-lav-100 pb-4">
           <div className="flex items-center space-x-3">
