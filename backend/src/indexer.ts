@@ -306,7 +306,10 @@ async function processLog(log: Log) {
   }
 }
 
+let pollTimer: NodeJS.Timeout | null = null;
+
 export function startIndexer() {
+  if (pollTimer) return;
   console.log(`[Indexer] Starting Arc Testnet indexer (poll interval: ${POLL_INTERVAL_MS}ms)...`);
   console.log(`[Indexer] Target Contract: ${CONTRACT_ADDRESS}`);
 
@@ -314,7 +317,15 @@ export function startIndexer() {
   syncEvents().catch(console.error);
 
   // Poll loop
-  setInterval(() => {
+  pollTimer = setInterval(() => {
     syncEvents().catch(console.error);
   }, POLL_INTERVAL_MS);
+  pollTimer.unref?.();
+}
+
+export function stopIndexer() {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
 }

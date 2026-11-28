@@ -4,6 +4,8 @@ import {
   MilestoneMetadataInput,
   MilestoneStats,
   MilestoneStatus,
+  MilestoneAiAuditSummary,
+  PlatformAnalytics,
   GigCategory,
   GigApplicationRecord,
   EnrichedGig,
@@ -179,4 +181,15 @@ export async function linkGigMilestone(
   milestoneId: number
 ): Promise<EnrichedGig | null> {
   return getAdapter().linkGigMilestone(gigId, milestoneId);
+}
+
+export async function saveMilestoneAudit(
+  milestoneId: number,
+  audit: MilestoneAiAuditSummary
+): Promise<void> {
+  return getAdapter().saveMilestoneAudit(milestoneId, audit);
+}
+
+export async function getPlatformAnalytics(): Promise<PlatformAnalytics> {
+  return getAdapter().getPlatformAnalytics();
 }

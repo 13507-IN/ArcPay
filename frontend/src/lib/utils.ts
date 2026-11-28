@@ -1,6 +1,7 @@
 import { formatUnits } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Milestone, MilestoneStats } from "../types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -78,4 +79,92 @@ export function getExplorerAddressUrl(address: string): string {
   const base =
     process.env.NEXT_PUBLIC_ARC_EXPLORER_URL || "https://explorer.testnet.arc.io";
   return `${base}/address/${address}`;
+}
+
+/**
+ * Prevents javascript:/data: XSS href injection and safely translates ipfs:// URLs.
+ */
+export function toSafeExternalUrl(rawUrl?: string | null): string | null {
+  if (!rawUrl || typeof rawUrl !== "string") return null;
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith("ipfs://")) {
+    const cidPath = trimmed.slice("ipfs://".length).replace(/^\/+/, "");
+    if (!/^[a-zA-Z0-9._\-/]+$/.test(cidPath)) return null;
+    return `https://ipfs.io/ipfs/${cidPath}`;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+      return parsed.toString();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Computes OverviewMetrics client-side when falling back directly to on-chain RPC reads.
+ */
+export function computeStatsFromMilestones(
+  milestones: Milestone[],
+  address?: string
+): MilestoneStats {
+  const userAddr = address?.toLowerCase();
+  let lockedWei = 0n;
+  let paidOutWei = 0n;
+  let earnedWei = 0n;
+  let refundedWei = 0n;
+  let activeMilestones = 0;
+  let completedMilestones = 0;
+  let refundedMilestones = 0;
+
+  for (const m of milestones) {
+    let amt = 0n;
+    try {
+      amt = BigInt(m.amount || "0");
+    } catch {
+      amt = 0n;
+    }
+
+    const isClient = userAddr ? m.client.toLowerCase() === userAddr : true;
+    const isFreelancer = userAddr ? m.freelancer.toLowerCase() === userAddr : true;
+    const isParty = isClient || isFreelancer;
+
+    if (m.status === "Funded" || m.status === "Submitted" || m.status === "Disputed") {
+      if (isParty) {
+        lockedWei += amt;
+        activeMilestones += 1;
+      }
+    } else if (m.status === "Released") {
+      if (isClient || !userAddr) paidOutWei += amt;
+      if (isFreelancer) earnedWei += amt;
+      if (isParty) completedMilestones += 1;
+    } else if (m.status === "Refunded") {
+      if (isParty) {
+        refundedWei += amt;
+        refundedMilestones += 1;
+      }
+    }
+  }
+
+  return {
+    totalLockedUSDC: formatUnits(lockedWei, 18),
+    totalPaidOutUSDC: formatUnits(paidOutWei, 18),
+    totalEarnedUSDC: formatUnits(earnedWei, 18),
+    totalRefundedUSDC: formatUnits(refundedWei, 18),
+    totalMilestones: userAddr
+      ? milestones.filter(
+          (m) =>
+            m.client.toLowerCase() === userAddr ||
+            m.freelancer.toLowerCase() === userAddr
+        ).length
+      : milestones.length,
+    activeMilestones,
+    completedMilestones,
+    refundedMilestones,
+  };
 }

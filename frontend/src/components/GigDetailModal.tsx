@@ -16,7 +16,11 @@ import {
   Ban,
 } from "lucide-react";
 import { Gig, GigApplication, EscrowPrefill } from "../types";
-import { shortenAddress, getExplorerAddressUrl } from "../lib/utils";
+import {
+  shortenAddress,
+  getExplorerAddressUrl,
+  toSafeExternalUrl,
+} from "../lib/utils";
 import {
   buildGigAuthorizationMessage,
   applyToOpenGig,
@@ -80,19 +84,26 @@ export function GigDetailModal({
     try {
       setIsApplying(true);
       const issuedAt = Date.now();
+      const cleanPortfolio = portfolioUrl.trim();
+      const cleanProposed = proposedUsdc.trim();
       const message = buildGigAuthorizationMessage({
         action: "apply-gig",
         address,
         issuedAt,
         gigId: gig.id,
+        payload: {
+          pitch: pitch.trim(),
+          portfolioUrl: cleanPortfolio || null,
+          proposedUsdc: cleanProposed || null,
+        },
       });
       const signature = await signMessageAsync({ message });
       const savedApp = await applyToOpenGig(
         gig.id,
         {
           pitch: pitch.trim(),
-          portfolioUrl: portfolioUrl.trim() || undefined,
-          proposedUsdc: proposedUsdc.trim() || undefined,
+          portfolioUrl: cleanPortfolio || undefined,
+          proposedUsdc: cleanProposed || undefined,
         },
         { address, issuedAt, signature }
       );
@@ -315,13 +326,14 @@ export function GigDetailModal({
             {isOwner && !gig.linked_milestone_id && (
               <button
                 onClick={() => {
+                  const accepted = gig.applications.find((a) => a.status === "Accepted");
                   onClose();
                   onFundEscrow({
                     gigId: gig.id,
                     freelancer: gig.selected_freelancer!,
                     title: gig.title,
                     brief: gig.description,
-                    amountUSDC: gig.budget_usdc,
+                    amountUSDC: accepted?.proposed_usdc || gig.budget_usdc,
                     deadlineDays: gig.deadline_days,
                   });
                 }}
@@ -414,17 +426,20 @@ export function GigDetailModal({
                     {app.pitch}
                   </p>
 
-                  {app.portfolio_url && (
-                    <a
-                      href={app.portfolio_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-mono text-lav-700 hover:underline"
-                    >
-                      <span>{app.portfolio_url}</span>
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  )}
+                  {(() => {
+                    const safePortfolio = toSafeExternalUrl(app.portfolio_url);
+                    return safePortfolio ? (
+                      <a
+                        href={safePortfolio}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-mono text-lav-700 hover:underline"
+                      >
+                        <span>{app.portfolio_url}</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ) : null;
+                  })()}
                 </div>
               ))}
             </div>

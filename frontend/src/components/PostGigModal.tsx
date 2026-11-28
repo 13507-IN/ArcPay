@@ -76,22 +76,24 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
     try {
       setIsSubmitting(true);
       const issuedAt = Date.now();
+      const payload = {
+        title: title.trim(),
+        description: description.trim(),
+        category,
+        budgetUsdc: budgetUsdc.trim(),
+        deadlineDays: parsedDays,
+        skills,
+      };
       const message = buildGigAuthorizationMessage({
         action: "create-gig",
         address,
         issuedAt,
+        payload,
       });
 
       const signature = await signMessageAsync({ message });
       const created = await createOpenGig(
-        {
-          title: title.trim(),
-          description: description.trim(),
-          category,
-          budgetUsdc: budgetUsdc.trim(),
-          deadlineDays: parsedDays,
-          skills,
-        },
+        payload,
         { address, issuedAt, signature }
       );
 

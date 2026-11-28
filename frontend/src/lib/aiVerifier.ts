@@ -11,8 +11,15 @@ export async function verifyDeliverable(params: {
   title?: string;
   brief?: string;
   milestoneId?: number;
+  forceRefresh?: boolean;
 }): Promise<VerificationAuditReport> {
-  const { deliverableUrl, title = "", brief = "", milestoneId } = params;
+  const {
+    deliverableUrl,
+    title = "",
+    brief = "",
+    milestoneId,
+    forceRefresh = false,
+  } = params;
 
   try {
     const endpoint = milestoneId
@@ -22,7 +29,7 @@ export async function verifyDeliverable(params: {
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ deliverableUrl, title, brief }),
+      body: JSON.stringify({ deliverableUrl, title, brief, forceRefresh }),
     });
 
     if (res.ok) {

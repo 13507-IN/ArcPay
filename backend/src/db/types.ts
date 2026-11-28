@@ -4,6 +4,8 @@ import {
   MilestoneMetadataInput,
   MilestoneStats,
   MilestoneStatus,
+  MilestoneAiAuditSummary,
+  PlatformAnalytics,
   GigRecord,
   GigCategory,
   GigApplicationRecord,
@@ -92,4 +94,9 @@ export interface DatabaseAdapter {
     gigId: number,
     milestoneId: number
   ): Promise<EnrichedGig | null>;
+  saveMilestoneAudit(
+    milestoneId: number,
+    audit: MilestoneAiAuditSummary
+  ): Promise<void>;
+  getPlatformAnalytics(): Promise<PlatformAnalytics>;
 }

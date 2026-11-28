@@ -16,18 +16,21 @@ import {
   shortenAddress,
   getExplorerTxUrl,
   getExplorerAddressUrl,
+  toSafeExternalUrl,
 } from "../lib/utils";
 
 interface MilestoneDetailsModalProps {
   milestoneId: number | null;
   isOpen: boolean;
   onClose: () => void;
+  onAuditUpdated?: () => void;
 }
 
 export function MilestoneDetailsModal({
   milestoneId,
   isOpen,
   onClose,
+  onAuditUpdated,
 }: MilestoneDetailsModalProps) {
   const [details, setDetails] = useState<
     | (Milestone & {
@@ -198,15 +201,24 @@ export function MilestoneDetailsModal({
                       On-Chain Linked
                     </span>
                   </div>
-                  <a
-                    href={details.deliverable_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-1.5 text-xs font-mono text-emerald-700 hover:underline break-all font-medium"
-                  >
-                    <span>{details.deliverable_url}</span>
-                    <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                  </a>
+                  {(() => {
+                    const safeDeliverable = toSafeExternalUrl(details.deliverable_url);
+                    return safeDeliverable ? (
+                      <a
+                        href={safeDeliverable}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-1.5 text-xs font-mono text-emerald-700 hover:underline break-all font-medium"
+                      >
+                        <span>{details.deliverable_url}</span>
+                        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                      </a>
+                    ) : (
+                      <span className="text-xs font-mono text-rose-700">
+                        Blocked unsafe deliverable link
+                      </span>
+                    );
+                  })()}
                 </div>
 
                 {/* Autonomous AI Verification Report */}
@@ -215,6 +227,7 @@ export function MilestoneDetailsModal({
                   milestoneTitle={details.title}
                   milestoneBrief={details.brief || undefined}
                   milestoneId={details.id}
+                  onRefresh={() => onAuditUpdated?.()}
                 />
               </div>
             )}

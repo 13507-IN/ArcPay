@@ -5,6 +5,33 @@ export type MilestoneStatus =
   | "Disputed"
   | "Refunded";
 
+export interface MilestoneAiAuditSummary {
+  overallScore: number;
+  grade: "A+" | "A" | "B" | "C" | "F";
+  status: "PASSED" | "REVIEW_RECOMMENDED" | "FAILED";
+  deliverableUrl: string;
+  summary: string;
+  aiEngine?: string;
+  inspectedAt: string;
+}
+
+export interface PlatformAnalytics {
+  uniqueWallets: number;
+  uniqueClients: number;
+  uniqueFreelancers: number;
+  totalMilestones: number;
+  activeMilestones: number;
+  completedMilestones: number;
+  totalLockedUSDC: string;
+  totalPaidOutUSDC: string;
+  totalGigs: number;
+  openGigs: number;
+  totalProposals: number;
+  auditsCompleted: number;
+  auditsFailed: number;
+  generatedAt: string;
+}
+
 export interface MilestoneRecord {
   id: number;
   client: string;
@@ -23,6 +50,7 @@ export interface MilestoneRecord {
   invoice_notes: string | null;
   freelancer_email: string | null;
   freelancer_webhook: string | null;
+  ai_audit?: MilestoneAiAuditSummary | null;
   updated_at: number;
 }
 

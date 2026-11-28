@@ -1,5 +1,5 @@
 import { Milestone, MilestoneStats, MilestoneEvent, Gig, GigCategory, GigApplication } from "../types";
-import { Address, Hex } from "viem";
+import { Address, Hex, keccak256, toHex } from "viem";
 import { ESCROW_CONTRACT_ADDRESS } from "../config/contracts";
 
 const API_BASE =
@@ -129,12 +129,24 @@ export type GigAuthAction =
   | "close-gig"
   | "link-milestone";
 
+function hashGigPayload(payload?: Record<string, unknown> | null): Hex | null {
+  if (!payload) return null;
+  const sortedEntries = Object.keys(payload)
+    .sort()
+    .reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = payload[key] ?? null;
+      return acc;
+    }, {});
+  return keccak256(toHex(JSON.stringify(sortedEntries)));
+}
+
 export function buildGigAuthorizationMessage(input: {
   action: GigAuthAction;
   address: Address;
   issuedAt: number;
   gigId?: number;
   targetId?: number;
+  payload?: Record<string, unknown> | null;
 }): string {
   return JSON.stringify({
     app: "ArcPay",
@@ -143,6 +155,7 @@ export function buildGigAuthorizationMessage(input: {
     contractAddress: ESCROW_CONTRACT_ADDRESS.toLowerCase(),
     gigId: input.gigId ?? null,
     targetId: input.targetId ?? null,
+    payloadHash: hashGigPayload(input.payload),
     wallet: input.address.toLowerCase(),
     issuedAt: input.issuedAt,
   });

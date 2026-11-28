@@ -4,12 +4,26 @@ import {
   getMilestoneById,
   updateMetadata,
   calculateStats,
+  saveMilestoneAudit,
 } from "../db.js";
 import { recoverMetadataSigner } from "../metadataAuth.js";
 import { isAddress } from "viem";
 import { inspectDeliverable } from "../services/aiVerifier.js";
+import { createRateLimiter } from "../middleware/security.js";
 
 const router = Router();
+
+const verifyLimiter = createRateLimiter({
+  windowMs: 60_000,
+  max: 15,
+  message: "Too many AI deliverable audits. Please wait a minute before retrying.",
+});
+
+const metadataLimiter = createRateLimiter({
+  windowMs: 60_000,
+  max: 30,
+  message: "Too many metadata updates. Please slow down.",
+});
 
 /**
  * GET /api/milestones
@@ -99,7 +113,7 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
  * POST /api/milestones/:id/metadata
  * Stores off-chain project briefs, invoice notes, or freelancer email/webhook preferences.
  */
-router.post("/:id/metadata", async (req: Request, res: Response): Promise<void> => {
+router.post("/:id/metadata", metadataLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
       res.status(400).json({ success: false, error: "A JSON object is required" });
@@ -200,15 +214,20 @@ router.post("/:id/metadata", async (req: Request, res: Response): Promise<void> 
  * POST /api/milestones/verify
  * Public deliverable inspection endpoint (pre-submission check)
  */
-router.post("/verify", async (req: Request, res: Response): Promise<void> => {
+router.post("/verify", verifyLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { deliverableUrl, title, brief } = req.body;
+    const { deliverableUrl, title, brief, forceRefresh } = req.body;
     if (!deliverableUrl || typeof deliverableUrl !== "string") {
       res.status(400).json({ success: false, error: "A deliverable URL is required" });
       return;
     }
 
-    const report = await inspectDeliverable({ deliverableUrl, title, brief });
+    const report = await inspectDeliverable({
+      deliverableUrl,
+      title,
+      brief,
+      forceRefresh: Boolean(forceRefresh),
+    });
     res.json({
       success: true,
       data: report,
@@ -226,7 +245,7 @@ router.post("/verify", async (req: Request, res: Response): Promise<void> => {
  * POST /api/milestones/:id/verify
  * Audits a specific milestone's submitted deliverable and generates a verifiable audit report
  */
-router.post("/:id/verify", async (req: Request, res: Response): Promise<void> => {
+router.post("/:id/verify", verifyLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const id = parseInt(rawId, 10);
@@ -255,7 +274,23 @@ router.post("/:id/verify", async (req: Request, res: Response): Promise<void> =>
       title: milestone.title,
       brief: milestone.brief || undefined,
       milestoneId: id,
+      forceRefresh: Boolean(req.body?.forceRefresh),
     });
+
+    // Persist audit summary on the milestone so dashboard cards show real verified status
+    try {
+      await saveMilestoneAudit(id, {
+        overallScore: report.overallScore,
+        grade: report.grade,
+        status: report.status,
+        deliverableUrl: report.deliverableUrl,
+        summary: report.summary,
+        aiEngine: report.metadata.aiEngine,
+        inspectedAt: report.metadata.inspectedAt,
+      });
+    } catch (saveErr) {
+      console.warn(`Unable to persist AI audit summary for milestone #${id}:`, saveErr);
+    }
 
     res.json({
       success: true,

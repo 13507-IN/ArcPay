@@ -35,7 +35,7 @@ export function AiVerificationReport({
   const [report, setReport] = useState<VerificationAuditReport | null>(initialReport || null);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  const handleVerify = async () => {
+  const handleVerify = async (forceRefresh = false) => {
     if (!deliverableUrl) return;
     setIsVerifying(true);
     try {
@@ -44,6 +44,7 @@ export function AiVerificationReport({
         title: milestoneTitle,
         brief: milestoneBrief,
         milestoneId,
+        forceRefresh,
       });
       setReport(result);
       onRefresh?.(result);
@@ -57,7 +58,7 @@ export function AiVerificationReport({
     if (!trimmed || trimmed.length < 10) return;
 
     const timer = setTimeout(() => {
-      handleVerify();
+      handleVerify(false);
     }, 600);
 
     return () => clearTimeout(timer);
@@ -130,7 +131,7 @@ export function AiVerificationReport({
 
         <button
           type="button"
-          onClick={handleVerify}
+          onClick={() => handleVerify(true)}
           disabled={isVerifying}
           className="inline-flex items-center justify-center gap-1.5 rounded-full border border-lav-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink-soft hover:bg-lav-50 hover:text-ink transition-all disabled:opacity-60 shrink-0 shadow-xs"
         >

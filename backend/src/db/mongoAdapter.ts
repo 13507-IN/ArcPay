@@ -5,6 +5,8 @@ import {
   MilestoneMetadataInput,
   MilestoneStats,
   MilestoneStatus,
+  MilestoneAiAuditSummary,
+  PlatformAnalytics,
   GigRecord,
   GigCategory,
   GigApplicationRecord,
@@ -592,5 +594,99 @@ export class MongoAdapter implements DatabaseAdapter {
       }
     );
     return this.getGigById(gigId);
+  }
+
+  public async saveMilestoneAudit(
+    milestoneId: number,
+    audit: MilestoneAiAuditSummary
+  ): Promise<void> {
+    const db = this.getRawDb();
+    const now = Math.floor(Date.now() / 1000);
+    await db.collection<MilestoneRecord>("milestones").updateOne(
+      { id: milestoneId },
+      {
+        $set: {
+          ai_audit: audit,
+          updated_at: now,
+        },
+      }
+    );
+  }
+
+  public async getPlatformAnalytics(): Promise<PlatformAnalytics> {
+    const db = this.getRawDb();
+    const [milestones, gigs, apps] = await Promise.all([
+      db
+        .collection<MilestoneRecord>("milestones")
+        .find({}, { projection: { client: 1, freelancer: 1, amount: 1, status: 1, ai_audit: 1 } })
+        .toArray(),
+      db
+        .collection<GigRecord>("gigs")
+        .find({}, { projection: { client: 1, status: 1 } })
+        .toArray(),
+      db
+        .collection<GigApplicationRecord>("gig_applications")
+        .find({}, { projection: { freelancer: 1 } })
+        .toArray(),
+    ]);
+
+    const clients = new Set<string>();
+    const freelancers = new Set<string>();
+    const allWallets = new Set<string>();
+
+    let auditsCompleted = 0;
+    let auditsFailed = 0;
+
+    for (const m of milestones) {
+      if (m.client) {
+        clients.add(m.client.toLowerCase());
+        allWallets.add(m.client.toLowerCase());
+      }
+      if (m.freelancer) {
+        freelancers.add(m.freelancer.toLowerCase());
+        allWallets.add(m.freelancer.toLowerCase());
+      }
+      if (m.ai_audit) {
+        auditsCompleted += 1;
+        if (m.ai_audit.status === "FAILED") {
+          auditsFailed += 1;
+        }
+      }
+    }
+
+    let openGigs = 0;
+    for (const g of gigs) {
+      if (g.client) {
+        clients.add(g.client.toLowerCase());
+        allWallets.add(g.client.toLowerCase());
+      }
+      if (g.status === "Open") openGigs += 1;
+    }
+
+    for (const a of apps) {
+      if (a.freelancer) {
+        freelancers.add(a.freelancer.toLowerCase());
+        allWallets.add(a.freelancer.toLowerCase());
+      }
+    }
+
+    const stats = calculateMilestoneStats(milestones as unknown as MilestoneRecord[]);
+
+    return {
+      uniqueWallets: allWallets.size,
+      uniqueClients: clients.size,
+      uniqueFreelancers: freelancers.size,
+      totalMilestones: stats.totalMilestones,
+      activeMilestones: stats.activeMilestones,
+      completedMilestones: stats.completedMilestones,
+      totalLockedUSDC: stats.totalLockedUSDC,
+      totalPaidOutUSDC: stats.totalPaidOutUSDC,
+      totalGigs: gigs.length,
+      openGigs,
+      totalProposals: apps.length,
+      auditsCompleted,
+      auditsFailed,
+      generatedAt: new Date().toISOString(),
+    };
   }
 }

@@ -13,6 +13,9 @@ import {
   FileCheck,
   ChevronRight,
   Loader2,
+  Copy,
+  Check,
+  ShieldAlert,
 } from "lucide-react";
 import { Milestone } from "../types";
 import {
@@ -25,6 +28,7 @@ import {
   getRemainingTime,
   getExplorerTxUrl,
   getExplorerAddressUrl,
+  toSafeExternalUrl,
 } from "../lib/utils";
 import { AiVerificationBadge } from "./AiVerificationBadge";
 
@@ -47,6 +51,16 @@ export function MilestoneCard({
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [confirmRelease, setConfirmRelease] = useState(false);
+  const [copiedRole, setCopiedRole] = useState<"client" | "freelancer" | null>(null);
+
+  const handleCopyAddress = (role: "client" | "freelancer", value: string) => {
+    try {
+      navigator.clipboard?.writeText(value);
+      setCopiedRole(role);
+      setTimeout(() => setCopiedRole(null), 1500);
+    } catch {}
+  };
 
   const userAddr = address?.toLowerCase();
   const isClient = userAddr === milestone.client.toLowerCase();
@@ -185,7 +199,7 @@ export function MilestoneCard({
           {(milestone.status === "Submitted" || milestone.status === "Released") && (
             <div className="hidden sm:inline-block">
               <AiVerificationBadge
-                score={96}
+                audit={milestone.ai_audit}
                 onClick={() => onOpenDetailsModal(milestone.id)}
               />
             </div>
@@ -206,38 +220,68 @@ export function MilestoneCard({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 text-xs">
         <div>
           <span className="text-ink-soft block mb-1 font-medium">Client</span>
-          <a
-            href={getExplorerAddressUrl(milestone.client)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono font-medium text-ink hover:text-lav-700 flex items-center gap-1 transition-colors"
-          >
-            {shortenAddress(milestone.client, 4)}
-            {isClient && (
-              <span className="rounded-full bg-lav-100 px-2 py-0.2 text-[10px] text-lav-700 font-sans font-semibold">
-                You
-              </span>
-            )}
-            <ExternalLink className="h-3 w-3 opacity-40" />
-          </a>
+          <div className="flex items-center gap-1.5">
+            <a
+              href={getExplorerAddressUrl(milestone.client)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono font-medium text-ink hover:text-lav-700 flex items-center gap-1 transition-colors"
+            >
+              {shortenAddress(milestone.client, 4)}
+              {isClient && (
+                <span className="rounded-full bg-lav-100 px-2 py-0.2 text-[10px] text-lav-700 font-sans font-semibold">
+                  You
+                </span>
+              )}
+              <ExternalLink className="h-3 w-3 opacity-40" />
+            </a>
+            <button
+              type="button"
+              onClick={() => handleCopyAddress("client", milestone.client)}
+              aria-label="Copy client address"
+              title="Copy client address"
+              className="rounded p-1 text-ink-soft hover:bg-lav-100 hover:text-ink transition-colors"
+            >
+              {copiedRole === "client" ? (
+                <Check className="h-3 w-3 text-emerald-600" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
+            </button>
+          </div>
         </div>
 
         <div>
           <span className="text-ink-soft block mb-1 font-medium">Freelancer</span>
-          <a
-            href={getExplorerAddressUrl(milestone.freelancer)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono font-medium text-ink hover:text-lav-700 flex items-center gap-1 transition-colors"
-          >
-            {shortenAddress(milestone.freelancer, 4)}
-            {isFreelancer && (
-              <span className="rounded-full bg-lav-100 px-2 py-0.5 text-xs text-lav-700 font-sans font-semibold">
-                You
-              </span>
-            )}
-            <ExternalLink className="h-3 w-3 opacity-40" />
-          </a>
+          <div className="flex items-center gap-1.5">
+            <a
+              href={getExplorerAddressUrl(milestone.freelancer)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono font-medium text-ink hover:text-lav-700 flex items-center gap-1 transition-colors"
+            >
+              {shortenAddress(milestone.freelancer, 4)}
+              {isFreelancer && (
+                <span className="rounded-full bg-lav-100 px-2 py-0.5 text-xs text-lav-700 font-sans font-semibold">
+                  You
+                </span>
+              )}
+              <ExternalLink className="h-3 w-3 opacity-40" />
+            </a>
+            <button
+              type="button"
+              onClick={() => handleCopyAddress("freelancer", milestone.freelancer)}
+              aria-label="Copy freelancer address"
+              title="Copy freelancer address"
+              className="rounded p-1 text-ink-soft hover:bg-lav-100 hover:text-ink transition-colors"
+            >
+              {copiedRole === "freelancer" ? (
+                <Check className="h-3 w-3 text-emerald-600" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
+            </button>
+          </div>
         </div>
 
         <div>
@@ -257,31 +301,60 @@ export function MilestoneCard({
         </div>
       </div>
 
-      {/* Deliverable Link if submitted */}
-      {milestone.deliverable_url && (
-        <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-3 mb-4 flex items-center justify-between text-xs">
-          <div className="flex items-center space-x-2 truncate pr-2">
-            <FileCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-            <span className="text-ink-soft shrink-0 font-medium">Deliverable:</span>
-            <a
-              href={milestone.deliverable_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-lav-700 hover:underline truncate font-medium"
-            >
-              {milestone.deliverable_url}
-            </a>
+      {/* Off-chain Scope Preview */}
+      {milestone.brief && (
+        <p className="mb-3 rounded-xl bg-lav-50/40 border border-lav-100 px-3 py-2 text-xs text-ink-soft line-clamp-2">
+          <span className="font-semibold text-ink">Scope:</span> {milestone.brief}
+        </p>
+      )}
+
+      {/* AI Mismatch Guardrail Warning */}
+      {milestone.ai_audit?.status === "FAILED" && milestone.status === "Submitted" && (
+        <div className="mb-3 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs text-rose-800">
+          <ShieldAlert className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+          <div className="min-w-0 flex-1">
+            <span className="font-bold">AI Audit Flagged ({milestone.ai_audit.overallScore}/100): </span>
+            <span>{milestone.ai_audit.summary}</span>
           </div>
-          <a
-            href={milestone.deliverable_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-ink-soft hover:text-ink shrink-0 ml-2"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
         </div>
       )}
+
+      {/* Deliverable Link if submitted */}
+      {milestone.deliverable_url && (() => {
+        const safeUrl = toSafeExternalUrl(milestone.deliverable_url);
+        return (
+          <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-3 mb-4 flex items-center justify-between text-xs">
+            <div className="flex items-center space-x-2 truncate pr-2">
+              <FileCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span className="text-ink-soft shrink-0 font-medium">Deliverable:</span>
+              {safeUrl ? (
+                <a
+                  href={safeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-lav-700 hover:underline truncate font-medium"
+                >
+                  {milestone.deliverable_url}
+                </a>
+              ) : (
+                <span className="font-mono text-rose-700 truncate font-medium">
+                  [Blocked unsafe URL]
+                </span>
+              )}
+            </div>
+            {safeUrl && (
+              <a
+                href={safeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink-soft hover:text-ink shrink-0 ml-2"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Error alert if any */}
       {errorMsg && (
@@ -347,23 +420,68 @@ export function MilestoneCard({
           {/* Client Action: Approve & Instant Pay */}
           {isClient &&
             (milestone.status === "Submitted" || milestone.status === "Funded") && (
-              <button
-                onClick={handleReleasePayment}
-                disabled={isProcessing}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    <span>Settling on Arc...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span>Approve & Instant Pay</span>
-                  </>
-                )}
-              </button>
+              confirmRelease ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setConfirmRelease(false);
+                      void handleReleasePayment();
+                    }}
+                    disabled={isProcessing}
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    )}
+                    <span>Confirm Release</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmRelease(false)}
+                    disabled={isProcessing}
+                    className="rounded-full border border-lav-200 bg-white px-3 py-2 text-xs font-medium text-ink-soft hover:bg-lav-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (
+                      milestone.ai_audit?.status === "FAILED" ||
+                      milestone.status === "Funded"
+                    ) {
+                      setConfirmRelease(true);
+                    } else {
+                      void handleReleasePayment();
+                    }
+                  }}
+                  disabled={isProcessing}
+                  className={`inline-flex min-h-9 items-center gap-1.5 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all active:scale-[0.98] disabled:opacity-50 ${
+                    milestone.ai_audit?.status === "FAILED"
+                      ? "bg-amber-600 hover:bg-amber-700"
+                      : "bg-emerald-600 hover:bg-emerald-700"
+                  }`}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <span>Settling on Arc...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span>
+                        {milestone.ai_audit?.status === "FAILED"
+                          ? "Release Anyway"
+                          : "Approve & Instant Pay"}
+                      </span>
+                    </>
+                  )}
+                </button>
+              )
             )}
 
           {/* Client Action: Refund if deadline expired and still Funded */}

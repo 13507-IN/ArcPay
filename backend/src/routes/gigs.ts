@@ -11,8 +11,24 @@ import {
 } from "../db.js";
 import { recoverGigSigner } from "../gigAuth.js";
 import { GigCategory } from "../types.js";
+import { createRateLimiter } from "../middleware/security.js";
 
 const router = Router();
+
+const gigWriteLimiter = createRateLimiter({
+  windowMs: 60_000,
+  max: 30,
+  message: "Too many gig board requests. Please slow down.",
+});
+
+function isSafeHttpUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.protocol === "https:" || u.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
 
 const VALID_CATEGORIES: GigCategory[] = [
   "Smart Contracts",
@@ -83,7 +99,7 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
  * POST /api/gigs
  * Creates a new open gig post authenticated by the client's wallet signature.
  */
-router.post("/", async (req: Request, res: Response): Promise<void> => {
+router.post("/", gigWriteLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const {
       title,
@@ -127,24 +143,32 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const signer = await recoverGigSigner({
-      action: "create-gig",
-      address,
-      signature,
-      issuedAt,
-    });
-
-    if (!signer || signer.toLowerCase() !== address.toLowerCase()) {
-      res.status(401).json({ success: false, error: "Valid wallet signature required to post a gig" });
-      return;
-    }
-
     const normalizedSkills = Array.isArray(skills)
       ? skills
           .filter((s): s is string => typeof s === "string" && s.trim().length > 0)
           .map((s) => s.trim().slice(0, 32))
           .slice(0, 8)
       : [];
+
+    const signer = await recoverGigSigner({
+      action: "create-gig",
+      address,
+      signature,
+      issuedAt,
+      payload: {
+        title: title.trim(),
+        description: description.trim(),
+        category,
+        budgetUsdc: String(budgetUsdc).trim(),
+        deadlineDays: parsedDays,
+        skills: normalizedSkills,
+      },
+    });
+
+    if (!signer || signer.toLowerCase() !== address.toLowerCase()) {
+      res.status(401).json({ success: false, error: "Valid wallet signature required to post a gig" });
+      return;
+    }
 
     const gig = await createGig({
       client: address,
@@ -170,7 +194,7 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
  * POST /api/gigs/:id/apply
  * Freelancer submits a proposal to an open gig.
  */
-router.post("/:id/apply", async (req: Request, res: Response): Promise<void> => {
+router.post("/:id/apply", gigWriteLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseGigId(req.params.id);
     if (!id) {
@@ -194,8 +218,17 @@ router.post("/:id/apply", async (req: Request, res: Response): Promise<void> => 
       res.status(400).json({ success: false, error: "Proposal pitch must be 10–2500 characters" });
       return;
     }
-    if (portfolioUrl !== undefined && portfolioUrl !== null && String(portfolioUrl).length > 500) {
+    const cleanPortfolio =
+      portfolioUrl !== undefined && portfolioUrl !== null ? String(portfolioUrl).trim() : "";
+    if (cleanPortfolio.length > 500) {
       res.status(400).json({ success: false, error: "Portfolio URL is too long" });
+      return;
+    }
+    if (cleanPortfolio && !isSafeHttpUrl(cleanPortfolio)) {
+      res.status(400).json({
+        success: false,
+        error: "Portfolio URL must start with https:// or http://",
+      });
       return;
     }
     if (typeof address !== "string" || !isAddress(address)) {
@@ -203,12 +236,19 @@ router.post("/:id/apply", async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
+    const cleanProposed = proposedUsdc ? String(proposedUsdc).trim() : null;
+
     const signer = await recoverGigSigner({
       action: "apply-gig",
       address,
       signature,
       issuedAt,
       gigId: id,
+      payload: {
+        pitch: pitch.trim(),
+        portfolioUrl: cleanPortfolio || null,
+        proposedUsdc: cleanProposed,
+      },
     });
     if (!signer || signer.toLowerCase() !== address.toLowerCase()) {
       res.status(401).json({ success: false, error: "Valid wallet signature required to apply" });
@@ -219,8 +259,8 @@ router.post("/:id/apply", async (req: Request, res: Response): Promise<void> => 
       gig_id: id,
       freelancer: address,
       pitch,
-      portfolio_url: portfolioUrl ? String(portfolioUrl) : null,
-      proposed_usdc: proposedUsdc ? String(proposedUsdc) : null,
+      portfolio_url: cleanPortfolio || null,
+      proposed_usdc: cleanProposed,
     });
 
     res.status(201).json({ success: true, data: application });
@@ -237,7 +277,7 @@ router.post("/:id/apply", async (req: Request, res: Response): Promise<void> => 
  * POST /api/gigs/:id/select
  * Client selects an applicant and marks the gig as Assigned.
  */
-router.post("/:id/select", async (req: Request, res: Response): Promise<void> => {
+router.post("/:id/select", gigWriteLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseGigId(req.params.id);
     if (!id) {
@@ -295,7 +335,7 @@ router.post("/:id/select", async (req: Request, res: Response): Promise<void> =>
  * POST /api/gigs/:id/close
  * Client closes an open gig.
  */
-router.post("/:id/close", async (req: Request, res: Response): Promise<void> => {
+router.post("/:id/close", gigWriteLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseGigId(req.params.id);
     if (!id) {
@@ -342,7 +382,7 @@ router.post("/:id/close", async (req: Request, res: Response): Promise<void> => 
  * POST /api/gigs/:id/link-milestone
  * Links an on-chain funded escrow milestone ID to an assigned gig.
  */
-router.post("/:id/link-milestone", async (req: Request, res: Response): Promise<void> => {
+router.post("/:id/link-milestone", gigWriteLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseGigId(req.params.id);
     if (!id) {

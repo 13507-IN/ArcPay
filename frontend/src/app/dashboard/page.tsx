@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAccount, usePublicClient } from "wagmi";
-import { Sparkles, ShieldCheck, Briefcase } from "lucide-react";
+import { Sparkles, ShieldCheck, Briefcase, WifiOff } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { OverviewMetrics } from "@/components/OverviewMetrics";
 import { MilestoneDashboard } from "@/components/MilestoneDashboard";
@@ -11,6 +11,7 @@ import { CreateMilestoneModal } from "@/components/CreateMilestoneModal";
 import { SubmitWorkModal } from "@/components/SubmitWorkModal";
 import { MilestoneDetailsModal } from "@/components/MilestoneDetailsModal";
 import { fetchMilestones, fetchGigs } from "@/lib/api";
+import { computeStatsFromMilestones } from "@/lib/utils";
 import { Milestone, MilestoneStats, Gig, EscrowPrefill } from "@/types";
 import { ESCROW_CONTRACT_ADDRESS, ARC_MILESTONE_ESCROW_ABI } from "@/config/contracts";
 
@@ -23,6 +24,7 @@ export default function DashboardPage() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [stats, setStats] = useState<MilestoneStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [backendOnline, setBackendOnline] = useState(true);
 
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [isGigsLoading, setIsGigsLoading] = useState(true);
@@ -51,7 +53,9 @@ export default function DashboardPage() {
       const data = await fetchMilestones(address);
       setMilestones(data.milestones || []);
       setStats(data.stats || null);
+      setBackendOnline(true);
     } catch (err) {
+      setBackendOnline(false);
       console.warn("Backend not yet indexed, reading directly from contract fallback:", err);
       if (
         publicClient &&
@@ -75,23 +79,35 @@ export default function DashboardPage() {
             });
 
             const statusMap = ["Funded", "Submitted", "Released", "Disputed", "Refunded"] as const;
-            const mapped: Milestone[] = (rawBatch as any[]).map((m) => ({
-              id: Number(m.id),
-              client: m.client,
-              freelancer: m.freelancer,
-              amount: m.amount.toString(),
-              title: m.title,
-              deliverable_url: m.deliverableIpfsOrUrl,
-              deadline: Number(m.deadline),
-              status: statusMap[m.status] || "Funded",
-              created_at: Number(m.createdAt),
-              created_tx_hash: null,
-              submitted_tx_hash: null,
-              released_tx_hash: null,
-              refunded_tx_hash: null,
-            }));
+            const userAddr = address?.toLowerCase();
+            const allMapped: Milestone[] = (rawBatch as any[])
+              .map((m) => ({
+                id: Number(m.id),
+                client: m.client,
+                freelancer: m.freelancer,
+                amount: m.amount.toString(),
+                title: m.title,
+                deliverable_url: m.deliverableIpfsOrUrl,
+                deadline: Number(m.deadline),
+                status: statusMap[m.status] || "Funded",
+                created_at: Number(m.createdAt),
+                created_tx_hash: null,
+                submitted_tx_hash: null,
+                released_tx_hash: null,
+                refunded_tx_hash: null,
+              }))
+              .sort((a, b) => b.id - a.id);
 
-            setMilestones(mapped);
+            const filtered = userAddr
+              ? allMapped.filter(
+                  (m) =>
+                    m.client.toLowerCase() === userAddr ||
+                    m.freelancer.toLowerCase() === userAddr
+                )
+              : allMapped;
+
+            setMilestones(filtered);
+            setStats(computeStatsFromMilestones(allMapped, address));
           }
         } catch (contractErr) {
           console.error("Contract read fallback failed:", contractErr);
@@ -190,6 +206,17 @@ export default function DashboardPage() {
             </button>
           </div>
         </section>
+
+        {!backendOnline && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-xs text-amber-900 shadow-xs">
+            <div className="flex items-center gap-2">
+              <WifiOff className="h-4 w-4 text-amber-700 shrink-0" />
+              <span>
+                <strong>Direct On-Chain Mode:</strong> Backend API unreachable. Escrow lock, submit, and instant USDC payouts still work directly on Circle Arc; start/configure your backend (<code className="font-mono">NEXT_PUBLIC_API_URL</code>) for Open Gigs, Briefs, and AI Audits.
+              </span>
+            </div>
+          </div>
+        )}
 
         {activeTab === "escrows" ? (
           <>
@@ -308,6 +335,7 @@ export default function DashboardPage() {
         milestoneId={selectedDetailsId}
         isOpen={selectedDetailsId !== null}
         onClose={() => setSelectedDetailsId(null)}
+        onAuditUpdated={() => loadMilestonesData(false)}
       />
     </div>
   );

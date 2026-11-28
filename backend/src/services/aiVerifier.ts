@@ -1,12 +1,14 @@
+import dns from "node:dns/promises";
+import net from "node:net";
+
 /**
  * Autonomous AI Deliverable Verification Oracle
  *
  * 1. Fetches real, live deliverable evidence (GitHub REST API repo tree, languages,
- *    README, package.json, PR diffs, or live HTTP deployment content / IPFS gateway).
- * 2. Sends the real evidence + client milestone title/brief to Google Gemini
- *    (when GEMINI_API_KEY is configured) for strict semantic verification.
- * 3. If GEMINI_API_KEY is not configured, performs strict evidence-based domain
- *    and file-tree verification (never blindly passing mismatched deliverables).
+ *    README, package.json, PR diffs, or SSRF-safe HTTP deployment content / IPFS gateway).
+ * 2. Sends the real evidence + client milestone title/brief to Cerebras / Groq / OpenRouter / Gemini
+ *    for strict semantic verification.
+ * 3. Falls back to strict evidence-based domain & file-tree checks if no LLM key is set.
  */
 
 export interface VerificationCheck {
@@ -91,6 +93,124 @@ interface DeliverableEvidence {
 }
 
 const FETCH_TIMEOUT_MS = 7000;
+const MAX_WEB_BODY_BYTES = 262_144; // 256 KB cap
+const AUDIT_CACHE_TTL_MS = 5 * 60 * 1000;
+const MAX_AUDIT_CACHE_ENTRIES = 200;
+
+interface CachedAuditEntry {
+  report: VerificationAuditReport;
+  expiresAt: number;
+}
+
+const auditCache = new Map<string, CachedAuditEntry>();
+
+function isPrivateOrReservedIp(ip: string): boolean {
+  const cleaned = ip.replace(/^::ffff:/i, "");
+  const ipv4Match = cleaned.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4Match) {
+    const [, a, b] = ipv4Match.map(Number);
+    if (
+      a === 0 ||
+      a === 10 ||
+      a === 127 ||
+      (a === 100 && b >= 64 && b <= 127) || // CGNAT
+      (a === 169 && b === 254) || // Link-local / Cloud metadata
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      a >= 224
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  const lower = cleaned.toLowerCase();
+  if (
+    lower === "::1" ||
+    lower === "::" ||
+    lower.startsWith("fc") ||
+    lower.startsWith("fd") ||
+    lower.startsWith("fe80")
+  ) {
+    return true;
+  }
+  return false;
+}
+
+async function assertSafePublicUrl(url: URL): Promise<void> {
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error(`Unsupported protocol: ${url.protocol}`);
+  }
+
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host === "metadata.google.internal"
+  ) {
+    throw new Error("Blocked internal or localhost address");
+  }
+
+  if (net.isIP(host)) {
+    if (isPrivateOrReservedIp(host)) {
+      throw new Error("Blocked private or reserved IP address");
+    }
+    return;
+  }
+
+  const records = await dns.lookup(host, { all: true }).catch(() => null);
+  if (!records || records.length === 0) {
+    throw new Error("Domain DNS resolution failed");
+  }
+  for (const rec of records) {
+    if (isPrivateOrReservedIp(rec.address)) {
+      throw new Error("Blocked domain resolving to private network");
+    }
+  }
+}
+
+async function safePublicWebFetch(initialUrl: URL): Promise<{ res: Response; html: string }> {
+  let currentUrl = initialUrl;
+  for (let hop = 0; hop < 4; hop++) {
+    await assertSafePublicUrl(currentUrl);
+    const res = await fetch(currentUrl.toString(), {
+      method: "GET",
+      redirect: "manual",
+      headers: { "User-Agent": "ArcPay-AI-Oracle/1.0" },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get("location");
+      if (!location) {
+        return { res, html: "" };
+      }
+      currentUrl = new URL(location, currentUrl);
+      continue;
+    }
+
+    const reader = res.body?.getReader();
+    if (!reader) {
+      return { res, html: "" };
+    }
+    const chunks: Uint8Array[] = [];
+    let totalBytes = 0;
+    while (totalBytes < MAX_WEB_BODY_BYTES) {
+      const { done, value } = await reader.read();
+      if (done || !value) break;
+      chunks.push(value);
+      totalBytes += value.byteLength;
+    }
+    try {
+      await reader.cancel();
+    } catch {}
+    const html = Buffer.concat(chunks).toString("utf-8").slice(0, MAX_WEB_BODY_BYTES);
+    return { res, html };
+  }
+  throw new Error("Too many HTTP redirects");
+}
 
 function githubHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
@@ -160,6 +280,14 @@ async function fetchDeliverableEvidence(
     if (parts.length >= 2) {
       const owner = parts[0];
       const repo = parts[1].replace(/\.git$/i, "");
+      if (!/^[a-zA-Z0-9_.-]+$/.test(owner) || !/^[a-zA-Z0-9_.-]+$/.test(repo)) {
+        return {
+          deliverableType: "github_repo",
+          normalizedUrl: parsed.toString(),
+          reachable: false,
+          fetchError: "Invalid GitHub owner or repository name.",
+        };
+      }
       let prNumber: number | undefined;
       let deliverableType: VerificationAuditReport["deliverableType"] =
         "github_repo";
@@ -386,13 +514,7 @@ async function fetchDeliverableEvidence(
     : "generic_url";
 
   try {
-    const res = await fetch(parsed.toString(), {
-      method: "GET",
-      redirect: "follow",
-      headers: { "User-Agent": "ArcPay-AI-Oracle/1.0" },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
-    const html = await res.text();
+    const { res, html } = await safePublicWebFetch(parsed);
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
     const descMatch = html.match(
       /<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i
@@ -897,7 +1019,7 @@ function buildEvidenceBasedFallbackReport(params: {
       oracleSignature: `0xarc_${Date.now().toString(16)}_${Math.random()
         .toString(36)
         .substring(2, 8)}`,
-      aiEngine: "live-inspector (no GEMINI_API_KEY)",
+      aiEngine: "live-inspector (no LLM key)",
       llmConfigured: false,
     },
   };
@@ -908,52 +1030,81 @@ export async function inspectDeliverable(params: {
   title?: string;
   brief?: string;
   milestoneId?: number;
+  forceRefresh?: boolean;
 }): Promise<VerificationAuditReport> {
-  const { deliverableUrl, title = "", brief = "", milestoneId } = params;
+  const {
+    deliverableUrl,
+    title = "",
+    brief = "",
+    milestoneId,
+    forceRefresh = false,
+  } = params;
   const rawUrl = (deliverableUrl || "").trim();
+
+  const cacheKey = `${rawUrl}::${title.trim()}::${brief.trim()}`;
+  const now = Date.now();
+  if (!forceRefresh) {
+    const cached = auditCache.get(cacheKey);
+    if (cached && cached.expiresAt > now) {
+      return {
+        ...cached.report,
+        milestoneId: milestoneId ?? cached.report.milestoneId,
+      };
+    }
+  }
 
   // 1. Fetch live real evidence from GitHub / Web / IPFS
   const evidence = await fetchDeliverableEvidence(rawUrl);
 
-  // 2. If GEMINI_API_KEY is configured, run real LLM semantic audit
-  const geminiResult = await callGeminiAudit({
+  // 2. If Groq / Cerebras / OpenRouter / Gemini is configured, run LLM semantic audit
+  const llmResult = await callGeminiAudit({
     title,
     brief,
     evidence,
   });
 
-  if (geminiResult) {
-    return {
-      milestoneId,
-      deliverableUrl: rawUrl,
-      deliverableType: evidence.deliverableType,
-      overallScore: geminiResult.overallScore,
-      grade: geminiResult.grade,
-      status: geminiResult.status,
-      recommendation: geminiResult.recommendation,
-      summary: geminiResult.summary,
-      checks: geminiResult.checks,
-      metadata: {
-        targetMilestone: title,
-        filesInspected: evidence.github?.totalFiles ?? (evidence.reachable ? 1 : 0),
-        testsDetected: evidence.github?.hasTestFiles ?? false,
-        securityFlags: geminiResult.checks.filter((c) => c.status === "failed").length,
-        inspectedAt: new Date().toISOString(),
-        oracleSignature: `0xarc_${Date.now().toString(16)}_${Math.random()
-          .toString(36)
-          .substring(2, 8)}`,
-        aiEngine: geminiResult.modelUsed,
-        llmConfigured: true,
-      },
-    };
+  const report: VerificationAuditReport = llmResult
+    ? {
+        milestoneId,
+        deliverableUrl: rawUrl,
+        deliverableType: evidence.deliverableType,
+        overallScore: llmResult.overallScore,
+        grade: llmResult.grade,
+        status: llmResult.status,
+        recommendation: llmResult.recommendation,
+        summary: llmResult.summary,
+        checks: llmResult.checks,
+        metadata: {
+          targetMilestone: title,
+          filesInspected:
+            evidence.github?.totalFiles ?? (evidence.reachable ? 1 : 0),
+          testsDetected: evidence.github?.hasTestFiles ?? false,
+          securityFlags: llmResult.checks.filter((c) => c.status === "failed")
+            .length,
+          inspectedAt: new Date().toISOString(),
+          oracleSignature: `0xarc_${Date.now().toString(16)}_${Math.random()
+            .toString(36)
+            .substring(2, 8)}`,
+          aiEngine: llmResult.modelUsed,
+          llmConfigured: true,
+        },
+      }
+    : buildEvidenceBasedFallbackReport({
+        rawUrl,
+        title,
+        brief,
+        evidence,
+        milestoneId,
+      });
+
+  if (auditCache.size >= MAX_AUDIT_CACHE_ENTRIES) {
+    const oldestKey = auditCache.keys().next().value;
+    if (oldestKey) auditCache.delete(oldestKey);
   }
-
-  // 3. Honest live-evidence fallback when GEMINI_API_KEY is missing
-  return buildEvidenceBasedFallbackReport({
-    rawUrl,
-    title,
-    brief,
-    evidence,
-    milestoneId,
+  auditCache.set(cacheKey, {
+    report,
+    expiresAt: now + AUDIT_CACHE_TTL_MS,
   });
+
+  return report;
 }

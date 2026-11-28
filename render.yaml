@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: arcpay-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ARC_TESTNET_RPC
+        value: https://rpc.testnet.arc.io
+      - key: ESCROW_CONTRACT_ADDRESS
+        value: 0xf17d3214dc10428932B0951e1B6AD21e1d6Ade4a
+      - key: INDEXER_START_BLOCK
+        value: "73037949"
+      - key: POLL_INTERVAL_MS
+        value: "10000"
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: arcpay
+      - key: CORS_ORIGINS
+        sync: false
+      - key: CEREBRAS_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false

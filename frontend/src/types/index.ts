@@ -5,6 +5,16 @@ export type MilestoneStatus =
   | "Disputed"
   | "Refunded";
 
+export interface MilestoneAiAuditSummary {
+  overallScore: number;
+  grade: "A+" | "A" | "B" | "C" | "F";
+  status: "PASSED" | "REVIEW_RECOMMENDED" | "FAILED";
+  deliverableUrl: string;
+  summary: string;
+  aiEngine?: string;
+  inspectedAt: string;
+}
+
 export interface Milestone {
   id: number;
   client: string;
@@ -23,6 +33,7 @@ export interface Milestone {
   invoice_notes?: string | null;
   freelancer_email?: string | null;
   freelancer_webhook?: string | null;
+  ai_audit?: MilestoneAiAuditSummary | null;
   updated_at?: number;
 }
 
