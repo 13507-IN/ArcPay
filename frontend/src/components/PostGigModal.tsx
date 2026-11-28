@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { GigCategory, Gig } from "../types";
 import { buildGigAuthorizationMessage, createOpenGig } from "../lib/api";
+import { dojoSfx } from "../lib/dojoSfx";
 
 interface PostGigModalProps {
   isOpen: boolean;
@@ -51,7 +52,7 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
     setErrorMsg(null);
 
     if (!isConnected || !address) {
-      setErrorMsg("Connect your wallet to post an open gig.");
+      setErrorMsg("Connect your wallet to post an open bounty.");
       return;
     }
 
@@ -75,6 +76,7 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
 
     try {
       setIsSubmitting(true);
+      dojoSfx.playSlash();
       const issuedAt = Date.now();
       const payload = {
         title: title.trim(),
@@ -92,11 +94,9 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
       });
 
       const signature = await signMessageAsync({ message });
-      const created = await createOpenGig(
-        payload,
-        { address, issuedAt, signature }
-      );
+      const created = await createOpenGig(payload, { address, issuedAt, signature });
 
+      dojoSfx.playGong(false);
       setTitle("");
       setDescription("");
       onSuccess(created);
@@ -110,26 +110,25 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[28px] border border-lav-200 bg-white p-6 sm:p-8 shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-lav-100 pb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto dojo-card p-6 sm:p-8 text-[#F6EFE0]">
+        <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lav-100 text-lav-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300">
               <Briefcase className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-display text-lg font-semibold text-ink">
-                Post Open Gig
+              <h2 className="font-display text-lg font-bold tracking-wide text-[#F6EFE0]">
+                Post Bounty Quest
               </h2>
-              <p className="text-xs text-ink-soft">
-                Attract builders, compare proposals, then lock USDC escrow when ready
+              <p className="text-xs text-[#A99BB8]">
+                Recruit skilled Ronin, compare pitches, then seal USDC in escrow
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-ink-soft hover:bg-lav-50 hover:text-ink transition-colors"
+            className="rounded-full p-2 text-[#A99BB8] hover:bg-amber-500/15 hover:text-amber-200 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -137,17 +136,16 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           {errorMsg && (
-            <div className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div className="rounded-2xl bg-rose-950/70 border border-rose-500/40 p-3 text-xs text-rose-200 flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-400" />
               <span>{errorMsg}</span>
             </div>
           )}
 
-          {/* Title */}
           <div>
-            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink uppercase tracking-wider">
-              <Sparkles className="h-3.5 w-3.5 text-lav-600" />
-              Gig Title
+            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              Quest Title
             </label>
             <input
               type="text"
@@ -157,20 +155,19 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
               placeholder="e.g. Build & Audit ERC-20 Staking Contract on Arc"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200 transition-all"
+              className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-4 py-2.5 text-sm text-[#F6EFE0] placeholder:text-[#7E708F] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
             />
           </div>
 
-          {/* Category, Budget, Timeline */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-ink uppercase tracking-wider">
-                Category
+              <label className="mb-1.5 block text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+                Discipline
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as GigCategory)}
-                className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-3.5 py-2.5 text-sm text-ink focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200"
+                className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-3.5 py-2.5 text-sm text-[#F6EFE0] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -181,9 +178,9 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
             </div>
 
             <div>
-              <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold text-ink uppercase tracking-wider">
-                <DollarSign className="h-3.5 w-3.5 text-lav-600" />
-                Budget (USDC)
+              <label className="mb-1.5 flex items-center gap-1 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+                <DollarSign className="h-3.5 w-3.5 text-amber-400" />
+                Bounty (USDC)
               </label>
               <input
                 type="number"
@@ -192,13 +189,13 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
                 required
                 value={budgetUsdc}
                 onChange={(e) => setBudgetUsdc(e.target.value)}
-                className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-3.5 py-2.5 text-sm font-semibold text-ink focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200"
+                className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-3.5 py-2.5 text-sm font-mono font-bold text-amber-300 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold text-ink uppercase tracking-wider">
-                <Calendar className="h-3.5 w-3.5 text-lav-600" />
+              <label className="mb-1.5 flex items-center gap-1 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+                <Calendar className="h-3.5 w-3.5 text-amber-400" />
                 Timeline (Days)
               </label>
               <input
@@ -208,15 +205,14 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
                 required
                 value={deadlineDays}
                 onChange={(e) => setDeadlineDays(e.target.value)}
-                className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-3.5 py-2.5 text-sm font-semibold text-ink focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200"
+                className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-3.5 py-2.5 text-sm font-mono font-bold text-[#F6EFE0] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
               />
             </div>
           </div>
 
-          {/* Skills */}
           <div>
-            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink uppercase tracking-wider">
-              <Tag className="h-3.5 w-3.5 text-lav-600" />
+            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+              <Tag className="h-3.5 w-3.5 text-amber-400" />
               Required Skills (comma-separated)
             </label>
             <input
@@ -224,14 +220,13 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
               placeholder="Solidity, Next.js, TypeScript, Figma"
               value={skillsInput}
               onChange={(e) => setSkillsInput(e.target.value)}
-              className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200"
+              className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-4 py-2.5 text-sm text-[#F6EFE0] placeholder:text-[#7E708F] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
             />
           </div>
 
-          {/* Description / Acceptance Criteria */}
           <div>
-            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink uppercase tracking-wider">
-              <FileText className="h-3.5 w-3.5 text-lav-600" />
+            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+              <FileText className="h-3.5 w-3.5 text-amber-400" />
               Scope &amp; Acceptance Criteria
             </label>
             <textarea
@@ -239,13 +234,13 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
               minLength={10}
               maxLength={5000}
               rows={4}
-              placeholder="Describe exact deliverables, tech stack, and what must pass review (our AI Deliverable Auditor also uses this scope when the work is submitted)..."
+              placeholder="Describe exact deliverables, tech stack, and acceptance criteria (our AI Oracle checks submissions against this exact brief)..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-4 py-3 text-sm text-ink placeholder:text-ink-soft/60 focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200"
+              className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-4 py-3 text-sm text-[#F6EFE0] placeholder:text-[#7E708F] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
             />
-            <p className="text-[11px] text-ink-soft mt-1">
-              Posting is gasless (wallet signature only). You only lock USDC on-chain once you pick a freelancer.
+            <p className="text-[11px] text-[#A99BB8] mt-1">
+              Gasless wallet signature only. You fund USDC on-chain once you select a Ronin.
             </p>
           </div>
 
@@ -254,14 +249,14 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="rounded-full border border-lav-200 bg-white px-5 py-2.5 text-sm font-medium text-ink hover:bg-lav-50 transition-colors"
+              className="rounded-full border border-white/15 bg-[#161022] px-5 py-2.5 text-sm font-semibold text-[#C7BBD4] hover:text-white transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-lav-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-lav-700 transition-all disabled:opacity-60"
+              className="katana-btn inline-flex min-h-10 items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-amber-600 px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-glow hover:brightness-110 transition-all disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>
@@ -271,7 +266,7 @@ export function PostGigModal({ isOpen, onClose, onSuccess }: PostGigModalProps) 
               ) : (
                 <>
                   <Briefcase className="h-4 w-4" />
-                  <span>Publish Open Gig</span>
+                  <span>Publish Bounty Quest</span>
                 </>
               )}
             </button>

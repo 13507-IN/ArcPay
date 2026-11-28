@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import "@rainbow-me/rainbowkit/styles.css";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { config } from "../config/wagmi";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -29,10 +29,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
-          theme={lightTheme({
-            accentColor: "#7C57C9",
-            accentColorForeground: "white",
-            borderRadius: "large",
+          theme={darkTheme({
+            accentColor: "#E11D48",
+            accentColorForeground: "#FFFFFF",
+            borderRadius: "medium",
             fontStack: "system",
             overlayBlur: "small",
           })}
@@ -40,7 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {mounted ? (
             children
           ) : (
-            <div className="min-h-screen bg-[#FAF8FE] text-ink antialiased">
+            <div className="min-h-screen bg-[#08050D] text-[#F6EFE0] antialiased">
               {children}
             </div>
           )}

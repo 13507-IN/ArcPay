@@ -1,56 +1,69 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check, Sparkles, ShieldCheck, Cpu } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  Sparkles,
+  Swords,
+  Briefcase,
+  ShieldCheck,
+} from "lucide-react";
 import { MilestoneDemo } from "@/components/landing/MilestoneDemo";
 import { AnimeShadowBackground } from "@/components/landing/AnimeShadowBackground";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { NetworkSwitcher } from "@/components/NetworkSwitcher";
+import { DojoAudioButton } from "@/components/DojoAudioButton";
+import { DuelArenaSvg, CrossedKatanaSvg } from "@/components/DojoGraphics";
 
 const steps = [
   {
-    title: "Fund",
-    body: "The client locks the agreed amount in the escrow contract. The money sits on-chain, not with ArcPay.",
+    act: "Act I",
+    title: "Seal the Vault (Fund)",
+    body: "The Patron locks USDC directly inside the on-chain Circle Arc smart contract. Funds sit immutably on-chain — never custodied by ArcPay.",
   },
   {
-    title: "Submit",
-    body: "The freelancer posts the deliverable link — a pull request, a Figma file, an IPFS hash. The milestone moves to Submitted.",
+    act: "Act II",
+    title: "Deliver & Audit (Submit)",
+    body: "The Ronin submits a GitHub repo, PR, Figma canvas, deployment, or IPFS hash. Our AI Deliverable Oracle inspects live code & scope alignment.",
   },
   {
-    title: "Release",
-    body: "The client approves, and the contract pays the freelancer in native USDC. Settlement is final in under a second.",
+    act: "Act III",
+    title: "Strike & Settle (Release)",
+    body: "Once approved, native 18-decimal USDC settles straight to the builder's wallet with <1s Malachite BFT finality.",
   },
 ];
 
 const clientPoints = [
-  "Set the amount, deadline, and freelancer in one transaction.",
-  "Review the full event timeline before approving.",
-  "Reclaim the funds if the deadline passes with no submission.",
+  "Lock bounty USDC, deadline, and Ronin address in one signed strike.",
+  "Post Open Gigs on the Dojo Bounty Board to attract competitive builders.",
+  "Reclaim locked funds automatically if the deadline passes unsubmitted.",
 ];
 
 const freelancerPoints = [
-  "See the escrowed balance before you start work.",
-  "Submit a PR, design file, or IPFS link as proof.",
-  "Get paid the moment the client approves.",
+  "Verify on-chain vault liquidity before drawing a single line of code.",
+  "Apply to Open Gigs with proposals or submit live repo proof scrolls.",
+  "Receive instant native USDC settlement upon approval.",
 ];
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-transparent font-body text-ink selection:bg-rose-200">
+    <div className="relative min-h-screen bg-transparent font-body text-[#F6EFE0] selection:bg-rose-600/40">
       <ScrollReveal />
-      {/* Aesthetic Anime & Shadow Fight Background with Falling Sakura Petals */}
+      {/* Interactive Shadow Fight 2 Twilight Canvas with Dueling Silhouettes & Katana Slash Sparks */}
       <AnimeShadowBackground />
 
-      <header className="sticky top-0 z-40 bg-slate-950/40 backdrop-blur-md border-b border-white/10 transition-opacity duration-300">
+      <header className="sticky top-0 z-40 bg-[#09060E]/75 backdrop-blur-xl border-b border-amber-500/20 shadow-lg shadow-black/40">
         <div className="mx-auto flex h-20 max-w-[1480px] w-full items-center justify-between px-6 sm:px-10 lg:px-16 xl:px-20">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <span className="flex h-9 w-12 items-center justify-center rounded-xl bg-black border border-white/15 p-1 shadow-md shadow-rose-950/40 transition-transform group-hover:scale-105 overflow-hidden">
+              <span className="flex h-10 w-14 items-center justify-center rounded-xl bg-black border border-amber-500/40 p-1 shadow-glow-gold transition-transform group-hover:scale-105 overflow-hidden">
                 <img
                   src="/logo.png"
                   alt="ArcPay Logo"
                   className="h-full w-full object-contain"
                 />
               </span>
-              <span className="font-display text-lg font-semibold tracking-tight text-white">
+              <span className="font-display text-lg font-bold tracking-wider text-[#F6EFE0] uppercase">
                 ArcPay
               </span>
             </Link>
@@ -59,163 +72,199 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <nav className="hidden items-center gap-8 text-sm font-medium text-rose-100/80 sm:flex">
-            <a href="#how" className="transition-colors hover:text-white">
-              How it works
+          <nav className="hidden items-center gap-7 text-sm font-semibold uppercase tracking-wider text-[#C7BBD4] md:flex">
+            <a href="#how" className="transition-colors hover:text-amber-300">
+              Three Acts
             </a>
-            <a href="#network" className="transition-colors hover:text-white">
-              Network
+            <a href="#network" className="transition-colors hover:text-amber-300">
+              Arena L1
             </a>
-            <a href="#teams" className="transition-colors hover:text-white">
-              For teams
+            <a href="#teams" className="transition-colors hover:text-amber-300">
+              Duelists
             </a>
             <Link
               href="/dashboard?tab=gigs"
-              className="transition-colors text-white font-semibold hover:text-rose-200"
+              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-amber-200 transition-colors"
             >
-              Open Gigs
+              <Briefcase className="h-3.5 w-3.5" />
+              <span>Bounty Board</span>
             </Link>
           </nav>
 
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-600 to-lav-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-600/30 transition-all hover:scale-105 hover:from-rose-500 hover:to-lav-500 active:scale-95"
-          >
-            Launch app
-            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+          <div className="flex items-center gap-2.5">
+            <DojoAudioButton />
+            <Link
+              href="/dashboard"
+              className="katana-btn inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-600 via-rose-500 to-amber-600 px-5 py-2.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-glow transition-all hover:scale-105 hover:brightness-110 active:scale-95"
+            >
+              <span>Enter Dojo</span>
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
         </div>
       </header>
 
-      <main className="relative z-10 transition-opacity duration-300">
+      <main className="relative z-10">
+        {/* HERO SECTION */}
         <section className="bg-transparent">
-          <div className="mx-auto grid max-w-[1480px] w-full gap-12 px-6 pb-24 pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16 lg:px-16 xl:px-20 lg:pb-32 lg:pt-20">
+          <div className="mx-auto grid max-w-[1480px] w-full gap-12 px-6 pb-20 pt-12 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:gap-16 lg:px-16 xl:px-20 lg:pb-28 lg:pt-16">
             <div className="max-w-3xl">
-              <div className="landing-rise inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3.5 py-1 text-xs font-semibold text-rose-200 backdrop-blur-md mb-6">
-                <Sparkles className="h-3.5 w-3.5 text-rose-300" />
-                <span>Autonomous AI Deliverable Verification · Circle Arc L1</span>
+              <div className="landing-rise inline-flex items-center gap-2 rounded-full bg-[#161022]/85 border border-amber-500/35 px-3.5 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-300 backdrop-blur-md mb-6 shadow-glow-gold">
+                <CrossedKatanaSvg className="h-3.5 w-3.5 text-rose-400" />
+                <span>Shadow Dojo Escrow · AI Audit · Circle Arc L1</span>
               </div>
-              <h1 className="landing-rise font-display text-5xl font-semibold leading-[0.98] tracking-[-0.035em] text-white drop-shadow-md sm:text-6xl lg:text-7xl">
-                Escrow for global teams.
+
+              <h1 className="landing-rise font-display text-4xl font-extrabold leading-[1.03] tracking-tight text-[#F6EFE0] drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)] sm:text-6xl lg:text-7xl uppercase">
+                Honor Every Contract.{" "}
+                <span className="bg-gradient-to-r from-amber-300 via-amber-500 to-rose-500 bg-clip-text text-transparent">
+                  Settle in &lt;1s.
+                </span>
               </h1>
-              <p className="landing-rise landing-rise-1 mt-6 max-w-2xl text-lg leading-relaxed text-rose-100/90 sm:text-xl">
-                ArcPay holds each milestone&rsquo;s funds in an on-chain contract,
-                autonomously audits code &amp; deliverables with an AI Oracle, and
-                releases native USDC in under a second — on Circle&rsquo;s Arc Layer-1.
+
+              <p className="landing-rise landing-rise-1 mt-6 max-w-2xl text-base sm:text-xl leading-relaxed text-[#E4DAF0]">
+                ArcPay fuses{" "}
+                <strong className="text-amber-300 font-semibold">
+                  trustless USDC milestone vaults
+                </strong>{" "}
+                with an adversarial{" "}
+                <strong className="text-rose-300 font-semibold">
+                  AI Code &amp; Deliverable Oracle
+                </strong>{" "}
+                and an Open Bounty Board — forged on Circle&rsquo;s Arc Layer-1.
               </p>
-              <div className="landing-rise landing-rise-2 mt-10 flex flex-wrap items-center gap-4">
+
+              {/* Inline Shadow Duelist Arena SVG */}
+              <div className="landing-rise landing-rise-1 mt-6 max-w-xl rounded-2xl border border-amber-500/20 bg-[#0D0815]/70 p-2 backdrop-blur-md shadow-xl">
+                <DuelArenaSvg className="w-full h-24 sm:h-28" />
+              </div>
+
+              <div className="landing-rise landing-rise-2 mt-8 flex flex-wrap items-center gap-4">
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-lav-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-rose-950/40 transition-all hover:from-rose-500 hover:to-lav-500 hover:scale-105 active:scale-95"
+                  className="katana-btn inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-amber-600 px-7 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-glow transition-all hover:scale-105 hover:brightness-110 active:scale-95"
                 >
-                  Launch app
+                  <Swords className="h-4 w-4" aria-hidden="true" />
+                  <span>Enter Escrow Dojo</span>
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
-                <a
-                  href="#how"
-                  className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white bg-white/10 backdrop-blur-md border border-white/20 shadow-sm transition-all hover:bg-white/20 hover:text-white"
+
+                <Link
+                  href="/dashboard?tab=gigs"
+                  className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold uppercase tracking-wider text-amber-200 bg-[#140D20]/85 backdrop-blur-md border border-amber-500/35 shadow-sm transition-all hover:bg-amber-500/20 hover:border-amber-400"
                 >
-                  See how it works
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </a>
+                  <Briefcase className="h-4 w-4 text-amber-400" />
+                  <span>Browse Open Gigs</span>
+                </Link>
               </div>
-              <p className="landing-rise landing-rise-3 mt-10 text-sm text-rose-200/75">
-                Built on Circle Arc Testnet · Chain 5042002 · Native 18-decimal
-                USDC
+
+              <p className="landing-rise landing-rise-3 mt-7 text-xs font-semibold uppercase tracking-widest text-amber-200/75">
+                Tip: Click anywhere in the twilight sky to unleash a Katana Wind Slash · Native 18-dec USDC
               </p>
             </div>
 
             <div className="landing-rise landing-rise-2">
-              <div className="rounded-[40px] bg-white/95 backdrop-blur-xl p-5 sm:p-8 lg:p-10 border border-white/40 shadow-2xl shadow-rose-950/30">
+              <div className="dojo-card p-3 sm:p-5 lg:p-6">
                 <MilestoneDemo />
               </div>
             </div>
           </div>
         </section>
 
-        <section id="how" className="bg-white/80 backdrop-blur-md border-t border-lav-200/40">
-          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
+        {/* HOW IT WORKS / THREE ACTS */}
+        <section
+          id="how"
+          className="bg-[#0B0812]/82 backdrop-blur-xl border-t border-amber-500/20"
+        >
+          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-28">
             <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
               <div className="lg:sticky lg:top-28 lg:self-start">
-                <h2 className="reveal font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-5xl">
-                  Three moves, one calm ledger.
+                <span className="text-xs font-bold uppercase tracking-[0.22em] text-amber-400">
+                  The Way of Escrow
+                </span>
+                <h2 className="reveal mt-2 font-display text-4xl font-bold leading-tight tracking-wide text-[#F6EFE0] sm:text-5xl">
+                  Three Strikes, One Immutable Scroll.
                 </h2>
-                <p className="reveal mt-6 max-w-md text-lg leading-relaxed text-ink">
-                  Every milestone follows the same short path. The funds stay
-                  visible the whole time, and neither side has to trust a bank
-                  transfer.
-                </p>
-                <p className="reveal mt-6 max-w-md text-base leading-relaxed text-ink">
-                  If work never arrives, the client can reclaim the locked
-                  amount once the deadline passes.
+                <p className="reveal mt-5 max-w-md text-base sm:text-lg leading-relaxed text-[#C7BBD4]">
+                  Every contract follows a strict martial code. Funds remain
+                  locked and visible on-chain until work passes inspection.
                 </p>
 
                 <div
                   data-ui
-                  className="reveal mt-8 max-w-md rounded-3xl border border-lav-200 bg-white p-5"
+                  className="reveal dojo-card mt-8 max-w-md p-5"
                 >
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-ink">Activity</p>
-                    <p className="text-sm text-ink-soft">Mar 10</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-amber-300">
+                      Scroll Battle Log
+                    </p>
+                    <p className="text-xs font-mono text-[#A99BB8]">Chain 5042002</p>
                   </div>
                   <ul className="mt-4 space-y-3 text-sm">
                     <li className="flex items-center justify-between gap-3">
-                      <span className="flex items-center gap-2 text-ink">
+                      <span className="flex items-center gap-2 text-[#F6EFE0]">
                         <span
-                          className="h-1.5 w-1.5 rounded-full bg-lav-600"
+                          className="h-2 w-2 rounded-full bg-rose-500"
                           aria-hidden="true"
                         />
-                        Funded
+                        Vault Sealed
                       </span>
-                      <span className="tabular-nums text-ink-soft">
+                      <span className="font-mono font-bold tabular-nums text-amber-300">
                         2,400.00 USDC
                       </span>
                     </li>
                     <li className="flex items-center justify-between gap-3">
-                      <span className="flex items-center gap-2 text-ink">
+                      <span className="flex items-center gap-2 text-[#F6EFE0]">
                         <span
-                          className="h-1.5 w-1.5 rounded-full bg-lav-500"
+                          className="h-2 w-2 rounded-full bg-amber-400"
                           aria-hidden="true"
                         />
-                        Submitted
+                        AI Oracle Checked
                       </span>
-                      <span className="text-ink-soft">figma.com/file</span>
+                      <span className="font-mono text-xs text-emerald-400">
+                        github.com/pr/42
+                      </span>
                     </li>
                     <li className="flex items-center justify-between gap-3">
-                      <span className="flex items-center gap-2 text-ink">
+                      <span className="flex items-center gap-2 text-[#F6EFE0]">
                         <span
-                          className="h-1.5 w-1.5 rounded-full bg-lav-500"
+                          className="h-2 w-2 rounded-full bg-emerald-400"
                           aria-hidden="true"
                         />
-                        Released
+                        Victory Payout
                       </span>
-                      <span className="tabular-nums text-ink-soft">
+                      <span className="font-mono tabular-nums text-[#A99BB8]">
                         0x4c9d…8e04
                       </span>
                     </li>
                   </ul>
-                  <div className="mt-4 flex items-center justify-between border-t border-lav-100 pt-3 text-sm">
-                    <span className="text-ink-soft">Escrow closed</span>
-                    <span className="font-medium text-ink">0.8s</span>
+                  <div className="mt-4 flex items-center justify-between border-t border-amber-500/20 pt-3 text-xs font-semibold uppercase tracking-wider">
+                    <span className="text-[#A99BB8]">Finality Speed</span>
+                    <span className="text-emerald-400">0.8s Deterministic</span>
                   </div>
                 </div>
               </div>
 
-              <div className="relative space-y-14 pl-8">
+              <div className="relative space-y-12 pl-8">
                 <span
-                  className="absolute bottom-2 left-[7px] top-2 w-[3px] rounded-full bg-lav-200"
+                  className="absolute bottom-2 left-[7px] top-2 w-[3px] rounded-full bg-gradient-to-b from-rose-600 via-amber-500 to-emerald-500"
                   aria-hidden="true"
                 />
                 {steps.map((step) => (
-                  <div key={step.title} className="reveal relative">
+                  <div
+                    key={step.title}
+                    className="reveal dojo-card p-6 relative"
+                  >
                     <span
-                      className="absolute -left-8 top-2 h-4 w-4 rounded-full bg-lav-600"
+                      className="absolute -left-10 top-7 h-4 w-4 rounded-full bg-amber-400 ring-4 ring-[#0B0812] shadow-glow-gold"
                       aria-hidden="true"
                     />
-                    <h3 className="font-display text-3xl font-semibold tracking-tight text-ink">
+                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-rose-400">
+                      {step.act}
+                    </span>
+                    <h3 className="mt-1 font-display text-2xl sm:text-3xl font-bold tracking-wide text-[#F6EFE0]">
                       {step.title}
                     </h3>
-                    <p className="mt-3 max-w-lg text-lg leading-relaxed text-ink">
+                    <p className="mt-3 text-base leading-relaxed text-[#C7BBD4]">
                       {step.body}
                     </p>
                   </div>
@@ -225,70 +274,82 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="network" className="bg-lav-100/85 backdrop-blur-md border-t border-lav-200/40">
-          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
+        {/* CIRCLE ARC ARENA SPECS */}
+        <section
+          id="network"
+          className="bg-[#120D1B]/85 backdrop-blur-xl border-t border-amber-500/20"
+        >
+          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-28">
             <div className="max-w-2xl">
-              <h2 className="reveal font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-5xl">
-                Settled on Circle Arc.
+              <span className="text-xs font-bold uppercase tracking-[0.22em] text-rose-400">
+                Arena Infrastructure
+              </span>
+              <h2 className="reveal mt-2 font-display text-4xl font-bold leading-tight tracking-wide text-[#F6EFE0] sm:text-5xl">
+                Forged on Circle Arc Layer-1.
               </h2>
-              <p className="reveal mt-6 text-lg leading-relaxed text-ink">
-                Arc is Circle&rsquo;s Layer-1 for money movement. ArcPay uses it
-                directly — no bridges, no wrapped assets, and no waiting on a
-                bank.
+              <p className="reveal mt-5 text-base sm:text-lg leading-relaxed text-[#C7BBD4]">
+                Arc is Circle&rsquo;s native Layer-1 for instant USDC liquidity.
+                Zero bridges, zero wrapped tokens, zero waiting on clearinghouses.
               </p>
             </div>
 
-            <div className="mt-16 grid gap-10 sm:grid-cols-3 lg:gap-16">
-              <div className="reveal">
-                <p className="font-display text-4xl font-semibold tracking-tight text-ink">
+            <div className="mt-14 grid gap-6 sm:grid-cols-3 lg:gap-8">
+              <div className="reveal dojo-card p-7">
+                <p className="font-display text-4xl font-extrabold tracking-tight text-amber-300">
                   &lt;1s
                 </p>
-                <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-soft">
-                  Malachite BFT settles every release deterministically.
+                <p className="mt-3 text-sm leading-relaxed text-[#C7BBD4]">
+                  Malachite BFT settles every milestone strike deterministically.
                 </p>
               </div>
-              <div className="reveal">
-                <p className="font-display text-4xl font-semibold tracking-tight text-ink">
-                  18-dec
+              <div className="reveal dojo-card p-7">
+                <p className="font-display text-4xl font-extrabold tracking-tight text-rose-400">
+                  18-DEC
                 </p>
-                <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-soft">
-                  Native USDC is the gas token and the payout asset, with no
-                  wrapper.
+                <p className="mt-3 text-sm leading-relaxed text-[#C7BBD4]">
+                  Native USDC powers both gas and bounty payouts seamlessly.
                 </p>
               </div>
-              <div className="reveal">
-                <p className="font-display text-4xl font-semibold tracking-tight text-ink tabular-nums">
+              <div className="reveal dojo-card p-7">
+                <p className="font-display text-4xl font-extrabold tracking-tight text-emerald-400 tabular-nums">
                   5042002
                 </p>
-                <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-soft">
-                  Arc Testnet, live today for teams and freelancers.
+                <p className="mt-3 text-sm leading-relaxed text-[#C7BBD4]">
+                  Circle Arc Testnet Arena, open today for Patrons &amp; Ronin.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="teams" className="bg-white/80 backdrop-blur-md border-t border-lav-200/40">
-          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-32">
-            <h2 className="reveal max-w-2xl font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-5xl">
-              One contract, both sides of the table.
+        {/* DUAL ROLES: PATRON vs RONIN */}
+        <section
+          id="teams"
+          className="bg-[#0B0812]/82 backdrop-blur-xl border-t border-amber-500/20"
+        >
+          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-28">
+            <h2 className="reveal max-w-2xl font-display text-4xl font-bold leading-tight tracking-wide text-[#F6EFE0] sm:text-5xl">
+              One Smart Contract. Both Sides Protected.
             </h2>
 
-            <div className="mt-16 grid gap-14 lg:grid-cols-2 lg:gap-20">
-              <div className="reveal">
-                <h3 className="font-display text-2xl font-semibold text-ink">
-                  For clients
-                </h3>
-                <p className="mt-4 max-w-md text-lg leading-relaxed text-ink">
-                  Fund work with a clear deadline and a single approval. The
-                  amount is locked on-chain, so your team knows the money is
-                  there.
+            <div className="mt-14 grid gap-10 lg:grid-cols-2 lg:gap-14">
+              {/* Patron Card */}
+              <div className="reveal dojo-card p-7 sm:p-9 space-y-6">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-rose-500/15 border border-rose-500/40 px-3 py-1 text-xs font-bold uppercase tracking-widest text-rose-300">
+                    For Patrons (Clients)
+                  </span>
+                  <ShieldCheck className="h-5 w-5 text-amber-400" />
+                </div>
+                <p className="text-base sm:text-lg leading-relaxed text-[#E4DAF0]">
+                  Fund bounties with an enforceable deadline and AI-assisted
+                  deliverable verification before releasing USDC.
                 </p>
-                <ul className="mt-6 space-y-3 text-base text-ink">
+                <ul className="space-y-3 text-sm sm:text-base text-[#C7BBD4]">
                   {clientPoints.map((point) => (
                     <li key={point} className="flex gap-3">
                       <span
-                        className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-lav-500"
+                        className="mt-2 h-2 w-2 shrink-0 rounded-full bg-rose-500"
                         aria-hidden="true"
                       />
                       <span className="leading-relaxed">{point}</span>
@@ -296,48 +357,44 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <div
-                  data-ui
-                  className="mt-8 max-w-md rounded-3xl border border-lav-200 bg-lav-50 p-5"
-                >
-                  <p className="text-sm font-medium text-ink">New milestone</p>
-                  <div className="mt-4 space-y-2.5 text-sm">
-                    <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-2.5">
-                      <span className="text-ink-soft">Title</span>
-                      <span className="font-medium text-ink">
-                        Website redesign
+                <div className="rounded-2xl border border-amber-500/25 bg-[#0D0914] p-5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-amber-300">
+                    Escrow Summon Scroll
+                  </p>
+                  <div className="mt-3 space-y-2 text-xs sm:text-sm">
+                    <div className="flex items-center justify-between rounded-xl bg-[#161022] px-4 py-2.5">
+                      <span className="text-[#A99BB8]">Quest</span>
+                      <span className="font-semibold text-[#F6EFE0]">
+                        Smart Contract Audit
                       </span>
                     </div>
-                    <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-2.5">
-                      <span className="text-ink-soft">Amount</span>
-                      <span className="font-medium tabular-nums text-ink">
+                    <div className="flex items-center justify-between rounded-xl bg-[#161022] px-4 py-2.5">
+                      <span className="text-[#A99BB8]">Vault Stake</span>
+                      <span className="font-mono font-bold tabular-nums text-amber-300">
                         2,400.00 USDC
                       </span>
                     </div>
-                    <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-2.5">
-                      <span className="text-ink-soft">Due</span>
-                      <span className="font-medium text-ink">Mar 14</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 rounded-full bg-lav-600 px-4 py-2.5 text-center text-sm font-semibold text-white">
-                    Fund escrow
                   </div>
                 </div>
               </div>
 
-              <div className="reveal lg:mt-16">
-                <h3 className="font-display text-2xl font-semibold text-ink">
-                  For freelancers
-                </h3>
-                <p className="mt-4 max-w-md text-lg leading-relaxed text-ink">
-                  See the money before you start. When the client approves, the
-                  payout lands in your wallet in the same breath.
+              {/* Ronin Card */}
+              <div className="reveal dojo-card p-7 sm:p-9 space-y-6">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-amber-500/15 border border-amber-500/40 px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-300">
+                    For Ronin (Freelancers)
+                  </span>
+                  <Swords className="h-5 w-5 text-rose-400" />
+                </div>
+                <p className="text-base sm:text-lg leading-relaxed text-[#E4DAF0]">
+                  Verify the locked USDC stake on-chain before you write a line
+                  of code — and claim instant payout on approval.
                 </p>
-                <ul className="mt-6 space-y-3 text-base text-ink">
+                <ul className="space-y-3 text-sm sm:text-base text-[#C7BBD4]">
                   {freelancerPoints.map((point) => (
                     <li key={point} className="flex gap-3">
                       <span
-                        className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-lav-500"
+                        className="mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-400"
                         aria-hidden="true"
                       />
                       <span className="leading-relaxed">{point}</span>
@@ -345,28 +402,22 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <div
-                  data-ui
-                  className="mt-8 min-h-[210px] max-w-md rounded-3xl border border-lav-200 bg-lav-50 p-5"
-                >
+                <div className="rounded-2xl border border-emerald-500/30 bg-[#0D0914] p-5">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-ink">
-                      Payout released
+                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                      Victory Settlement
                     </p>
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-lav-600 text-white">
-                      <Check className="h-3 w-3" aria-hidden="true" />
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                      <Check className="h-3.5 w-3.5" aria-hidden="true" />
                     </span>
                   </div>
-                  <p className="mt-4 font-display text-3xl font-semibold tracking-tight text-ink tabular-nums">
+                  <p className="mt-3 font-display text-3xl font-bold tracking-tight text-[#F6EFE0] tabular-nums">
                     2,400.00{" "}
-                    <span className="text-base font-medium text-ink-soft">
-                      USDC
-                    </span>
+                    <span className="text-sm font-medium text-amber-300">USDC</span>
                   </p>
-                  <p className="mt-2 text-sm text-ink-soft">to 0x4c9d…8e04</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-lav-200 pt-3 text-sm">
-                    <span className="text-ink-soft">Settled</span>
-                    <span className="font-medium text-ink">0.8s · Arc</span>
+                  <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-xs text-[#A99BB8]">
+                    <span>Ronin 0x4c9d…8e04</span>
+                    <span className="font-semibold text-emerald-400">0.8s · Arc</span>
                   </div>
                 </div>
               </div>
@@ -374,39 +425,44 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-lav-600">
-          <div className="mx-auto max-w-[1480px] w-full px-6 py-24 sm:px-10 lg:px-16 xl:px-20 lg:py-28">
+        {/* FINAL CTA BANNER */}
+        <section className="bg-gradient-to-r from-[#2D0B1E]/95 via-[#180E25]/95 to-[#2D1A09]/95 border-t border-amber-500/30 backdrop-blur-xl">
+          <div className="mx-auto max-w-[1480px] w-full px-6 py-20 sm:px-10 lg:px-16 xl:px-20">
             <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-              <h2 className="reveal font-display text-4xl font-semibold leading-tight tracking-[-0.02em] text-white sm:text-5xl">
-                Put the next project in escrow.
-              </h2>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-400">
+                  Ready for Battle
+                </p>
+                <h2 className="reveal mt-2 font-display text-3xl font-bold leading-tight tracking-wide text-[#F6EFE0] sm:text-5xl">
+                  Seal Your Next Bounty in the ArcPay Dojo.
+                </h2>
+              </div>
               <div className="reveal sm:justify-self-end sm:text-right">
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-lav-700 transition-colors hover:bg-lav-50"
+                  className="katana-btn inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-amber-500 px-7 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-glow transition hover:scale-105"
                 >
-                  Launch app
+                  <span>Enter Dojo</span>
                   <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
-                <p className="mt-4 text-sm text-white/80">
-                  Testnet USDC is free from the Circle faucet.
+                <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-amber-200/80">
+                  Free Testnet USDC from Circle Faucet · Arc Chain 5042002
                 </p>
-                <p className="mt-2 text-sm text-white/80">Arc Testnet · Live</p>
               </div>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="bg-white/90 backdrop-blur-md border-t border-lav-200/50 transition-opacity duration-300">
-        <div className="mx-auto max-w-[1480px] w-full px-6 py-16 sm:px-10 lg:px-16 xl:px-20">
+      <footer className="relative z-10 bg-[#08050D]/95 backdrop-blur-xl border-t border-amber-500/20">
+        <div className="mx-auto max-w-[1480px] w-full px-6 py-14 sm:px-10 lg:px-16 xl:px-20">
           <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <Link
                 href="/"
-                className="inline-flex items-center gap-3 font-display text-2xl font-semibold tracking-tight text-ink group"
+                className="inline-flex items-center gap-3 font-display text-2xl font-bold tracking-wider text-[#F6EFE0] uppercase group"
               >
-                <span className="flex h-10 w-14 items-center justify-center rounded-xl bg-black border border-lav-200/80 p-1 shadow-sm transition-transform group-hover:scale-105 overflow-hidden">
+                <span className="flex h-10 w-14 items-center justify-center rounded-xl bg-black border border-amber-500/40 p-1 shadow-glow-gold transition-transform group-hover:scale-105 overflow-hidden">
                   <img
                     src="/logo.png"
                     alt="ArcPay Logo"
@@ -415,29 +471,32 @@ export default function LandingPage() {
                 </span>
                 <span>ArcPay</span>
               </Link>
-              <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-soft">
-                Milestone escrow and instant USDC payroll on Circle&rsquo;s Arc
-                Layer-1.
+              <p className="mt-3 max-w-sm text-sm leading-relaxed text-[#A99BB8]">
+                Shadow Dojo milestone escrow, AI Deliverable Oracle &amp; Open
+                Bounty Board on Circle&rsquo;s Arc Layer-1.
               </p>
             </div>
 
-            <nav className="grid grid-cols-2 gap-x-16 gap-y-3 text-sm text-ink-soft sm:grid-cols-3">
-              <Link href="/dashboard" className="transition-colors hover:text-ink">
-                Dashboard
+            <nav className="grid grid-cols-2 gap-x-16 gap-y-3 text-sm font-medium text-[#A99BB8] sm:grid-cols-3">
+              <Link href="/dashboard" className="transition-colors hover:text-amber-300">
+                Escrow Dojo
+              </Link>
+              <Link href="/dashboard?tab=gigs" className="transition-colors hover:text-amber-300">
+                Bounty Board
               </Link>
               <a
                 href="https://faucet.circle.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-colors hover:text-ink"
+                className="transition-colors hover:text-amber-300"
               >
-                Faucet
+                Circle Faucet
               </a>
               <a
                 href="https://explorer.testnet.arc.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-colors hover:text-ink"
+                className="transition-colors hover:text-amber-300"
               >
                 Arc Explorer
               </a>
@@ -445,15 +504,15 @@ export default function LandingPage() {
                 href="https://rpc.testnet.arc.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-colors hover:text-ink"
+                className="transition-colors hover:text-amber-300"
               >
-                RPC
+                Arc RPC
               </a>
             </nav>
           </div>
 
-          <p className="mt-12 text-sm text-ink-soft">
-            © 2026 ArcPay. Built for Circle Arc Testnet.
+          <p className="mt-10 text-xs uppercase tracking-widest text-[#7E708F]">
+            © 2026 ArcPay · Forged on Circle Arc Testnet
           </p>
         </div>
       </footer>

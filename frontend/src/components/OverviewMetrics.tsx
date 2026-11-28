@@ -21,56 +21,64 @@ export function OverviewMetrics({ stats, isLoading }: OverviewMetricsProps) {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {/* Metric 1 */}
-      <article className="relative overflow-hidden rounded-[24px] border border-lav-200/70 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+      {/* Metric 1: Locked Vault */}
+      <article className="dojo-card p-6">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-ink-soft">Active escrow locked</span>
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lav-100 text-lav-600">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#A99BB8]">
+            Vault Escrow Locked
+          </span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400">
             <Lock className="h-4 w-4" />
           </span>
         </div>
-        <p className="mt-4 flex items-baseline gap-2 font-display text-3xl font-semibold tracking-tight text-ink tabular-nums">
+        <p className="mt-4 flex items-baseline gap-2 font-display text-3xl font-bold tracking-tight text-amber-300 tabular-nums">
           {isLoading ? "…" : formatUSDC(lockedUSDC)}
-          <span className="text-base font-medium text-ink-soft">USDC</span>
+          <span className="text-sm font-semibold text-amber-500/80">USDC</span>
         </p>
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-ink-soft">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-lav-500" />
-          <span>{activeCount} active milestone{activeCount === 1 ? "" : "s"} on-chain</span>
+        <div className="mt-2.5 flex items-center gap-2 text-xs text-[#A99BB8]">
+          <span className="inline-block h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+          <span>
+            {activeCount} active duel{activeCount === 1 ? "" : "s"} sealed on-chain
+          </span>
         </div>
       </article>
 
-      {/* Metric 2 */}
-      <article className="relative overflow-hidden rounded-[24px] border border-lav-200/70 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+      {/* Metric 2: Settled Bounties */}
+      <article className="dojo-card p-6">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-ink-soft">Total paid out</span>
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#A99BB8]">
+            Bounties Paid Out
+          </span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
             <CheckCircle2 className="h-4 w-4" />
           </span>
         </div>
-        <p className="mt-4 flex items-baseline gap-2 font-display text-3xl font-semibold tracking-tight text-ink tabular-nums">
+        <p className="mt-4 flex items-baseline gap-2 font-display text-3xl font-bold tracking-tight text-emerald-300 tabular-nums">
           {isLoading ? "…" : formatUSDC(paidUSDC)}
-          <span className="text-base font-medium text-ink-soft">USDC</span>
+          <span className="text-sm font-semibold text-emerald-500/80">USDC</span>
         </p>
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-ink-soft">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          <span>Settled directly to freelancer wallets</span>
+        <div className="mt-2.5 flex items-center gap-2 text-xs text-[#A99BB8]">
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+          <span>Settled directly to Ronin wallets</span>
         </div>
       </article>
 
-      {/* Metric 3 */}
-      <article className="relative overflow-hidden rounded-[24px] border border-lav-200/70 bg-white p-6 shadow-sm transition-all hover:shadow-md sm:col-span-2 lg:col-span-1">
+      {/* Metric 3: Finality Speed */}
+      <article className="dojo-card p-6 sm:col-span-2 lg:col-span-1">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-ink-soft">Average settlement time</span>
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lav-100 text-lav-600">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#A99BB8]">
+            Strike Finality Speed
+          </span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
             <Zap className="h-4 w-4" />
           </span>
         </div>
-        <p className="mt-4 font-display text-3xl font-semibold tracking-tight text-ink tabular-nums">
+        <p className="mt-4 font-display text-3xl font-bold tracking-tight text-[#F6EFE0] tabular-nums">
           &lt;1s
         </p>
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-ink-soft">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-lav-500" />
-          <span>Arc Malachite BFT deterministic finality</span>
+        <div className="mt-2.5 flex items-center gap-2 text-xs text-[#A99BB8]">
+          <span className="inline-block h-2 w-2 rounded-full bg-amber-400" />
+          <span>Arc Malachite BFT deterministic strike</span>
         </div>
       </article>
     </div>

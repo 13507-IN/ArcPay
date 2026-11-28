@@ -13,6 +13,7 @@ import {
 import { Milestone, RoleFilter, StatusFilter } from "../types";
 import { MilestoneCard } from "./MilestoneCard";
 import { EmptyState } from "./EmptyState";
+import { dojoSfx } from "../lib/dojoSfx";
 
 interface MilestoneDashboardProps {
   milestones: Milestone[];
@@ -39,7 +40,6 @@ export function MilestoneDashboard({
 
   const userAddr = address?.toLowerCase();
 
-  // Role Counts
   const { clientCount, freelancerCount } = useMemo(() => {
     let c = 0;
     let f = 0;
@@ -52,22 +52,18 @@ export function MilestoneDashboard({
     return { clientCount: c, freelancerCount: f };
   }, [milestones, userAddr]);
 
-  // Filtered Milestones
   const filteredMilestones = useMemo(() => {
     return milestones.filter((m) => {
-      // Role filter
       if (roleFilter === "client" && userAddr) {
         if (m.client.toLowerCase() !== userAddr) return false;
       } else if (roleFilter === "freelancer" && userAddr) {
         if (m.freelancer.toLowerCase() !== userAddr) return false;
       }
 
-      // Status filter
       if (statusFilter !== "all" && m.status !== statusFilter) {
         return false;
       }
 
-      // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const matchesTitle = m.title.toLowerCase().includes(q);
@@ -88,68 +84,83 @@ export function MilestoneDashboard({
       {/* Dashboard Top Navigation & Controls */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Role Segment Tabs */}
-        <div className="flex max-w-full items-center overflow-x-auto rounded-full border border-lav-200 bg-lav-100/60 p-1 shadow-sm">
+        <div className="flex max-w-full items-center overflow-x-auto rounded-full border border-amber-500/25 bg-[#120D1B]/90 p-1 shadow-md">
           <button
-            onClick={() => setRoleFilter("all")}
+            onClick={() => {
+              dojoSfx.playSlash();
+              setRoleFilter("all");
+            }}
             className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
               roleFilter === "all"
-                ? "bg-white text-ink shadow-sm"
-                : "text-ink-soft hover:text-ink"
+                ? "bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-sm"
+                : "text-[#A99BB8] hover:text-amber-200"
             }`}
           >
-            <Layers className="h-3.5 w-3.5 text-lav-600" />
-            <span>All ({milestones.length})</span>
+            <Layers className="h-3.5 w-3.5" />
+            <span>All Scrolls ({milestones.length})</span>
           </button>
 
           <button
-            onClick={() => setRoleFilter("client")}
+            onClick={() => {
+              dojoSfx.playSlash();
+              setRoleFilter("client");
+            }}
             className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
               roleFilter === "client"
-                ? "bg-white text-ink shadow-sm"
-                : "text-ink-soft hover:text-ink"
+                ? "bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-sm"
+                : "text-[#A99BB8] hover:text-amber-200"
             }`}
           >
-            <Briefcase className="h-3.5 w-3.5 text-lav-600" />
-            <span>As Client {userAddr ? `(${clientCount})` : ""}</span>
+            <Briefcase className="h-3.5 w-3.5" />
+            <span>As Patron {userAddr ? `(${clientCount})` : ""}</span>
           </button>
 
           <button
-            onClick={() => setRoleFilter("freelancer")}
+            onClick={() => {
+              dojoSfx.playSlash();
+              setRoleFilter("freelancer");
+            }}
             className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
               roleFilter === "freelancer"
-                ? "bg-white text-ink shadow-sm"
-                : "text-ink-soft hover:text-ink"
+                ? "bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-sm"
+                : "text-[#A99BB8] hover:text-amber-200"
             }`}
           >
-            <UserCheck className="h-3.5 w-3.5 text-lav-600" />
-            <span>As Freelancer {userAddr ? `(${freelancerCount})` : ""}</span>
+            <UserCheck className="h-3.5 w-3.5" />
+            <span>As Ronin {userAddr ? `(${freelancerCount})` : ""}</span>
           </button>
         </div>
 
         {/* Search & Actions */}
         <div className="flex items-center space-x-3">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-ink-soft/60" />
+            <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-[#A99BB8]" />
             <input
               type="text"
-              placeholder="Search title, #ID, or 0x..."
+              placeholder="Search quest, #ID, or 0x..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="min-h-9 w-full rounded-full border border-lav-200 bg-white px-9 pr-3 text-sm text-ink placeholder:text-ink-soft/60 shadow-sm transition-colors focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200"
+              className="min-h-9 w-full rounded-full border border-amber-500/25 bg-[#120D1B]/90 px-9 pr-3 text-sm text-[#F6EFE0] placeholder:text-[#A99BB8]/70 shadow-sm transition-colors focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/25"
             />
           </div>
 
           <button
-            onClick={onRefresh}
+            onClick={() => {
+              dojoSfx.playSlash();
+              onRefresh();
+            }}
             title="Refresh milestones"
-            className="flex min-h-9 min-w-9 items-center justify-center rounded-full border border-lav-200 bg-white p-2 text-ink-soft shadow-sm transition-all hover:bg-lav-50 hover:text-ink hover:border-lav-300"
+            className="flex min-h-9 min-w-9 items-center justify-center rounded-full border border-amber-500/25 bg-[#120D1B]/90 p-2 text-[#A99BB8] shadow-sm transition-all hover:bg-amber-500/15 hover:text-amber-200 hover:border-amber-400"
           >
-            <RotateCw className={`h-4 w-4 ${isLoading ? "animate-spin text-lav-600" : ""}`} />
+            <RotateCw className={`h-4 w-4 ${isLoading ? "animate-spin text-amber-400" : ""}`} />
           </button>
 
           <button
-            onClick={onOpenCreateModal}
-            className="flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full bg-lav-600 px-4 text-sm font-semibold text-white shadow-sm transition-all hover:bg-lav-700 active:scale-[0.98]"
+            onClick={() => {
+              dojoSfx.playSlash();
+              onOpenCreateModal();
+            }}
+            className="katana-btn flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-rose-600 to-amber-600 px-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-glow transition-all hover:brightness-110 active:scale-[0.98]"
           >
             <Plus className="h-4 w-4" />
             <span>New Escrow</span>
@@ -163,14 +174,23 @@ export function MilestoneDashboard({
           (status) => (
             <button
               key={status}
-              onClick={() => setStatusFilter(status)}
-              className={`min-h-8 flex-none whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
+              onClick={() => {
+                dojoSfx.playSlash();
+                setStatusFilter(status);
+              }}
+              className={`min-h-8 flex-none whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${
                 statusFilter === status
-                  ? "bg-lav-600 text-white shadow-sm"
-                  : "border border-lav-200/80 bg-white text-ink-soft hover:bg-lav-50 hover:text-ink"
+                  ? "bg-amber-500/20 border border-amber-400 text-amber-200 shadow-glow-gold"
+                  : "border border-amber-500/20 bg-[#120D1B]/80 text-[#A99BB8] hover:bg-amber-500/10 hover:text-[#F6EFE0]"
               }`}
             >
-              {status === "all" ? "All Statuses" : status}
+              {status === "all"
+                ? "All Ranks"
+                : status === "Funded"
+                ? "Locked"
+                : status === "Released"
+                ? "Victory (Paid)"
+                : status}
             </button>
           )
         )}

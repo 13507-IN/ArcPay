@@ -36,6 +36,7 @@ import {
 } from "../lib/api";
 import { EscrowPrefill } from "../types";
 import { getExplorerTxUrl } from "../lib/utils";
+import { dojoSfx } from "../lib/dojoSfx";
 
 interface CreateMilestoneModalProps {
   isOpen: boolean;
@@ -283,6 +284,7 @@ export function CreateMilestoneModal({
 
     try {
       setIsSubmitting(true);
+      dojoSfx.playSlash();
 
       const hash = await writeContractAsync({
         address: ESCROW_CONTRACT_ADDRESS,
@@ -350,6 +352,7 @@ export function CreateMilestoneModal({
           }
         }
 
+        dojoSfx.playGong(false);
         setSuccessInfo({ id: createdId, txHash: hash });
         onSuccess();
       }
@@ -384,24 +387,26 @@ export function CreateMilestoneModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-xl rounded-[28px] border border-lav-200 bg-white p-6 sm:p-8 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto dojo-card p-6 sm:p-8 text-[#F6EFE0]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-lav-100 pb-4">
+        <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
           <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lav-100 text-lav-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-400">
               <PlusCircle className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-display text-lg font-semibold text-ink">Create Milestone Escrow</h2>
-              <p className="text-xs text-ink-soft">
+              <h2 className="font-display text-lg font-bold tracking-wide text-[#F6EFE0]">
+                Seal Milestone Vault
+              </h2>
+              <p className="text-xs text-[#A99BB8]">
                 Lock native USDC on Arc Testnet • Instant payout upon approval
               </p>
             </div>
           </div>
           <button
             onClick={handleResetAndClose}
-            className="rounded-full p-2 text-ink-soft hover:bg-lav-50 hover:text-ink transition-colors"
+            className="rounded-full p-2 text-[#A99BB8] hover:bg-amber-500/15 hover:text-amber-200 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -410,69 +415,71 @@ export function CreateMilestoneModal({
         {/* Success Screen */}
         {successInfo ? (
           <div className="py-8 text-center space-y-4">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 shadow-glow-emerald">
               <CheckCircle className="h-8 w-8" />
             </div>
             <div>
-              <h3 className="font-display text-xl font-semibold text-ink">Milestone Escrow Created!</h3>
-              <p className="text-sm text-ink-soft mt-1">
-                Milestone #{successInfo.id} has been securely funded on Arc Testnet.
+              <h3 className="font-display text-xl font-bold text-[#F6EFE0]">
+                Vault Sealed On-Chain!
+              </h3>
+              <p className="text-sm text-[#A99BB8] mt-1">
+                Scroll #{successInfo.id} has been locked on Circle Arc Testnet.
               </p>
             </div>
 
             {metadataSaved && (
-              <p className="text-sm text-emerald-700 font-medium" role="status">
-                Project notes were signed and saved.
+              <p className="text-sm text-emerald-400 font-medium" role="status">
+                Project scope &amp; notes were signed and saved.
               </p>
             )}
             {metadataSaveError && (
               <div className="space-y-3" role="alert">
-                <p className="text-sm text-amber-800">{metadataSaveError}</p>
+                <p className="text-sm text-amber-300">{metadataSaveError}</p>
                 <button
                   type="button"
                   onClick={() => saveOffchainMetadata(successInfo.id)}
                   disabled={isSavingMetadata}
-                  className="rounded-full border border-lav-200 px-4 py-2 text-sm text-ink hover:bg-lav-50 disabled:opacity-50"
+                  className="rounded-full border border-amber-500/30 bg-[#161022] px-4 py-2 text-sm text-amber-200 hover:bg-amber-500/15 disabled:opacity-50"
                 >
                   {isSavingMetadata ? "Waiting for wallet..." : "Sign and retry saving notes"}
                 </button>
               </div>
             )}
 
-            <div className="rounded-2xl bg-lav-50 border border-lav-200 p-3 text-xs font-mono text-ink flex items-center justify-between">
+            <div className="rounded-2xl bg-[#0D0914] border border-amber-500/25 p-3 text-xs font-mono text-[#F6EFE0] flex items-center justify-between">
               <span className="truncate max-w-[280px]">Tx: {successInfo.txHash}</span>
               <a
                 href={getExplorerTxUrl(successInfo.txHash)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-lav-700 hover:underline flex items-center gap-1 font-sans font-medium"
+                className="text-amber-300 hover:underline flex items-center gap-1 font-sans font-semibold"
               >
-                Explorer <ExternalLink className="h-3 w-3" />
+                Arc Explorer <ExternalLink className="h-3 w-3" />
               </a>
             </div>
 
             <button
               onClick={handleResetAndClose}
-              className="w-full rounded-full bg-lav-600 hover:bg-lav-700 py-3 text-sm font-semibold text-white shadow-sm transition-all"
+              className="katana-btn w-full rounded-full bg-gradient-to-r from-rose-600 to-amber-600 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-glow transition-all hover:brightness-110"
             >
-              Back to Dashboard
+              Return to Dojo
             </button>
           </div>
         ) : (
           /* Form */
           <form onSubmit={handleSubmit} className="mt-5 space-y-4">
             {errorMsg && (
-              <div className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 flex items-start gap-2">
-                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className="rounded-2xl bg-rose-950/70 border border-rose-500/40 p-3 text-xs text-rose-200 flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-400" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {/* Freelancer Address */}
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink uppercase tracking-wider">
-                <User className="h-3.5 w-3.5 text-lav-600" />
-                Freelancer Wallet Address
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+                <User className="h-3.5 w-3.5 text-amber-400" />
+                Ronin (Freelancer) Wallet Address
               </label>
               <input
                 type="text"
@@ -480,15 +487,15 @@ export function CreateMilestoneModal({
                 value={freelancer}
                 onChange={(e) => setFreelancer(e.target.value.trim())}
                 required
-                className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-4 py-2.5 text-sm font-mono text-ink placeholder:text-ink-soft/60 focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200 transition-all"
+                className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-4 py-2.5 text-sm font-mono text-[#F6EFE0] placeholder:text-[#7E708F] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
               />
             </div>
 
             {/* Title */}
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink uppercase tracking-wider">
-                <FileText className="h-3.5 w-3.5 text-lav-600" />
-                Milestone Title
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+                <FileText className="h-3.5 w-3.5 text-amber-400" />
+                Quest / Milestone Title
               </label>
               <input
                 type="text"
@@ -496,16 +503,16 @@ export function CreateMilestoneModal({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200 transition-all"
+                className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-4 py-2.5 text-sm text-[#F6EFE0] placeholder:text-[#7E708F] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
               />
             </div>
 
             {/* Amount & Deadline row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink uppercase tracking-wider">
-                  <DollarSign className="h-3.5 w-3.5 text-emerald-600" />
-                  Amount (Native USDC)
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+                  <DollarSign className="h-3.5 w-3.5 text-emerald-400" />
+                  Bounty Amount (Native USDC)
                 </label>
                 <div className="relative">
                   <input
@@ -516,17 +523,17 @@ export function CreateMilestoneModal({
                     value={amountUSDC}
                     onChange={(e) => setAmountUSDC(e.target.value)}
                     required
-                    className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 pl-4 pr-16 py-2.5 text-sm font-mono text-ink placeholder:text-ink-soft/60 focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200 transition-all"
+                    className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] pl-4 pr-16 py-2.5 text-sm font-mono text-amber-300 font-bold placeholder:text-[#7E708F] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                   />
-                  <span className="absolute right-3.5 top-2.5 text-xs font-bold text-lav-700 bg-lav-100 px-2 py-0.5 rounded-lg">
+                  <span className="absolute right-3.5 top-2.5 text-xs font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-lg">
                     USDC
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink uppercase tracking-wider">
-                  <Calendar className="h-3.5 w-3.5 text-lav-600" />
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+                  <Calendar className="h-3.5 w-3.5 text-amber-400" />
                   Deadline
                 </label>
                 <input
@@ -535,7 +542,7 @@ export function CreateMilestoneModal({
                   value={deadlineDate}
                   onChange={(e) => setDeadlineDate(e.target.value)}
                   required
-                  className="w-full rounded-2xl border border-lav-200 bg-lav-50/50 px-4 py-2.5 text-sm font-mono text-ink placeholder:text-ink-soft/60 focus:bg-white focus:border-lav-500 focus:outline-none focus:ring-2 focus:ring-lav-200 transition-all"
+                  className="w-full rounded-2xl border border-amber-500/25 bg-[#0A0710] px-4 py-2.5 text-sm font-mono text-[#F6EFE0] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                 />
               </div>
             </div>
@@ -543,28 +550,28 @@ export function CreateMilestoneModal({
             {/* Project Brief / Deliverable Specs with Voice Input */}
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="block text-xs font-semibold text-ink uppercase tracking-wider">
-                  Project Scope & Deliverable Notes (Off-Chain)
+                <label className="block text-xs font-bold text-[#C7BBD4] uppercase tracking-wider">
+                  Acceptance Scope (Used by AI Oracle)
                 </label>
                 <button
                   type="button"
                   onClick={toggleListening}
                   className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-all ${
                     isListening
-                      ? "bg-rose-500 text-white shadow-sm ring-2 ring-rose-300 animate-pulse"
-                      : "bg-lav-100 text-lav-700 hover:bg-lav-200"
+                      ? "bg-rose-600 text-white shadow-glow animate-pulse"
+                      : "bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25"
                   }`}
                   title={isListening ? "Click to stop listening" : "Click to dictate notes with your voice"}
                 >
                   {isListening ? (
                     <>
                       <MicOff className="h-3.5 w-3.5" />
-                      <span>Listening... (Click to stop)</span>
+                      <span>Listening...</span>
                     </>
                   ) : (
                     <>
-                      <Mic className="h-3.5 w-3.5 text-lav-600" />
-                      <span>Dictate with Voice</span>
+                      <Mic className="h-3.5 w-3.5 text-amber-400" />
+                      <span>Dictate Scope</span>
                     </>
                   )}
                 </button>
@@ -573,54 +580,53 @@ export function CreateMilestoneModal({
               <div className="relative">
                 <textarea
                   rows={3}
-                  placeholder="Include specifications, deliverables checklist, or GitHub issue link (or click Dictate with Voice)..."
+                  placeholder="Include specifications, deliverables checklist, or GitHub issue link..."
                   value={brief}
                   onChange={(e) => setBrief(e.target.value)}
-                  className={`w-full rounded-2xl border bg-lav-50/50 px-4 py-2.5 text-xs text-ink placeholder:text-ink-soft/60 focus:bg-white focus:outline-none focus:ring-2 transition-all resize-none ${
+                  className={`w-full rounded-2xl border bg-[#0A0710] px-4 py-2.5 text-xs text-[#F6EFE0] placeholder:text-[#7E708F] focus:outline-none focus:ring-2 transition-all resize-none ${
                     isListening
-                      ? "border-lav-500 ring-2 ring-lav-300/60 bg-white"
-                      : "border-lav-200 focus:border-lav-500 focus:ring-lav-200"
+                      ? "border-rose-500 ring-2 ring-rose-500/30"
+                      : "border-amber-500/25 focus:border-amber-400 focus:ring-amber-500/20"
                   }`}
                 />
                 {isListening && (
-                  <div className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-lav-100 px-2.5 py-0.5 text-[10px] font-semibold text-lav-700 pointer-events-none shadow-sm">
-                    <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping" />
-                    Recording speech...
+                  <div className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-rose-950 border border-rose-500/40 px-2.5 py-0.5 text-[10px] font-semibold text-rose-200 pointer-events-none">
+                    <span className="h-2 w-2 rounded-full bg-rose-400 animate-ping" />
+                    Recording...
                   </div>
                 )}
               </div>
 
               {speechError && (
-                <p className="mt-1 text-[11px] text-rose-600 font-medium">{speechError}</p>
+                <p className="mt-1 text-[11px] text-rose-400 font-medium">{speechError}</p>
               )}
             </div>
 
-            {/* AI Deliverable Verification Oracle Configuration */}
-            <div className="rounded-2xl border border-lav-200/90 bg-gradient-to-r from-lav-50/70 to-indigo-50/40 p-3.5 space-y-2">
+            {/* AI Deliverable Verification Oracle Callout */}
+            <div className="rounded-2xl border border-amber-500/25 bg-[#161022]/90 p-3.5 space-y-1.5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 font-semibold text-xs text-ink">
-                  <Sparkles className="h-3.5 w-3.5 text-lav-600" />
-                  <span>Autonomous AI Deliverable Oracle</span>
+                <div className="flex items-center gap-1.5 font-bold text-xs text-amber-300 uppercase tracking-wider">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                  <span>AI Deliverable Oracle Armed</span>
                 </div>
-                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-200">
-                  Active by Default
+                <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
+                  Live Repo Audit
                 </span>
               </div>
-              <p className="text-[11px] text-ink-soft leading-relaxed">
-                When your contractor submits work, our AI Oracle will automatically audit code quality, CI test suites, and security integrity to provide a one-click verification score before releasing payment.
+              <p className="text-[11px] text-[#A99BB8] leading-relaxed">
+                When work is submitted, the AI Oracle inspects live code, test suites &amp; scope alignment against your brief before payout.
               </p>
             </div>
 
             {/* Arc Native Gas Callout */}
-            <div className="rounded-2xl bg-lav-50 border border-lav-200 p-3.5 text-xs text-ink-soft space-y-1">
-              <div className="flex items-center gap-1.5 font-semibold text-lav-700">
+            <div className="rounded-2xl bg-[#0D0914] border border-white/10 p-3.5 text-xs text-[#A99BB8] space-y-1">
+              <div className="flex items-center gap-1.5 font-semibold text-amber-300">
                 <ShieldAlert className="h-3.5 w-3.5" />
-                <span>Circle Arc Native USDC Protocol Note</span>
+                <span>Circle Arc Native USDC Vault</span>
               </div>
               <p>
-                Native USDC is sent as <code className="text-lav-700 font-mono">msg.value</code> at 18 decimals;
-                the separate ERC-20 USDC interface uses 6. Indicative gas fee:{" "}
-                <span className="text-emerald-700 font-mono font-semibold">~$0.01 USDC</span>.
+                Sent via <code className="text-amber-300 font-mono">msg.value</code> (18 decimals). Gas fee:{" "}
+                <span className="text-emerald-400 font-mono font-semibold">~$0.01 USDC</span>.
               </p>
             </div>
 
@@ -630,24 +636,24 @@ export function CreateMilestoneModal({
                 type="button"
                 onClick={handleResetAndClose}
                 disabled={isSubmitting}
-                className="rounded-full border border-lav-200 bg-white px-5 py-2.5 text-sm font-medium text-ink hover:bg-lav-50 hover:border-lav-300 transition-colors disabled:opacity-50"
+                className="rounded-full border border-white/15 bg-[#161022] px-5 py-2.5 text-sm font-semibold text-[#C7BBD4] hover:text-white transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex min-h-10 items-center gap-2 rounded-full bg-lav-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-lav-700 active:scale-[0.98] disabled:opacity-50"
+                className="katana-btn flex min-h-10 items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-amber-600 px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-glow transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Locking Escrow on Arc...</span>
+                    <span>Sealing Vault...</span>
                   </>
                 ) : (
                   <>
                     <PlusCircle className="h-4 w-4" />
-                    <span>Fund & Lock {amountUSDC} USDC</span>
+                    <span>Fund &amp; Lock {amountUSDC} USDC</span>
                   </>
                 )}
               </button>

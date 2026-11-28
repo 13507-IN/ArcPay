@@ -16,6 +16,7 @@ import {
   Copy,
   Check,
   ShieldAlert,
+  Swords,
 } from "lucide-react";
 import { Milestone } from "../types";
 import {
@@ -31,6 +32,7 @@ import {
   toSafeExternalUrl,
 } from "../lib/utils";
 import { AiVerificationBadge } from "./AiVerificationBadge";
+import { dojoSfx } from "../lib/dojoSfx";
 
 interface MilestoneCardProps {
   milestone: Milestone;
@@ -68,52 +70,51 @@ export function MilestoneCard({
 
   const { isExpired, text: deadlineText } = getRemainingTime(milestone.deadline);
 
-  // Status Chip Colors
   const getStatusBadge = () => {
     switch (milestone.status) {
       case "Funded":
         return (
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-lav-100 text-lav-700 border border-lav-200/80">
-            <span className="h-1.5 w-1.5 rounded-full bg-lav-500"></span>
-            Funded
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider bg-rose-500/15 text-rose-300 border border-rose-500/40">
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-pulse" />
+            Vault Locked
           </span>
         );
       case "Submitted":
         return (
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/80">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-            Work Submitted
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/40">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+            Scroll Submitted
           </span>
         );
       case "Released":
         return (
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
-            <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-            Paid & Settled
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/45">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+            Victory · Paid
           </span>
         );
       case "Refunded":
         return (
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-            <RotateCcw className="h-3 w-3 text-slate-500" />
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-300 border border-slate-600/50">
+            <RotateCcw className="h-3 w-3 text-slate-400" />
             Refunded
           </span>
         );
       case "Disputed":
         return (
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
-            <AlertTriangle className="h-3 w-3 text-rose-500" />
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider bg-rose-950 text-rose-300 border border-rose-500/50">
+            <AlertTriangle className="h-3 w-3 text-rose-400" />
             Disputed
           </span>
         );
     }
   };
 
-  // Client approves work and triggers instant native USDC payment release
   const handleReleasePayment = async () => {
     try {
       setIsProcessing(true);
       setErrorMsg(null);
+      dojoSfx.playSlash();
 
       const hash = await writeContractAsync({
         address: ESCROW_CONTRACT_ADDRESS,
@@ -126,13 +127,13 @@ export function MilestoneCard({
         await publicClient.waitForTransactionReceipt({ hash });
       }
 
-      // Celebrate sub-second Malachite BFT instant finality payout!
+      dojoSfx.playGong(true);
       try {
         confetti({
-          particleCount: 80,
-          spread: 60,
+          particleCount: 90,
+          spread: 65,
           origin: { y: 0.6 },
-          colors: ["#7C57C9", "#10B981", "#B9A0E8"],
+          colors: ["#E11D48", "#F59E0B", "#10B981"],
         });
       } catch {}
 
@@ -147,11 +148,11 @@ export function MilestoneCard({
     }
   };
 
-  // Refund client (either freelancer voluntary cancellation, or client if expired)
   const handleRefund = async () => {
     try {
       setIsProcessing(true);
       setErrorMsg(null);
+      dojoSfx.playSlash();
 
       const hash = await writeContractAsync({
         address: ESCROW_CONTRACT_ADDRESS,
@@ -175,7 +176,6 @@ export function MilestoneCard({
     }
   };
 
-  // Get relevant tx hash for receipt link
   const relevantTx =
     milestone.released_tx_hash ||
     milestone.refunded_tx_hash ||
@@ -183,67 +183,67 @@ export function MilestoneCard({
     milestone.created_tx_hash;
 
   return (
-    <div className="relative rounded-[24px] border border-lav-200/80 bg-white p-6 shadow-sm transition-all hover:border-lav-300 hover:shadow-md">
-      {/* Top Header: ID, Status, Amount */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-lav-100 pb-4">
-        <div className="flex items-center space-x-2.5">
-          <span className="font-mono text-xs font-bold text-lav-700 bg-lav-100 px-2.5 py-0.5 rounded-full">
-            #{milestone.id}
+    <div className="dojo-card p-6">
+      {/* Top Header: ID, Title, AI Seal, Status, Bounty */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/15 pb-4">
+        <div className="flex items-center space-x-3">
+          <span className="font-mono text-xs font-bold text-amber-300 bg-amber-500/15 border border-amber-500/35 px-2.5 py-1 rounded-full">
+            Scroll #{milestone.id}
           </span>
-          <h3 className="font-display text-base sm:text-lg font-semibold text-ink tracking-tight">
+          <h3 className="font-display text-base sm:text-lg font-bold text-[#F6EFE0] tracking-wide">
             {milestone.title}
           </h3>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           {(milestone.status === "Submitted" || milestone.status === "Released") && (
-            <div className="hidden sm:inline-block">
-              <AiVerificationBadge
-                audit={milestone.ai_audit}
-                onClick={() => onOpenDetailsModal(milestone.id)}
-              />
-            </div>
+            <AiVerificationBadge
+              audit={milestone.ai_audit}
+              onClick={() => onOpenDetailsModal(milestone.id)}
+            />
           )}
           {getStatusBadge()}
-          <div className="text-right">
-            <span className="font-display text-xl font-semibold text-ink tabular-nums">
+          <div className="text-right pl-1">
+            <span className="font-display text-xl font-extrabold text-amber-300 tabular-nums">
               {formatUSDC(milestone.amount)}
             </span>
-            <span className="text-xs font-semibold text-lav-600 ml-1.5">
+            <span className="text-xs font-bold text-amber-500/80 ml-1.5 uppercase">
               USDC
             </span>
           </div>
         </div>
       </div>
 
-      {/* Middle Body: Counterparties & Timeline Details */}
+      {/* Middle Body: Duelists (Patron vs Ronin) & Deadline */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 text-xs">
         <div>
-          <span className="text-ink-soft block mb-1 font-medium">Client</span>
+          <span className="text-[#A99BB8] uppercase tracking-wider block mb-1 font-semibold">
+            Patron (Client)
+          </span>
           <div className="flex items-center gap-1.5">
             <a
               href={getExplorerAddressUrl(milestone.client)}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono font-medium text-ink hover:text-lav-700 flex items-center gap-1 transition-colors"
+              className="font-mono font-semibold text-[#F6EFE0] hover:text-amber-300 flex items-center gap-1 transition-colors"
             >
               {shortenAddress(milestone.client, 4)}
               {isClient && (
-                <span className="rounded-full bg-lav-100 px-2 py-0.2 text-[10px] text-lav-700 font-sans font-semibold">
+                <span className="rounded-full bg-rose-500/20 border border-rose-500/40 px-2 py-0.2 text-[10px] text-rose-300 font-sans font-bold uppercase">
                   You
                 </span>
               )}
-              <ExternalLink className="h-3 w-3 opacity-40" />
+              <ExternalLink className="h-3 w-3 opacity-50" />
             </a>
             <button
               type="button"
               onClick={() => handleCopyAddress("client", milestone.client)}
               aria-label="Copy client address"
               title="Copy client address"
-              className="rounded p-1 text-ink-soft hover:bg-lav-100 hover:text-ink transition-colors"
+              className="rounded p-1 text-[#A99BB8] hover:bg-amber-500/15 hover:text-amber-200 transition-colors"
             >
               {copiedRole === "client" ? (
-                <Check className="h-3 w-3 text-emerald-600" />
+                <Check className="h-3 w-3 text-emerald-400" />
               ) : (
                 <Copy className="h-3 w-3" />
               )}
@@ -252,31 +252,33 @@ export function MilestoneCard({
         </div>
 
         <div>
-          <span className="text-ink-soft block mb-1 font-medium">Freelancer</span>
+          <span className="text-[#A99BB8] uppercase tracking-wider block mb-1 font-semibold">
+            Ronin (Freelancer)
+          </span>
           <div className="flex items-center gap-1.5">
             <a
               href={getExplorerAddressUrl(milestone.freelancer)}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono font-medium text-ink hover:text-lav-700 flex items-center gap-1 transition-colors"
+              className="font-mono font-semibold text-[#F6EFE0] hover:text-amber-300 flex items-center gap-1 transition-colors"
             >
               {shortenAddress(milestone.freelancer, 4)}
               {isFreelancer && (
-                <span className="rounded-full bg-lav-100 px-2 py-0.5 text-xs text-lav-700 font-sans font-semibold">
+                <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.2 text-[10px] text-amber-300 font-sans font-bold uppercase">
                   You
                 </span>
               )}
-              <ExternalLink className="h-3 w-3 opacity-40" />
+              <ExternalLink className="h-3 w-3 opacity-50" />
             </a>
             <button
               type="button"
               onClick={() => handleCopyAddress("freelancer", milestone.freelancer)}
               aria-label="Copy freelancer address"
               title="Copy freelancer address"
-              className="rounded p-1 text-ink-soft hover:bg-lav-100 hover:text-ink transition-colors"
+              className="rounded p-1 text-[#A99BB8] hover:bg-amber-500/15 hover:text-amber-200 transition-colors"
             >
               {copiedRole === "freelancer" ? (
-                <Check className="h-3 w-3 text-emerald-600" />
+                <Check className="h-3 w-3 text-emerald-400" />
               ) : (
                 <Copy className="h-3 w-3" />
               )}
@@ -285,14 +287,16 @@ export function MilestoneCard({
         </div>
 
         <div>
-          <span className="text-ink-soft block mb-1 font-medium">Deadline</span>
+          <span className="text-[#A99BB8] uppercase tracking-wider block mb-1 font-semibold">
+            Duel Deadline
+          </span>
           <div className="flex items-center space-x-1.5">
-            <Clock className="h-3.5 w-3.5 text-ink-soft" />
+            <Clock className="h-3.5 w-3.5 text-amber-400" />
             <span
-              className={`font-medium ${
+              className={`font-semibold ${
                 isExpired && milestone.status === "Funded"
-                  ? "text-rose-600 font-semibold"
-                  : "text-ink"
+                  ? "text-rose-400"
+                  : "text-[#F6EFE0]"
               }`}
             >
               {deadlineText}
@@ -303,17 +307,22 @@ export function MilestoneCard({
 
       {/* Off-chain Scope Preview */}
       {milestone.brief && (
-        <p className="mb-3 rounded-xl bg-lav-50/40 border border-lav-100 px-3 py-2 text-xs text-ink-soft line-clamp-2">
-          <span className="font-semibold text-ink">Scope:</span> {milestone.brief}
+        <p className="mb-3 rounded-xl bg-[#0D0914]/90 border border-amber-500/15 px-3.5 py-2 text-xs text-[#C7BBD4] line-clamp-2">
+          <span className="font-bold text-amber-300 uppercase tracking-wider mr-1.5">
+            Brief:
+          </span>
+          {milestone.brief}
         </p>
       )}
 
       {/* AI Mismatch Guardrail Warning */}
       {milestone.ai_audit?.status === "FAILED" && milestone.status === "Submitted" && (
-        <div className="mb-3 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs text-rose-800">
-          <ShieldAlert className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+        <div className="mb-3 flex items-start gap-2 rounded-xl border border-rose-500/50 bg-rose-950/60 px-3.5 py-2.5 text-xs text-rose-200">
+          <ShieldAlert className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
-            <span className="font-bold">AI Audit Flagged ({milestone.ai_audit.overallScore}/100): </span>
+            <span className="font-bold text-rose-300">
+              AI Audit Flagged ({milestone.ai_audit.overallScore}/100):{" "}
+            </span>
             <span>{milestone.ai_audit.summary}</span>
           </div>
         </div>
@@ -323,21 +332,23 @@ export function MilestoneCard({
       {milestone.deliverable_url && (() => {
         const safeUrl = toSafeExternalUrl(milestone.deliverable_url);
         return (
-          <div className="rounded-2xl bg-lav-50/70 border border-lav-200/80 p-3 mb-4 flex items-center justify-between text-xs">
+          <div className="rounded-xl bg-[#0D0914]/90 border border-amber-500/20 p-3 mb-4 flex items-center justify-between text-xs">
             <div className="flex items-center space-x-2 truncate pr-2">
-              <FileCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-              <span className="text-ink-soft shrink-0 font-medium">Deliverable:</span>
+              <FileCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span className="text-[#A99BB8] shrink-0 font-semibold uppercase tracking-wider">
+                Proof Scroll:
+              </span>
               {safeUrl ? (
                 <a
                   href={safeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-lav-700 hover:underline truncate font-medium"
+                  className="font-mono text-amber-300 hover:underline truncate font-medium"
                 >
                   {milestone.deliverable_url}
                 </a>
               ) : (
-                <span className="font-mono text-rose-700 truncate font-medium">
+                <span className="font-mono text-rose-400 truncate font-medium">
                   [Blocked unsafe URL]
                 </span>
               )}
@@ -347,7 +358,7 @@ export function MilestoneCard({
                 href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-ink-soft hover:text-ink shrink-0 ml-2"
+                className="text-[#A99BB8] hover:text-amber-300 shrink-0 ml-2"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
@@ -356,21 +367,23 @@ export function MilestoneCard({
         );
       })()}
 
-      {/* Error alert if any */}
       {errorMsg && (
-        <div className="rounded-xl bg-rose-50 border border-rose-200 p-2.5 text-xs text-rose-700 mb-4">
+        <div className="rounded-xl bg-rose-950/70 border border-rose-500/40 p-2.5 text-xs text-rose-200 mb-4">
           {errorMsg}
         </div>
       )}
 
       {/* Bottom Footer: Action Buttons & Receipts */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-lav-100">
-        <div className="flex items-center space-x-3 text-xs text-ink-soft">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-amber-500/15">
+        <div className="flex items-center space-x-4 text-xs text-[#A99BB8]">
           <button
-            onClick={() => onOpenDetailsModal(milestone.id)}
-            className="hover:text-lav-700 font-semibold flex items-center gap-1 transition-colors"
+            onClick={() => {
+              dojoSfx.playSlash();
+              onOpenDetailsModal(milestone.id);
+            }}
+            className="hover:text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
           >
-            <span>Timeline & Audit</span>
+            <span>Timeline &amp; AI Audit</span>
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
 
@@ -379,9 +392,9 @@ export function MilestoneCard({
               href={getExplorerTxUrl(relevantTx)}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-lav-700 font-mono text-[11px] flex items-center gap-1 transition-colors"
+              className="hover:text-amber-300 font-mono text-[11px] flex items-center gap-1 transition-colors"
             >
-              <span>Receipt</span>
+              <span>Arc Receipt</span>
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
@@ -389,118 +402,115 @@ export function MilestoneCard({
 
         {/* Action Controls */}
         <div className="flex items-center space-x-2">
-          {/* Freelancer Action: Submit Deliverable */}
           {isFreelancer && milestone.status === "Funded" && (
             <button
-              onClick={() => onOpenSubmitModal(milestone)}
-              className="inline-flex items-center space-x-1.5 rounded-full bg-lav-600 hover:bg-lav-700 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all active:scale-[0.98]"
+              onClick={() => {
+                dojoSfx.playSlash();
+                onOpenSubmitModal(milestone);
+              }}
+              className="katana-btn inline-flex items-center space-x-1.5 rounded-full bg-gradient-to-r from-rose-600 to-amber-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-glow transition-all hover:brightness-110 active:scale-[0.98]"
             >
               <Send className="h-3.5 w-3.5" />
-              <span>Submit Work</span>
+              <span>Submit Proof Scroll</span>
             </button>
           )}
 
-          {/* Freelancer Action: Voluntary Refund */}
           {isFreelancer &&
             (milestone.status === "Funded" || milestone.status === "Submitted") && (
               <button
                 onClick={handleRefund}
                 disabled={isProcessing}
-                className="inline-flex items-center space-x-1 rounded-full border border-lav-200 bg-white px-4 py-2 text-xs font-medium text-ink hover:bg-lav-50 hover:border-lav-300 transition-colors disabled:opacity-50"
+                className="inline-flex items-center space-x-1 rounded-full border border-amber-500/25 bg-[#161022] px-4 py-2 text-xs font-semibold text-[#C7BBD4] hover:bg-amber-500/15 hover:text-amber-200 transition-colors disabled:opacity-50"
               >
                 {isProcessing ? (
-                  <Loader2 className="h-3 w-3 animate-spin text-lav-600" />
+                  <Loader2 className="h-3 w-3 animate-spin text-amber-400" />
                 ) : (
                   <RotateCcw className="h-3 w-3" />
                 )}
-                <span>Cancel & Refund</span>
+                <span>Cancel &amp; Refund</span>
               </button>
             )}
 
-          {/* Client Action: Approve & Instant Pay */}
           {isClient &&
-            (milestone.status === "Submitted" || milestone.status === "Funded") && (
-              confirmRelease ? (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setConfirmRelease(false);
-                      void handleReleasePayment();
-                    }}
-                    disabled={isProcessing}
-                    className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-50"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                    )}
-                    <span>Confirm Release</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmRelease(false)}
-                    disabled={isProcessing}
-                    className="rounded-full border border-lav-200 bg-white px-3 py-2 text-xs font-medium text-ink-soft hover:bg-lav-50"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
+            (milestone.status === "Submitted" || milestone.status === "Funded") &&
+            (confirmRelease ? (
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
-                    if (
-                      milestone.ai_audit?.status === "FAILED" ||
-                      milestone.status === "Funded"
-                    ) {
-                      setConfirmRelease(true);
-                    } else {
-                      void handleReleasePayment();
-                    }
+                    setConfirmRelease(false);
+                    void handleReleasePayment();
                   }}
                   disabled={isProcessing}
-                  className={`inline-flex min-h-9 items-center gap-1.5 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all active:scale-[0.98] disabled:opacity-50 ${
-                    milestone.ai_audit?.status === "FAILED"
-                      ? "bg-amber-600 hover:bg-amber-700"
-                      : "bg-emerald-600 hover:bg-emerald-700"
-                  }`}
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-rose-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-glow hover:bg-rose-500 disabled:opacity-50"
                 >
                   {isProcessing ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      <span>Settling on Arc...</span>
-                    </>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <>
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      <span>
-                        {milestone.ai_audit?.status === "FAILED"
-                          ? "Release Anyway"
-                          : "Approve & Instant Pay"}
-                      </span>
-                    </>
+                    <Swords className="h-3.5 w-3.5" />
                   )}
+                  <span>Confirm Strike</span>
                 </button>
-              )
-            )}
-
-          {/* Client Action: Refund if deadline expired and still Funded */}
-          {isClient &&
-            milestone.status === "Funded" &&
-            isExpired && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmRelease(false)}
+                  disabled={isProcessing}
+                  className="rounded-full border border-white/15 bg-[#161022] px-3 py-2 text-xs font-semibold text-[#A99BB8] hover:text-white"
+                >
+                  Abort
+                </button>
+              </div>
+            ) : (
               <button
-                onClick={handleRefund}
+                onClick={() => {
+                  if (
+                    milestone.ai_audit?.status === "FAILED" ||
+                    milestone.status === "Funded"
+                  ) {
+                    dojoSfx.playSlash();
+                    setConfirmRelease(true);
+                  } else {
+                    void handleReleasePayment();
+                  }
+                }}
                 disabled={isProcessing}
-                className="inline-flex items-center space-x-1 rounded-full bg-rose-50 border border-rose-200 px-4 py-2 text-xs font-medium text-rose-700 hover:bg-rose-100 transition-colors disabled:opacity-50"
+                className={`katana-btn inline-flex min-h-9 items-center gap-1.5 rounded-full px-5 py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-sm transition-all active:scale-[0.98] disabled:opacity-50 ${
+                  milestone.ai_audit?.status === "FAILED"
+                    ? "bg-gradient-to-r from-amber-600 to-rose-600 hover:brightness-110"
+                    : "bg-gradient-to-r from-emerald-600 to-teal-500 shadow-glow-emerald hover:brightness-110"
+                }`}
               >
                 {isProcessing ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Settling on Arc...</span>
+                  </>
                 ) : (
-                  <RotateCcw className="h-3 w-3" />
+                  <>
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span>
+                      {milestone.ai_audit?.status === "FAILED"
+                        ? "Release Anyway"
+                        : "Approve & Instant Pay"}
+                    </span>
+                  </>
                 )}
-                <span>Reclaim Expired Funds</span>
               </button>
-            )}
+            ))}
+
+          {isClient && milestone.status === "Funded" && isExpired && (
+            <button
+              onClick={handleRefund}
+              disabled={isProcessing}
+              className="inline-flex items-center space-x-1 rounded-full bg-rose-950/70 border border-rose-500/40 px-4 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-900/70 transition-colors disabled:opacity-50"
+            >
+              {isProcessing ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <RotateCcw className="h-3 w-3" />
+              )}
+              <span>Reclaim Expired Stake</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

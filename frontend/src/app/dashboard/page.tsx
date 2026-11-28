@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAccount, usePublicClient } from "wagmi";
-import { Sparkles, ShieldCheck, Briefcase, WifiOff } from "lucide-react";
+import { ShieldCheck, Briefcase, WifiOff, Swords } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { OverviewMetrics } from "@/components/OverviewMetrics";
 import { MilestoneDashboard } from "@/components/MilestoneDashboard";
@@ -10,8 +10,10 @@ import { GigBoard } from "@/components/GigBoard";
 import { CreateMilestoneModal } from "@/components/CreateMilestoneModal";
 import { SubmitWorkModal } from "@/components/SubmitWorkModal";
 import { MilestoneDetailsModal } from "@/components/MilestoneDetailsModal";
+import { AnimeShadowBackground } from "@/components/landing/AnimeShadowBackground";
 import { fetchMilestones, fetchGigs } from "@/lib/api";
 import { computeStatsFromMilestones } from "@/lib/utils";
+import { dojoSfx } from "@/lib/dojoSfx";
 import { Milestone, MilestoneStats, Gig, EscrowPrefill } from "@/types";
 import { ESCROW_CONTRACT_ADDRESS, ARC_MILESTONE_ESCROW_ABI } from "@/config/contracts";
 
@@ -36,7 +38,6 @@ export default function DashboardPage() {
   const [submitMilestone, setSubmitMilestone] = useState<Milestone | null>(null);
   const [selectedDetailsId, setSelectedDetailsId] = useState<number | null>(null);
 
-  // Check ?tab=gigs query param on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -46,7 +47,6 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // Load milestones from backend API (with fallback to contract if backend is syncing)
   const loadMilestonesData = useCallback(async (showSpinner = false) => {
     try {
       if (showSpinner) setIsLoading(true);
@@ -124,9 +124,9 @@ export default function DashboardPage() {
       setGigsError(null);
       const list = await fetchGigs({ status: "all" });
       setGigs(list);
-    } catch (err: any) {
+    } catch {
       setGigsError(
-        "Could not load open gigs from backend API. Make sure the ArcPay backend server is running and connected to MongoDB."
+        "Could not load Open Bounty Board from backend API. Start or configure your ArcPay backend & MongoDB."
       );
     } finally {
       setIsGigsLoading(false);
@@ -152,161 +152,172 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8FE] text-ink font-body flex flex-col selection:bg-lav-200 selection:text-ink">
-      {/* Top Navbar */}
-      <Navbar />
+    <div className="relative min-h-screen bg-[#08050D] text-[#F6EFE0] font-body flex flex-col selection:bg-rose-600/40 selection:text-amber-100">
+      {/* Persistent Shadow Fight 2 Atmospheric Twilight Dojo Canvas */}
+      <AnimeShadowBackground />
 
-      {/* Main Content Area */}
-      <main className="mx-auto w-full max-w-[1480px] flex-1 space-y-8 px-6 py-8 sm:px-10 lg:px-16 xl:px-20">
-        <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-ink">
-                {activeTab === "escrows" ? "Escrow Dashboard" : "Open Gig Board"}
-              </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-lav-100 px-3 py-1 text-xs font-semibold text-lav-700">
-                <Sparkles className="h-3 w-3 text-lav-600" />
-                Live on Arc
-              </span>
-            </div>
-            <p className="mt-1 text-sm text-ink-soft">
-              {activeTab === "escrows"
-                ? "Circle Arc Testnet · Native 18-decimal USDC · Sub-second finality"
-                : "Clients post open work · Freelancers apply with pitches · One-click USDC escrow funding"}
-            </p>
-          </div>
+      <div className="relative z-10 flex flex-col min-h-screen bg-[#08050D]/45">
+        {/* Top Navbar */}
+        <Navbar />
 
-          {/* Main Workspace Mode Switcher */}
-          <div className="inline-flex self-start sm:self-auto items-center rounded-full border border-lav-200 bg-lav-100/70 p-1 shadow-sm">
-            <button
-              onClick={() => setActiveTab("escrows")}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${
-                activeTab === "escrows"
-                  ? "bg-white text-ink shadow-sm"
-                  : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              <ShieldCheck className="h-4 w-4 text-lav-600" />
-              <span>Escrows ({milestones.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("gigs")}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${
-                activeTab === "gigs"
-                  ? "bg-white text-ink shadow-sm"
-                  : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              <Briefcase className="h-4 w-4 text-lav-600" />
-              <span>Open Gig Board</span>
-              <span className="rounded-full bg-lav-600 px-2 py-0.5 text-[10px] font-bold text-white">
-                {openGigsCount}
-              </span>
-            </button>
-          </div>
-        </section>
-
-        {!backendOnline && (
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-xs text-amber-900 shadow-xs">
-            <div className="flex items-center gap-2">
-              <WifiOff className="h-4 w-4 text-amber-700 shrink-0" />
-              <span>
-                <strong>Direct On-Chain Mode:</strong> Backend API unreachable. Escrow lock, submit, and instant USDC payouts still work directly on Circle Arc; start/configure your backend (<code className="font-mono">NEXT_PUBLIC_API_URL</code>) for Open Gigs, Briefs, and AI Audits.
-              </span>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "escrows" ? (
-          <>
-            {/* Overview Metrics Bar */}
-            <section>
-              <OverviewMetrics stats={stats} isLoading={isLoading} />
-            </section>
-
-            {/* Role-Filtered Milestone Dashboard */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-xl font-semibold text-ink tracking-tight">
-                  Your milestones
-                </h2>
-                <span className="rounded-full bg-lav-100/70 px-3 py-1 text-xs font-medium text-ink-soft">
-                  Auto-refreshes every 10 seconds
+        {/* Main Content Area */}
+        <main className="mx-auto w-full max-w-[1480px] flex-1 space-y-8 px-6 py-8 sm:px-10 lg:px-16 xl:px-20">
+          <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-wide text-[#F6EFE0] uppercase">
+                  {activeTab === "escrows" ? "Dojo Escrow Arena" : "Dojo Bounty Board"}
+                </h1>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/15 border border-rose-500/40 px-3 py-1 text-xs font-bold uppercase tracking-wider text-rose-300">
+                  <Swords className="h-3.5 w-3.5 text-amber-400" />
+                  Live on Arc
                 </span>
               </div>
+              <p className="mt-1.5 text-sm font-medium text-[#C7BBD4]">
+                {activeTab === "escrows"
+                  ? "Circle Arc Testnet · Native 18-decimal USDC · Sub-second Malachite finality"
+                  : "Patrons post open quests · Ronin submit proposals · Instant 1-click USDC vault funding"}
+              </p>
+            </div>
 
-              <MilestoneDashboard
-                milestones={milestones}
-                isLoading={isLoading}
-                onRefresh={() => loadMilestonesData(true)}
-                onOpenCreateModal={() => {
-                  setEscrowPrefill(null);
-                  setIsCreateOpen(true);
+            {/* Main Workspace Mode Switcher */}
+            <div className="inline-flex self-start sm:self-auto items-center rounded-full border border-amber-500/30 bg-[#120D1B]/90 p-1 shadow-xl">
+              <button
+                onClick={() => {
+                  dojoSfx.playSlash();
+                  setActiveTab("escrows");
                 }}
-                onOpenSubmitModal={(m) => setSubmitMilestone(m)}
-                onOpenDetailsModal={(id) => setSelectedDetailsId(id)}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${
+                  activeTab === "escrows"
+                    ? "bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-glow"
+                    : "text-[#A99BB8] hover:text-amber-200"
+                }`}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                <span>Escrows ({milestones.length})</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  dojoSfx.playSlash();
+                  setActiveTab("gigs");
+                }}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${
+                  activeTab === "gigs"
+                    ? "bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-glow"
+                    : "text-[#A99BB8] hover:text-amber-200"
+                }`}
+              >
+                <Briefcase className="h-4 w-4" />
+                <span>Bounty Board</span>
+                <span className="rounded-full bg-black/40 border border-amber-400/40 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                  {openGigsCount}
+                </span>
+              </button>
+            </div>
+          </section>
+
+          {!backendOnline && (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-amber-500/40 bg-amber-950/50 backdrop-blur-md px-4 py-3 text-xs text-amber-200 shadow-lg">
+              <div className="flex items-center gap-2">
+                <WifiOff className="h-4 w-4 text-amber-400 shrink-0" />
+                <span>
+                  <strong className="text-amber-300">Direct On-Chain Mode:</strong> Backend API unreachable. Escrow lock, submit, and instant USDC payouts still work on Circle Arc; connect <code className="font-mono text-amber-100">NEXT_PUBLIC_API_URL</code> for Open Bounties, Briefs &amp; AI Audits.
+                </span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "escrows" ? (
+            <>
+              <section>
+                <OverviewMetrics stats={stats} isLoading={isLoading} />
+              </section>
+
+              <section className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="font-display text-xl font-bold text-[#F6EFE0] tracking-wide uppercase">
+                    Active Escrow Scrolls
+                  </h2>
+                  <span className="rounded-full border border-amber-500/20 bg-[#120D1B]/80 px-3 py-1 text-xs font-semibold text-[#A99BB8]">
+                    Auto-syncs every 10s
+                  </span>
+                </div>
+
+                <MilestoneDashboard
+                  milestones={milestones}
+                  isLoading={isLoading}
+                  onRefresh={() => loadMilestonesData(true)}
+                  onOpenCreateModal={() => {
+                    setEscrowPrefill(null);
+                    setIsCreateOpen(true);
+                  }}
+                  onOpenSubmitModal={(m) => setSubmitMilestone(m)}
+                  onOpenDetailsModal={(id) => setSelectedDetailsId(id)}
+                />
+              </section>
+            </>
+          ) : (
+            <section>
+              <GigBoard
+                gigs={gigs}
+                isLoading={isGigsLoading}
+                errorMsg={gigsError}
+                onRefresh={() => loadGigsData(true)}
+                onGigsChanged={setGigs}
+                onFundEscrow={handleOpenFundFromGig}
               />
             </section>
-          </>
-        ) : (
-          <section>
-            <GigBoard
-              gigs={gigs}
-              isLoading={isGigsLoading}
-              errorMsg={gigsError}
-              onRefresh={() => loadGigsData(true)}
-              onGigsChanged={setGigs}
-              onFundEscrow={handleOpenFundFromGig}
-            />
-          </section>
-        )}
-      </main>
+          )}
+        </main>
 
-      {/* Footer */}
-      <footer className="border-t border-lav-200/60 bg-white py-8 text-center text-xs text-ink-soft mt-12">
-        <div className="mx-auto max-w-[1480px] w-full px-6 sm:px-10 lg:px-16 xl:px-20 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-2">
-            <span className="flex h-7 w-10 items-center justify-center rounded-lg bg-black border border-lav-200/80 p-0.5 overflow-hidden">
-              <img
-                src="/logo.png"
-                alt="ArcPay Logo"
-                className="h-full w-full object-contain"
-              />
-            </span>
-            <span className="font-semibold text-ink">ArcPay</span>
-            <span>— Built for Circle Arc Layer-1 Testnet</span>
+        {/* Footer */}
+        <footer className="border-t border-amber-500/20 bg-[#08050D]/90 backdrop-blur-xl py-8 text-center text-xs text-[#A99BB8] mt-12">
+          <div className="mx-auto max-w-[1480px] w-full px-6 sm:px-10 lg:px-16 xl:px-20 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center space-x-2.5">
+              <span className="flex h-7 w-10 items-center justify-center rounded-lg bg-black border border-amber-500/40 p-0.5 overflow-hidden">
+                <img
+                  src="/logo.png"
+                  alt="ArcPay Logo"
+                  className="h-full w-full object-contain"
+                />
+              </span>
+              <span className="font-display font-bold tracking-wider text-[#F6EFE0] uppercase">
+                ArcPay
+              </span>
+              <span>— Shadow Dojo Escrow on Circle Arc Layer-1</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
+              <a
+                href="https://rpc.testnet.arc.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#A99BB8] transition-colors hover:text-amber-300"
+              >
+                RPC: rpc.testnet.arc.io
+              </a>
+              <span className="text-amber-500/30">·</span>
+              <a
+                href="https://explorer.testnet.arc.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#A99BB8] transition-colors hover:text-amber-300"
+              >
+                Arc Explorer
+              </a>
+              <span className="text-amber-500/30">·</span>
+              <a
+                href="https://faucet.circle.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#A99BB8] transition-colors hover:text-amber-300"
+              >
+                Circle Faucet
+              </a>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
-            <a
-              href="https://rpc.testnet.arc.io"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ink-soft transition-colors hover:text-lav-700"
-            >
-              RPC: rpc.testnet.arc.io
-            </a>
-            <span className="text-lav-200">·</span>
-            <a
-              href="https://explorer.testnet.arc.io"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ink-soft transition-colors hover:text-lav-700"
-            >
-              Arc Explorer
-            </a>
-            <span className="text-lav-200">·</span>
-            <a
-              href="https://faucet.circle.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ink-soft transition-colors hover:text-lav-700"
-            >
-              Circle Faucet
-            </a>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
 
       {/* Modals */}
       <CreateMilestoneModal

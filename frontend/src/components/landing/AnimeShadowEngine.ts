@@ -42,6 +42,15 @@ interface Ember {
   pulseSpeed: number;
 }
 
+interface SlashSpark {
+  x: number;
+  y: number;
+  angle: number;
+  length: number;
+  life: number;
+  maxLife: number;
+}
+
 export class AnimeShadowEngine {
   private container: HTMLElement;
   private canvas: HTMLCanvasElement;
@@ -64,6 +73,7 @@ export class AnimeShadowEngine {
   // Particle Systems
   private petals: Petal[] = [];
   private embers: Ember[] = [];
+  private slashes: SlashSpark[] = [];
   private readonly petalCount = 135;
   private readonly emberCount = 40;
 
@@ -237,6 +247,9 @@ export class AnimeShadowEngine {
     // Torii Gate Silhouette (Center-right ridge)
     this.drawToriiGate(sCtx, w * 0.62, h * 0.8, Math.min(w, h) * 0.08);
 
+    // Shadow Fight Dueling Samurai Silhouette near Torii
+    this.drawDuelingWarriors(sCtx, w * 0.49, h * 0.81, Math.min(w, h) * 0.085);
+
     // Layer C: Intricate Foreground Cherry Blossom (Sakura) Branches (Top-Left & Top-Right)
     this.drawSakuraBranches(sCtx, w, h);
   }
@@ -306,6 +319,81 @@ export class AnimeShadowEngine {
 
     // Central tablet strut (Gakuzuka)
     ctx.fillRect(x - w * 0.035, y - h, w * 0.07, h * 0.22);
+    ctx.restore();
+  }
+
+  private drawDuelingWarriors(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    baseY: number,
+    scale: number
+  ) {
+    ctx.save();
+    ctx.fillStyle = "#09030f";
+    ctx.strokeStyle = "#f59e0b";
+
+    // Left Samurai (Stance)
+    const lx = cx - scale * 0.55;
+    ctx.beginPath();
+    ctx.arc(lx, baseY - scale * 0.62, scale * 0.09, 0, Math.PI * 2);
+    ctx.fill();
+    // Flowing crimson headband ribbon
+    ctx.save();
+    ctx.fillStyle = "#e11d48";
+    ctx.beginPath();
+    ctx.moveTo(lx - scale * 0.06, baseY - scale * 0.64);
+    ctx.quadraticCurveTo(
+      lx - scale * 0.26,
+      baseY - scale * 0.72,
+      lx - scale * 0.36,
+      baseY - scale * 0.56
+    );
+    ctx.lineTo(lx - scale * 0.08, baseY - scale * 0.59);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.moveTo(lx - scale * 0.14, baseY);
+    ctx.lineTo(lx - scale * 0.06, baseY - scale * 0.36);
+    ctx.lineTo(lx - scale * 0.08, baseY - scale * 0.53);
+    ctx.lineTo(lx + scale * 0.12, baseY - scale * 0.51);
+    ctx.lineTo(lx + scale * 0.08, baseY - scale * 0.32);
+    ctx.lineTo(lx + scale * 0.16, baseY);
+    ctx.closePath();
+    ctx.fill();
+
+    // Katana glint
+    ctx.lineWidth = Math.max(1.2, scale * 0.025);
+    ctx.beginPath();
+    ctx.moveTo(lx + scale * 0.1, baseY - scale * 0.44);
+    ctx.lineTo(lx + scale * 0.44, baseY - scale * 0.66);
+    ctx.stroke();
+
+    // Right Ronin with Straw Hat (Facing Left)
+    const rx = cx + scale * 0.65;
+    ctx.beginPath();
+    ctx.moveTo(rx - scale * 0.24, baseY - scale * 0.63);
+    ctx.lineTo(rx, baseY - scale * 0.78);
+    ctx.lineTo(rx + scale * 0.24, baseY - scale * 0.63);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(rx - scale * 0.16, baseY);
+    ctx.lineTo(rx - scale * 0.07, baseY - scale * 0.34);
+    ctx.lineTo(rx - scale * 0.1, baseY - scale * 0.52);
+    ctx.lineTo(rx + scale * 0.09, baseY - scale * 0.54);
+    ctx.lineTo(rx + scale * 0.07, baseY - scale * 0.32);
+    ctx.lineTo(rx + scale * 0.18, baseY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "#fb7185";
+    ctx.beginPath();
+    ctx.moveTo(rx - scale * 0.09, baseY - scale * 0.45);
+    ctx.lineTo(rx - scale * 0.43, baseY - scale * 0.62);
+    ctx.stroke();
+
     ctx.restore();
   }
 
@@ -448,8 +536,11 @@ export class AnimeShadowEngine {
       this.mouse.vy = 0;
     });
 
-    // Tap or Click triggers an Anime Petal Spiral Wind Burst
-    on("pointerdown", () => {
+    // Tap or Click triggers an Anime Petal Spiral Wind Burst + Katana Slash Spark
+    on("pointerdown", (e: Event) => {
+      const pe = e as PointerEvent;
+      const rect = this.canvas.getBoundingClientRect();
+      this.spawnSlash(pe.clientX - rect.left, pe.clientY - rect.top);
       this.triggerWindGust();
     });
 
@@ -462,6 +553,48 @@ export class AnimeShadowEngine {
 
   public triggerWindGust() {
     this.windBurst = 3.2; // Brief strong gust of wind
+  }
+
+  public spawnSlash(x: number, y: number) {
+    this.slashes.push({
+      x,
+      y,
+      angle: -Math.PI * 0.35 + (Math.random() - 0.5) * 0.9,
+      length: 110 + Math.random() * 80,
+      life: 0.35,
+      maxLife: 0.35,
+    });
+  }
+
+  private renderSlashes(dt: number) {
+    if (this.slashes.length === 0) return;
+    const ctx = this.ctx;
+    ctx.save();
+    for (let i = this.slashes.length - 1; i >= 0; i--) {
+      const s = this.slashes[i];
+      s.life -= dt;
+      if (s.life <= 0) {
+        this.slashes.splice(i, 1);
+        continue;
+      }
+      const progress = 1 - s.life / s.maxLife;
+      const alpha = Math.sin((s.life / s.maxLife) * Math.PI);
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.angle);
+      const grad = ctx.createLinearGradient(-s.length * 0.5, 0, s.length * 0.5, 0);
+      grad.addColorStop(0, "rgba(225, 29, 72, 0)");
+      grad.addColorStop(0.5, `rgba(251, 191, 36, ${alpha * 0.9})`);
+      grad.addColorStop(1, "rgba(225, 29, 72, 0)");
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = (1 - progress * 0.5) * 4;
+      ctx.beginPath();
+      ctx.moveTo(-s.length * 0.5, 0);
+      ctx.quadraticCurveTo(0, -14 * alpha, s.length * 0.5, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
   }
 
   // ---------------------------------------------------------------------------
@@ -496,6 +629,9 @@ export class AnimeShadowEngine {
     if (this.petalsEnabled) {
       this.renderPetals(now, dt, effectiveWind);
     }
+
+    // 4b. Draw Interactive Katana Click Slashes
+    this.renderSlashes(dt);
 
     // 5. Blit Shadow Fight Cinematic Film Grain
     if (this.grainEnabled && this.grainPattern) {
