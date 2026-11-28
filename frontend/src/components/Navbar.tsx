@@ -27,11 +27,11 @@ export function Navbar() {
   const isZeroBalance = balance?.value === 0n;
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-amber-500/20 bg-[#0A0710]/85 backdrop-blur-xl shadow-lg shadow-black/40">
+    <header className="sticky top-0 z-40 w-full border-b border-[#27272F] bg-[#09090B]/90 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-[1480px] w-full items-center justify-between px-6 sm:px-10 lg:px-16 xl:px-20">
         {/* Brand Logo & Chain Tag */}
         <Link href="/" className="flex items-center gap-3 group">
-          <span className="flex h-10 w-14 items-center justify-center rounded-xl bg-black border border-amber-500/40 p-1 shadow-glow-gold transition-transform group-hover:scale-105 overflow-hidden">
+          <span className="flex h-10 w-14 items-center justify-center rounded-xl bg-black border border-[#27272F] group-hover:border-[#C8925A]/60 p-1 transition-colors overflow-hidden">
             <img
               src="/logo.png"
               alt="ArcPay Logo"
@@ -40,15 +40,15 @@ export function Navbar() {
           </span>
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="font-display text-lg font-bold tracking-wider text-[#F6EFE0] uppercase">
+              <span className="font-display text-lg font-bold tracking-wider text-[#F4F1EA] uppercase">
                 ArcPay
               </span>
               <div className="hidden sm:inline-block">
                 <NetworkSwitcher variant="dark" />
               </div>
             </div>
-            <p className="text-xs font-medium text-[#A99BB8]">
-              Shadow Dojo Vault <span aria-hidden="true">·</span> Chain 5042002
+            <p className="text-xs font-medium text-[#8F8E94]">
+              Native USDC <span aria-hidden="true">·</span> Chain 5042002
             </p>
           </div>
         </Link>
@@ -62,13 +62,13 @@ export function Navbar() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Get Testnet USDC from Circle's faucet"
-            className={`flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-semibold uppercase tracking-wider transition-all ${
+            className={`flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
               isZeroBalance && isConnected
-                ? "border-amber-400 bg-amber-500/20 text-amber-200 hover:bg-amber-500/30 shadow-glow-gold"
-                : "border-amber-500/25 bg-[#161022] text-[#A99BB8] hover:bg-amber-500/15 hover:text-amber-200 hover:border-amber-500/45"
+                ? "border-[#C8925A] bg-[#C8925A]/15 text-[#C8925A]"
+                : "border-[#27272F] bg-[#111114] text-[#8F8E94] hover:border-[#C8925A]/50 hover:text-[#F4F1EA]"
             }`}
           >
-            <Droplets className="h-3.5 w-3.5 text-amber-400" />
+            <Droplets className="h-3.5 w-3.5 text-[#C8925A]" />
             <span className="hidden sm:inline">
               {isZeroBalance && isConnected ? "Get USDC" : "Faucet"}
             </span>
@@ -79,7 +79,7 @@ export function Navbar() {
             href="https://explorer.testnet.arc.io"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden min-h-9 items-center gap-1.5 rounded-full border border-amber-500/25 bg-[#161022] px-3.5 text-xs font-semibold uppercase tracking-wider text-[#A99BB8] transition-all hover:bg-amber-500/15 hover:text-amber-200 hover:border-amber-500/45 sm:flex"
+            className="hidden min-h-9 items-center gap-1.5 rounded-full border border-[#27272F] bg-[#111114] px-3.5 text-xs font-semibold uppercase tracking-wider text-[#8F8E94] transition-colors hover:border-[#C8925A]/50 hover:text-[#F4F1EA] sm:flex"
           >
             <span>Arc Explorer</span>
             <ExternalLink className="h-3 w-3 opacity-60" />
@@ -89,9 +89,9 @@ export function Navbar() {
         {/* Right Section: Balance & Connect Wallet */}
         <div className="flex items-center space-x-3">
           {isConnected && (
-            <div className="hidden sm:flex items-center space-x-2 rounded-full bg-[#161022] border border-amber-500/30 px-3.5 py-1.5 text-xs font-semibold">
-              <span className="text-[#A99BB8] uppercase tracking-wider">Vault:</span>
-              <span className="font-mono font-bold tabular-nums text-amber-300">
+            <div className="hidden sm:flex items-center space-x-2 rounded-full bg-[#111114] border border-[#27272F] px-3.5 py-1.5 text-xs font-semibold">
+              <span className="text-[#8F8E94] uppercase tracking-wider">Vault:</span>
+              <span className="font-mono font-bold tabular-nums text-[#C8925A]">
                 {isBalanceLoading ? "..." : formattedBalance} USDC
               </span>
             </div>
@@ -125,17 +125,17 @@ export function Navbar() {
                         dojoSfx.playSlash();
                         openConnectModal();
                       }}
-                      className="katana-btn min-h-9 whitespace-nowrap rounded-full bg-gradient-to-r from-rose-600 to-amber-600 px-5 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-glow transition-all hover:brightness-110 active:scale-[0.98]"
+                      className="katana-btn min-h-9 whitespace-nowrap rounded-full bg-[#C8925A] hover:bg-[#D9A46D] px-5 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#09090B] transition-colors active:scale-[0.98]"
                     >
-                      Enter Arena
+                      Connect
                     </button>
                   ) : !chain || chain.unsupported ? (
                     <button
                       type="button"
                       onClick={openChainModal}
-                      className="min-h-9 whitespace-nowrap rounded-full bg-amber-600 px-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white transition-colors hover:bg-amber-500 shadow-glow-gold"
+                      className="min-h-9 whitespace-nowrap rounded-full bg-[#C8925A] hover:bg-[#D9A46D] px-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#09090B]"
                     >
-                      Switch Arena
+                      Switch Network
                     </button>
                   ) : (
                     <button
@@ -146,7 +146,7 @@ export function Navbar() {
                       }}
                       title={account.address}
                       aria-label={`Connected wallet ${account.address}. Open wallet menu.`}
-                      className="min-h-9 max-w-44 truncate rounded-full border border-amber-500/40 bg-[#1B1328] px-4 text-xs sm:text-sm font-semibold font-mono text-amber-200 shadow-sm transition-all hover:bg-amber-500/20 hover:border-amber-400"
+                      className="min-h-9 max-w-44 truncate rounded-full border border-[#C8925A]/45 bg-[#111114] px-4 text-xs sm:text-sm font-semibold font-mono text-[#F4F1EA] transition-colors hover:border-[#C8925A]"
                     >
                       {account.displayName}
                     </button>
@@ -158,9 +158,9 @@ export function Navbar() {
         </div>
       </div>
       {isConnected && (
-        <div className="border-t border-amber-500/15 bg-[#120D1B]/90 px-4 py-2 text-right text-xs text-[#A99BB8] sm:hidden">
+        <div className="border-t border-[#27272F] bg-[#111114] px-4 py-2 text-right text-xs text-[#8F8E94] sm:hidden">
           Vault Balance:{" "}
-          <span className="font-mono font-bold tabular-nums text-amber-300">
+          <span className="font-mono font-bold tabular-nums text-[#C8925A]">
             {isBalanceLoading ? "..." : formattedBalance} USDC
           </span>
         </div>

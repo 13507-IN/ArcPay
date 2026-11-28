@@ -158,50 +158,44 @@ export class AnimeShadowEngine {
     const bCtx = this.bgLayer.getContext("2d")!;
     bCtx.scale(this.dpr, this.dpr);
 
-    // Cinematic Anime / Shadow Fight Twilight Gradient
+    // Strictly Two-Base-Color Shadow Fight Dusk (Obsidian Charcoal + Warm Bronze)
     const skyGrad = bCtx.createLinearGradient(0, 0, 0, h);
-    skyGrad.addColorStop(0.0, "#080614"); // Zenith: Deep night cosmos
-    skyGrad.addColorStop(0.22, "#190d2e"); // Deep twilight violet
-    skyGrad.addColorStop(0.44, "#3f103b"); // Rich Japanese plum
-    skyGrad.addColorStop(0.66, "#781538"); // Crimson-rose dusk
-    skyGrad.addColorStop(0.82, "#b92b27"); // Sunset scarlet
-    skyGrad.addColorStop(0.93, "#e65c00"); // Radiant amber glow
-    skyGrad.addColorStop(1.0, "#fbc02d"); // Horizon gold
+    skyGrad.addColorStop(0.0, "#09090b");
+    skyGrad.addColorStop(0.45, "#111012");
+    skyGrad.addColorStop(0.76, "#221914");
+    skyGrad.addColorStop(0.92, "#463020");
+    skyGrad.addColorStop(1.0, "#6c4b31");
     bCtx.fillStyle = skyGrad;
     bCtx.fillRect(0, 0, w, h);
 
-    // Glowing Sun/Moon Disc (Shadow Fight style)
+    // Glowing Sun/Moon Disc (Shadow Fight Monochrome Bronze Orb)
     const sunX = w * 0.76;
     const sunY = h * 0.52;
     const sunRadius = Math.min(w, h) * 0.17;
 
-    // Celestial Atmospheric Glow Halos
-    const sunHalo = bCtx.createRadialGradient(sunX, sunY, sunRadius * 0.2, sunX, sunY, sunRadius * 2.8);
-    sunHalo.addColorStop(0.0, "rgba(255, 240, 200, 0.45)");
-    sunHalo.addColorStop(0.35, "rgba(244, 63, 94, 0.22)");
-    sunHalo.addColorStop(0.7, "rgba(168, 85, 247, 0.08)");
-    sunHalo.addColorStop(1.0, "rgba(0, 0, 0, 0)");
+    const sunHalo = bCtx.createRadialGradient(sunX, sunY, sunRadius * 0.2, sunX, sunY, sunRadius * 2.6);
+    sunHalo.addColorStop(0.0, "rgba(200, 146, 90, 0.35)");
+    sunHalo.addColorStop(0.5, "rgba(200, 146, 90, 0.12)");
+    sunHalo.addColorStop(1.0, "rgba(9, 9, 11, 0)");
     bCtx.fillStyle = sunHalo;
     bCtx.beginPath();
-    bCtx.arc(sunX, sunY, sunRadius * 2.8, 0, Math.PI * 2);
+    bCtx.arc(sunX, sunY, sunRadius * 2.6, 0, Math.PI * 2);
     bCtx.fill();
 
-    // Solid Sun/Moon Orb
     const sunDisc = bCtx.createRadialGradient(sunX, sunY, sunRadius * 0.1, sunX, sunY, sunRadius);
-    sunDisc.addColorStop(0.0, "#fffbeb"); // Radiant ivory center
-    sunDisc.addColorStop(0.4, "#fed7aa"); // Warm peach
-    sunDisc.addColorStop(0.85, "#fb7185"); // Crimson-pink rim
-    sunDisc.addColorStop(1.0, "rgba(225, 29, 72, 0.85)");
+    sunDisc.addColorStop(0.0, "#f4f1ea");
+    sunDisc.addColorStop(0.55, "#d8a876");
+    sunDisc.addColorStop(1.0, "rgba(200, 146, 90, 0.85)");
     bCtx.fillStyle = sunDisc;
     bCtx.beginPath();
     bCtx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
     bCtx.fill();
 
-    // Soft Atmospheric Horizon Mist
+    // Soft Bronze Horizon Mist
     const horizonMist = bCtx.createLinearGradient(0, h * 0.65, 0, h);
-    horizonMist.addColorStop(0.0, "rgba(251, 146, 60, 0.0)");
-    horizonMist.addColorStop(0.5, "rgba(251, 113, 133, 0.18)");
-    horizonMist.addColorStop(1.0, "rgba(180, 83, 9, 0.35)");
+    horizonMist.addColorStop(0.0, "rgba(200, 146, 90, 0)");
+    horizonMist.addColorStop(0.6, "rgba(200, 146, 90, 0.12)");
+    horizonMist.addColorStop(1.0, "rgba(200, 146, 90, 0.24)");
     bCtx.fillStyle = horizonMist;
     bCtx.fillRect(0, h * 0.65, w, h * 0.35);
 
@@ -213,7 +207,7 @@ export class AnimeShadowEngine {
     sCtx.scale(this.dpr, this.dpr);
 
     // Layer A: Distant Misty Mountain Ridges (Mount Fuji silhouette on right)
-    sCtx.fillStyle = "rgba(40, 10, 35, 0.62)";
+    sCtx.fillStyle = "rgba(18, 16, 15, 0.72)";
     sCtx.beginPath();
     sCtx.moveTo(0, h * 0.78);
     sCtx.lineTo(w * 0.18, h * 0.68);
@@ -231,7 +225,7 @@ export class AnimeShadowEngine {
     sCtx.fill();
 
     // Layer B: Midground Ridge & Architecture (Japanese Pagoda & Torii Gate)
-    sCtx.fillStyle = "#14071b"; // Deep Shadow Fight silhouette ink
+    sCtx.fillStyle = "#08080a"; // Pure Shadow Fight ink black
     sCtx.beginPath();
     sCtx.moveTo(0, h * 0.82);
     sCtx.bezierCurveTo(w * 0.25, h * 0.75, w * 0.45, h * 0.85, w * 0.68, h * 0.79);
@@ -257,7 +251,7 @@ export class AnimeShadowEngine {
   // Draw traditional multi-tier Japanese Pagoda
   private drawPagoda(ctx: CanvasRenderingContext2D, cx: number, baseY: number, totalHeight: number) {
     ctx.save();
-    ctx.fillStyle = "#0c0412"; // Deep ink black
+    ctx.fillStyle = "#050507"; // Deep ink black
 
     const tiers = 4;
     const tierH = totalHeight / (tiers + 1.2);
@@ -296,7 +290,7 @@ export class AnimeShadowEngine {
   // Draw traditional Japanese Shinto Torii Gate
   private drawToriiGate(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number) {
     ctx.save();
-    ctx.fillStyle = "#0c0412";
+    ctx.fillStyle = "#050507";
 
     const w = scale * 0.9;
     const h = scale * 0.95;
@@ -329,17 +323,17 @@ export class AnimeShadowEngine {
     scale: number
   ) {
     ctx.save();
-    ctx.fillStyle = "#09030f";
-    ctx.strokeStyle = "#f59e0b";
+    ctx.fillStyle = "#050507";
+    ctx.strokeStyle = "#c8925a";
 
     // Left Samurai (Stance)
     const lx = cx - scale * 0.55;
     ctx.beginPath();
     ctx.arc(lx, baseY - scale * 0.62, scale * 0.09, 0, Math.PI * 2);
     ctx.fill();
-    // Flowing crimson headband ribbon
+    // Headband ribbon
     ctx.save();
-    ctx.fillStyle = "#e11d48";
+    ctx.fillStyle = "#c8925a";
     ctx.beginPath();
     ctx.moveTo(lx - scale * 0.06, baseY - scale * 0.64);
     ctx.quadraticCurveTo(
@@ -388,7 +382,7 @@ export class AnimeShadowEngine {
     ctx.closePath();
     ctx.fill();
 
-    ctx.strokeStyle = "#fb7185";
+    ctx.strokeStyle = "#c8925a";
     ctx.beginPath();
     ctx.moveTo(rx - scale * 0.09, baseY - scale * 0.45);
     ctx.lineTo(rx - scale * 0.43, baseY - scale * 0.62);
@@ -400,8 +394,8 @@ export class AnimeShadowEngine {
   // Draw silhouetted Japanese Cherry Blossom branches framing the top corners
   private drawSakuraBranches(ctx: CanvasRenderingContext2D, w: number, h: number) {
     ctx.save();
-    ctx.fillStyle = "#09030e";
-    ctx.strokeStyle = "#09030e";
+    ctx.fillStyle = "#050507";
+    ctx.strokeStyle = "#050507";
     ctx.lineCap = "round";
 
     // --- Branch 1: Sweeping in from Top-Right ---
@@ -425,7 +419,7 @@ export class AnimeShadowEngine {
       // Hanging clusters of delicate blossoms on branch tips
       if (depth <= 2) {
         ctx.save();
-        ctx.fillStyle = "rgba(10, 4, 15, 0.95)";
+        ctx.fillStyle = "rgba(5, 5, 7, 0.95)";
         for (let b = 0; b < 4; b++) {
           const bx = endX + (Math.random() - 0.5) * 22;
           const by = endY + (Math.random() - 0.5) * 20;
@@ -458,11 +452,11 @@ export class AnimeShadowEngine {
   private initPetals() {
     this.petals = [];
     const colors = [
-      "#ffd1dc", // Soft cherry blossom pink
-      "#f472b6", // Vivid sakura rose
-      "#fb7185", // Twilight petal crimson
-      "#fce7f3", // Pale moonlight pink
-      "#e11d48", // Deep magenta petal accent
+      "#c8925a", // Matte bronze
+      "#d8a876", // Brushed bronze highlight
+      "#f4f1ea", // Washi ivory glint
+      "#9b6e42", // Aged dark bronze
+      "#18181d", // Obsidian petal shadow
     ];
 
     for (let i = 0; i < this.petalCount; i++) {
@@ -583,9 +577,9 @@ export class AnimeShadowEngine {
       ctx.translate(s.x, s.y);
       ctx.rotate(s.angle);
       const grad = ctx.createLinearGradient(-s.length * 0.5, 0, s.length * 0.5, 0);
-      grad.addColorStop(0, "rgba(225, 29, 72, 0)");
-      grad.addColorStop(0.5, `rgba(251, 191, 36, ${alpha * 0.9})`);
-      grad.addColorStop(1, "rgba(225, 29, 72, 0)");
+      grad.addColorStop(0, "rgba(200, 146, 90, 0)");
+      grad.addColorStop(0.5, `rgba(244, 241, 234, ${alpha * 0.85})`);
+      grad.addColorStop(1, "rgba(200, 146, 90, 0)");
       ctx.strokeStyle = grad;
       ctx.lineWidth = (1 - progress * 0.5) * 4;
       ctx.beginPath();
@@ -654,8 +648,8 @@ export class AnimeShadowEngine {
       const pulse = 0.5 + 0.5 * Math.sin(time * e.pulseSpeed + i);
       const alpha = 0.2 + pulse * 0.65;
 
-      ctx.fillStyle = `rgba(254, 215, 170, ${alpha})`;
-      ctx.shadowColor = "#f97316";
+      ctx.fillStyle = `rgba(200, 146, 90, ${alpha})`;
+      ctx.shadowColor = "#c8925a";
       ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
@@ -666,7 +660,13 @@ export class AnimeShadowEngine {
 
   private renderPetals(time: number, dt: number, wind: number) {
     const ctx = this.ctx;
-    const colors = ["#ffd1dc", "#f472b6", "#fb7185", "#fce7f3", "#e11d48"];
+    const colors = [
+      "rgba(200, 146, 90, 0.72)",
+      "rgba(216, 168, 118, 0.6)",
+      "rgba(244, 241, 234, 0.45)",
+      "rgba(155, 110, 66, 0.7)",
+      "rgba(24, 24, 29, 0.85)",
+    ];
 
     for (let i = 0; i < this.petals.length; i++) {
       const p = this.petals[i];

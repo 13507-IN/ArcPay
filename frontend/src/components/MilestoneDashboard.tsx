@@ -81,23 +81,21 @@ export function MilestoneDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Dashboard Top Navigation & Controls */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        {/* Role Segment Tabs */}
-        <div className="flex max-w-full items-center overflow-x-auto rounded-full border border-amber-500/25 bg-[#120D1B]/90 p-1 shadow-md">
+        <div className="flex max-w-full items-center overflow-x-auto rounded-full border border-[#27272F] bg-[#111114] p-1">
           <button
             onClick={() => {
               dojoSfx.playSlash();
               setRoleFilter("all");
             }}
-            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-bold transition-colors ${
               roleFilter === "all"
-                ? "bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-sm"
-                : "text-[#A99BB8] hover:text-amber-200"
+                ? "bg-[#C8925A] text-[#09090B]"
+                : "text-[#8F8E94] hover:text-[#F4F1EA]"
             }`}
           >
             <Layers className="h-3.5 w-3.5" />
-            <span>All Scrolls ({milestones.length})</span>
+            <span>All ({milestones.length})</span>
           </button>
 
           <button
@@ -105,10 +103,10 @@ export function MilestoneDashboard({
               dojoSfx.playSlash();
               setRoleFilter("client");
             }}
-            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-bold transition-colors ${
               roleFilter === "client"
-                ? "bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-sm"
-                : "text-[#A99BB8] hover:text-amber-200"
+                ? "bg-[#C8925A] text-[#09090B]"
+                : "text-[#8F8E94] hover:text-[#F4F1EA]"
             }`}
           >
             <Briefcase className="h-3.5 w-3.5" />
@@ -120,10 +118,10 @@ export function MilestoneDashboard({
               dojoSfx.playSlash();
               setRoleFilter("freelancer");
             }}
-            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex min-h-9 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs sm:text-sm font-bold transition-colors ${
               roleFilter === "freelancer"
-                ? "bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-sm"
-                : "text-[#A99BB8] hover:text-amber-200"
+                ? "bg-[#C8925A] text-[#09090B]"
+                : "text-[#8F8E94] hover:text-[#F4F1EA]"
             }`}
           >
             <UserCheck className="h-3.5 w-3.5" />
@@ -131,16 +129,15 @@ export function MilestoneDashboard({
           </button>
         </div>
 
-        {/* Search & Actions */}
         <div className="flex items-center space-x-3">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-[#A99BB8]" />
+            <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-[#8F8E94]" />
             <input
               type="text"
-              placeholder="Search quest, #ID, or 0x..."
+              placeholder="Search title, #ID, or 0x..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="min-h-9 w-full rounded-full border border-amber-500/25 bg-[#120D1B]/90 px-9 pr-3 text-sm text-[#F6EFE0] placeholder:text-[#A99BB8]/70 shadow-sm transition-colors focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/25"
+              className="min-h-9 w-full rounded-full border border-[#27272F] bg-[#111114] px-9 pr-3 text-sm text-[#F4F1EA] placeholder:text-[#8F8E94] focus:border-[#C8925A] focus:outline-none"
             />
           </div>
 
@@ -150,9 +147,9 @@ export function MilestoneDashboard({
               onRefresh();
             }}
             title="Refresh milestones"
-            className="flex min-h-9 min-w-9 items-center justify-center rounded-full border border-amber-500/25 bg-[#120D1B]/90 p-2 text-[#A99BB8] shadow-sm transition-all hover:bg-amber-500/15 hover:text-amber-200 hover:border-amber-400"
+            className="flex min-h-9 min-w-9 items-center justify-center rounded-full border border-[#27272F] bg-[#111114] p-2 text-[#8F8E94] transition-colors hover:border-[#C8925A]/60 hover:text-[#F4F1EA]"
           >
-            <RotateCw className={`h-4 w-4 ${isLoading ? "animate-spin text-amber-400" : ""}`} />
+            <RotateCw className={`h-4 w-4 ${isLoading ? "animate-spin text-[#C8925A]" : ""}`} />
           </button>
 
           <button
@@ -160,7 +157,7 @@ export function MilestoneDashboard({
               dojoSfx.playSlash();
               onOpenCreateModal();
             }}
-            className="katana-btn flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-rose-600 to-amber-600 px-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-glow transition-all hover:brightness-110 active:scale-[0.98]"
+            className="katana-btn flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#C8925A] hover:bg-[#D9A46D] px-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#09090B] transition-colors active:scale-[0.98]"
           >
             <Plus className="h-4 w-4" />
             <span>New Escrow</span>
@@ -168,7 +165,6 @@ export function MilestoneDashboard({
         </div>
       </div>
 
-      {/* Status Filter Pills */}
       <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1 text-xs sm:text-sm">
         {(["all", "Funded", "Submitted", "Released", "Refunded"] as const).map(
           (status) => (
@@ -178,25 +174,22 @@ export function MilestoneDashboard({
                 dojoSfx.playSlash();
                 setStatusFilter(status);
               }}
-              className={`min-h-8 flex-none whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${
+              className={`min-h-8 flex-none whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
                 statusFilter === status
-                  ? "bg-amber-500/20 border border-amber-400 text-amber-200 shadow-glow-gold"
-                  : "border border-amber-500/20 bg-[#120D1B]/80 text-[#A99BB8] hover:bg-amber-500/10 hover:text-[#F6EFE0]"
+                  ? "bg-[#C8925A]/15 border border-[#C8925A] text-[#C8925A]"
+                  : "border border-[#27272F] bg-[#111114] text-[#8F8E94] hover:border-[#C8925A]/40 hover:text-[#F4F1EA]"
               }`}
             >
               {status === "all"
-                ? "All Ranks"
+                ? "All Statuses"
                 : status === "Funded"
                 ? "Locked"
-                : status === "Released"
-                ? "Victory (Paid)"
                 : status}
             </button>
           )
         )}
       </div>
 
-      {/* Milestones Cards Grid */}
       {filteredMilestones.length === 0 ? (
         <EmptyState
           roleFilter={roleFilter}

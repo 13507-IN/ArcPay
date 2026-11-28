@@ -30,8 +30,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           theme={darkTheme({
-            accentColor: "#E11D48",
-            accentColorForeground: "#FFFFFF",
+            accentColor: "#C8925A",
+            accentColorForeground: "#09090B",
             borderRadius: "medium",
             fontStack: "system",
             overlayBlur: "small",
@@ -40,7 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {mounted ? (
             children
           ) : (
-            <div className="min-h-screen bg-[#08050D] text-[#F6EFE0] antialiased">
+            <div className="min-h-screen bg-[#09090B] text-[#F4F1EA] antialiased">
               {children}
             </div>
           )}

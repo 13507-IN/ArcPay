@@ -27,7 +27,7 @@ const monoFont = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "ArcPay — Shadow Dojo Milestone Escrow & Instant USDC Settlement",
   description:
-    "Shadow Fight themed milestone escrow, AI Deliverable Oracle, and Open Bounty Board built natively on Circle Arc Layer-1 Testnet with sub-second finality.",
+    "Disciplined milestone escrow, AI Deliverable Oracle, and Open Bounty Board built natively on Circle Arc Layer-1 Testnet.",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
@@ -44,7 +44,7 @@ export default function RootLayout({
       lang="en"
       className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable} dark`}
     >
-      <body className="bg-[#09060E] text-[#F6EFE0] font-body antialiased selection:bg-rose-600/40 selection:text-amber-100">
+      <body className="bg-[#09090B] text-[#F4F1EA] font-body antialiased selection:bg-[#C8925A]/30 selection:text-[#F4F1EA]">
         <Providers>{children}</Providers>
       </body>
     </html>

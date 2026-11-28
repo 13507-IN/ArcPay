@@ -14,24 +14,24 @@ const meta: Record<
   { label: string; act: string; action: string; note: string; progress: string }
 > = {
   Funded: {
-    label: "Stake Locked",
+    label: "Locked",
     act: "Act I · Escrow Seal",
     action: "Deliver Proof Scroll",
-    note: "2,400.00 USDC is sealed inside the Arc Smart Contract Vault before battle begins.",
+    note: "2,400.00 USDC is locked inside the on-chain Circle Arc contract before work begins.",
     progress: "33%",
   },
   Submitted: {
-    label: "Scroll Audited",
-    act: "Act II · AI Oracle Trial",
-    action: "Strike & Release USDC",
-    note: "AI Oracle inspected live repo, test suite & security leaks — Grade A+ (98%). Safe to release.",
+    label: "AI Audited",
+    act: "Act II · Oracle Trial",
+    action: "Approve & Pay USDC",
+    note: "AI Oracle inspected live repo, CI tests & security — Grade A+ (98%). Safe to release.",
     progress: "68%",
   },
   Released: {
-    label: "Victory · Paid",
+    label: "Settled",
     act: "Act III · 0.8s Finality",
-    action: "Victory! Settled in 0.8s",
-    note: "Final blow landed. Native USDC transferred directly to the Ronin's wallet under 1 second.",
+    action: "Settled in 0.8s",
+    note: "Escrow cleared. Native USDC transferred directly to the freelancer wallet under 1 second.",
     progress: "100%",
   },
 };
@@ -49,98 +49,90 @@ export function MilestoneDemo() {
       setStage("Released");
       try {
         confetti({
-          particleCount: 70,
-          spread: 55,
+          particleCount: 65,
+          spread: 50,
           origin: { y: 0.55 },
-          colors: ["#E11D48", "#F59E0B", "#10B981"],
+          colors: ["#C8925A", "#F4F1EA", "#8F8E94"],
         });
       } catch {}
     }
   };
 
   return (
-    <div data-ui className="w-full rounded-2xl bg-[#0D0914]/95 border border-amber-500/25 p-5 sm:p-7 text-[#F6EFE0]">
+    <div data-ui className="w-full rounded-xl bg-[#09090B] border border-[#27272F] p-5 sm:p-7 text-[#F4F1EA]">
       {/* Matchup Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-400">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C8925A]">
             {meta[stage].act}
           </p>
-          <h3 className="mt-1 font-display text-xl sm:text-2xl font-bold tracking-wide text-[#F6EFE0]">
-            Duel #24: Website Redesign
+          <h3 className="mt-1 font-display text-xl sm:text-2xl font-bold tracking-wide text-[#F4F1EA]">
+            Milestone #24 · Redesign
           </h3>
         </div>
 
         <div className="flex items-center gap-2">
           {stage === "Submitted" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-bold text-emerald-300 border border-emerald-500/40 animate-pulse">
-              <Sparkles className="h-3 w-3 text-emerald-400" />
-              AI Rank S: 98%
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#C8925A]/15 px-2.5 py-1 text-xs font-bold text-[#C8925A] border border-[#C8925A]/40">
+              <Sparkles className="h-3 w-3" />
+              AI Audited: 98%
             </span>
           )}
           {stage === "Released" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-bold text-emerald-300 border border-emerald-500/40">
-              <ShieldCheck className="h-3 w-3 text-emerald-400" />
-              Victory Cleared
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#C8925A]/15 px-2.5 py-1 text-xs font-bold text-[#C8925A] border border-[#C8925A]/40">
+              <ShieldCheck className="h-3 w-3" />
+              Verified
             </span>
           )}
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border ${
-              stage === "Released"
-                ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
-                : stage === "Submitted"
-                ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-                : "bg-rose-500/15 border-rose-500/40 text-rose-300"
-            }`}
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#18181D] border border-[#27272F] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#F4F1EA]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#C8925A]" aria-hidden="true" />
             {meta[stage].label}
           </span>
         </div>
       </div>
 
       {/* Bounty Vault & Deadline */}
-      <div className="mt-6 flex items-end justify-between gap-4 rounded-2xl bg-[#161022] border border-amber-500/20 p-4">
+      <div className="mt-6 flex items-end justify-between gap-4 rounded-xl bg-[#111114] border border-[#27272F] p-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#A99BB8]">
-            Bounty Vault Locked
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8F8E94]">
+            Amount Locked
           </p>
-          <p className="mt-1 font-display text-3xl sm:text-4xl font-bold tracking-tight text-amber-300 tabular-nums">
+          <p className="mt-1 font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#C8925A] tabular-nums">
             2,400.00{" "}
-            <span className="text-sm font-semibold text-amber-500/80">USDC</span>
+            <span className="text-sm font-semibold text-[#8F8E94]">USDC</span>
           </p>
         </div>
-        <div className="text-right text-xs text-[#A99BB8]">
-          <p className="uppercase tracking-wider font-semibold">Scroll Deadline</p>
-          <p className="mt-1 font-mono font-bold text-[#F6EFE0]">Mar 14</p>
+        <div className="text-right text-xs text-[#8F8E94]">
+          <p className="uppercase tracking-wider font-semibold">Deadline</p>
+          <p className="mt-1 font-mono font-bold text-[#F4F1EA]">Mar 14</p>
         </div>
       </div>
 
-      {/* Challengers */}
-      <dl className="mt-5 grid grid-cols-2 gap-3 text-xs">
-        <div className="rounded-xl bg-[#130D1D] border border-white/10 px-3.5 py-2.5">
-          <dt className="text-[#A99BB8] uppercase tracking-wider font-semibold">
+      {/* Counterparties */}
+      <dl className="mt-4 grid grid-cols-2 gap-3 text-xs">
+        <div className="rounded-xl bg-[#111114] border border-[#27272F] px-3.5 py-2.5">
+          <dt className="text-[#8F8E94] uppercase tracking-wider font-semibold">
             Patron (Client)
           </dt>
-          <dd className="mt-0.5 font-mono font-semibold text-[#F6EFE0] tabular-nums">
+          <dd className="mt-0.5 font-mono font-semibold text-[#F4F1EA] tabular-nums">
             0x7a3f…c21b
           </dd>
         </div>
-        <div className="rounded-xl bg-[#130D1D] border border-white/10 px-3.5 py-2.5 text-right">
-          <dt className="text-[#A99BB8] uppercase tracking-wider font-semibold">
+        <div className="rounded-xl bg-[#111114] border border-[#27272F] px-3.5 py-2.5 text-right">
+          <dt className="text-[#8F8E94] uppercase tracking-wider font-semibold">
             Ronin (Builder)
           </dt>
-          <dd className="mt-0.5 font-mono font-semibold text-amber-200 tabular-nums">
+          <dd className="mt-0.5 font-mono font-semibold text-[#C8925A] tabular-nums">
             0x4c9d…8e04
           </dd>
         </div>
       </dl>
 
-      {/* Combat / Escrow Clash Bar */}
+      {/* Progress Bar */}
       <div className="mt-6 space-y-3">
-        <div className="h-2.5 w-full overflow-hidden rounded-full bg-[#1B1328] border border-amber-500/20 p-0.5">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-[#18181D] border border-[#27272F] p-0.5">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-rose-600 via-amber-500 to-emerald-400 transition-all duration-500"
+            className="h-full rounded-full bg-[#C8925A] transition-all duration-500"
             style={{ width: meta[stage].progress }}
           />
         </div>
@@ -153,8 +145,8 @@ export function MilestoneDemo() {
                 <div
                   className={`flex h-7 w-7 items-center justify-center rounded-full border transition-all ${
                     done
-                      ? "bg-gradient-to-br from-rose-600 to-amber-600 border-amber-400 text-white shadow-glow"
-                      : "bg-[#1B1328] border-white/15 text-[#A99BB8]"
+                      ? "bg-[#C8925A] border-[#C8925A] text-[#09090B]"
+                      : "bg-[#111114] border-[#27272F] text-[#8F8E94]"
                   }`}
                 >
                   {done ? (
@@ -165,7 +157,7 @@ export function MilestoneDemo() {
                 </div>
                 <span
                   className={`text-xs font-semibold uppercase tracking-wider ${
-                    done ? "text-amber-200" : "text-[#A99BB8]"
+                    done ? "text-[#C8925A]" : "text-[#8F8E94]"
                   }`}
                 >
                   {step}
@@ -176,7 +168,7 @@ export function MilestoneDemo() {
         </div>
       </div>
 
-      <p className="mt-5 min-h-[40px] text-xs sm:text-sm leading-relaxed text-[#C7BBD4]" aria-live="polite">
+      <p className="mt-5 min-h-[40px] text-xs sm:text-sm leading-relaxed text-[#8F8E94]" aria-live="polite">
         {meta[stage].note}
       </p>
 
@@ -184,7 +176,7 @@ export function MilestoneDemo() {
         type="button"
         onClick={advance}
         disabled={stage === "Released"}
-        className="katana-btn mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-rose-600 via-rose-500 to-amber-600 px-6 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-glow transition hover:brightness-110 active:scale-[0.98] disabled:cursor-default disabled:from-emerald-700 disabled:to-emerald-600 disabled:shadow-glow-emerald"
+        className="katana-btn mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#C8925A] hover:bg-[#D9A46D] px-6 py-3 text-sm font-bold uppercase tracking-wider text-[#09090B] transition active:scale-[0.98] disabled:cursor-default disabled:bg-[#1C1C22] disabled:text-[#C8925A] disabled:border disabled:border-[#C8925A]/40"
       >
         {stage === "Released" ? (
           <Check className="h-4 w-4" aria-hidden="true" />
@@ -203,10 +195,10 @@ export function MilestoneDemo() {
           dojoSfx.playSlash();
           setStage("Funded");
         }}
-        className="mt-3.5 inline-flex w-full items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#A99BB8] transition hover:text-amber-200"
+        className="mt-3.5 inline-flex w-full items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#8F8E94] transition hover:text-[#F4F1EA]"
       >
         <RotateCcw className="h-3 w-3" aria-hidden="true" />
-        Replay Duel Simulation
+        Reset Demo
       </button>
     </div>
   );

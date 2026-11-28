@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #08050d;
-  --foreground: #f6efe0;
+  --background: #09090b;
+  --foreground: #f4f1ea;
 }
 
 html {
@@ -21,58 +21,37 @@ body {
 }
 
 ::selection {
-  background: rgba(225, 29, 72, 0.45);
-  color: #fef3c7;
+  background: rgba(200, 146, 90, 0.35);
+  color: #f4f1ea;
 }
 
-/* Custom Shadow Dojo scrollbars */
+/* Clean Obsidian & Bronze Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0c0814;
+  background: #09090b;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #e11d48, #d97706);
+  background: #27272f;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #f59e0b;
+  background: #c8925a;
 }
 
-/* Shadow Fight 2 Dojo Cards & Katana Sheen Interactions */
+/* Heavyweight Dojo Cards & Clean Blade Sheen */
 @layer components {
-  .dojo-panel {
-    @apply rounded-2xl border border-amber-500/20 bg-[#120D1B]/90 backdrop-blur-xl shadow-2xl shadow-black/60;
-  }
-
   .dojo-card {
-    @apply relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-[#161022]/95 via-[#110C1A]/95 to-[#1B0F1A]/95 backdrop-blur-xl shadow-xl shadow-black/50 transition-all duration-300;
-  }
-
-  .dojo-card::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(245, 158, 11, 0.55),
-      rgba(225, 29, 72, 0.6),
-      transparent
-    );
-    pointer-events: none;
+    @apply relative overflow-hidden rounded-2xl border border-[#27272F] bg-[#111114]/95 backdrop-blur-md shadow-xl shadow-black/50 transition-all duration-200;
   }
 
   .dojo-card:hover {
-    border-color: rgba(245, 158, 11, 0.48);
-    box-shadow: 0 12px 40px -12px rgba(225, 29, 72, 0.28),
-      0 0 20px -8px rgba(245, 158, 11, 0.22);
+    border-color: rgba(200, 146, 90, 0.45);
   }
 
   .katana-btn {
@@ -85,12 +64,12 @@ body {
     position: absolute;
     top: -40%;
     left: -120%;
-    width: 60%;
+    width: 55%;
     height: 180%;
     background: linear-gradient(
       115deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.35) 50%,
+      rgba(255, 255, 255, 0.25) 50%,
       transparent 100%
     );
     transform: skewX(-20deg);
@@ -112,7 +91,7 @@ body {
 @keyframes landing-rise {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -121,7 +100,7 @@ body {
 }
 
 .landing-rise {
-  animation: landing-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: landing-rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .landing-rise-1 {
@@ -136,24 +115,6 @@ body {
   animation-delay: 0.24s;
 }
 
-@keyframes slash-sweep {
-  0% {
-    opacity: 0;
-    transform: translateX(-100%) rotate(-12deg);
-  }
-  40% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(140%) rotate(-12deg);
-  }
-}
-
-.animate-slash {
-  animation: slash-sweep 0.55s ease-out forwards;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .landing-rise {
     animation: none;
@@ -162,10 +123,10 @@ body {
 
 html.reveal-ready .reveal {
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(18px);
   transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html.reveal-ready .reveal.is-visible {

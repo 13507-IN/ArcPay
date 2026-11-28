@@ -23,7 +23,7 @@ export function AnimeShadowBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none bg-[#090614]">
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none bg-[#09090B]">
       <div ref={containerRef} className="absolute inset-0" />
     </div>
   );

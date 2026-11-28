@@ -73,60 +73,59 @@ export function AiVerificationReport({
 
   const tone = isFailed
     ? {
-        box: "bg-rose-950/50 border-rose-500/45",
-        scoreText: "text-rose-300",
-        gradeBg: "bg-rose-500/20 text-rose-200",
-        titleText: "text-rose-200",
-        badge: "bg-rose-500/20 border border-rose-500/45 text-rose-200",
-        dot: "bg-rose-400",
+        box: "bg-[#18181D] border-red-500/45",
+        scoreText: "text-red-400",
+        gradeBg: "bg-[#09090B] text-red-400 border border-red-500/40",
+        titleText: "text-red-300",
+        badge: "bg-[#18181D] border border-red-500/45 text-red-300",
+        dot: "bg-red-400",
         label: "Scope Mismatch / Failed",
-        recText: "AI Verdict: Do Not Release Payment",
+        recText: "AI Recommendation: Do Not Release Payment",
       }
     : isWarning
     ? {
-        box: "bg-amber-950/45 border-amber-500/45",
-        scoreText: "text-amber-300",
-        gradeBg: "bg-amber-500/20 text-amber-200",
-        titleText: "text-amber-200",
-        badge: "bg-amber-500/20 border border-amber-500/45 text-amber-200",
-        dot: "bg-amber-400",
-        label: "Manual Trial Required",
-        recText: "AI Verdict: Manual Review Required",
+        box: "bg-[#141418] border-[#C8925A]/50",
+        scoreText: "text-[#C8925A]",
+        gradeBg: "bg-[#09090B] text-[#C8925A] border border-[#C8925A]/40",
+        titleText: "text-[#F4F1EA]",
+        badge: "bg-[#C8925A]/15 border border-[#C8925A]/45 text-[#C8925A]",
+        dot: "bg-[#C8925A]",
+        label: "Manual Review Required",
+        recText: "AI Recommendation: Manual Review Required",
       }
     : {
-        box: "bg-emerald-950/40 border-emerald-500/45",
-        scoreText: "text-emerald-300",
-        gradeBg: "bg-emerald-500/20 text-emerald-200",
-        titleText: "text-emerald-200",
-        badge: "bg-emerald-500/20 border border-emerald-500/45 text-emerald-200",
-        dot: "bg-emerald-400",
-        label: "Rank S · Verified",
+        box: "bg-[#141418] border-[#C8925A]/40",
+        scoreText: "text-[#C8925A]",
+        gradeBg: "bg-[#C8925A] text-[#09090B]",
+        titleText: "text-[#F4F1EA]",
+        badge: "bg-[#C8925A]/15 border border-[#C8925A]/45 text-[#C8925A]",
+        dot: "bg-[#C8925A]",
+        label: "Verified",
         recText:
           report?.recommendation === "SAFE_TO_RELEASE"
-            ? "AI Verdict: Safe to Release Bounty"
-            : "AI Verdict: Satisfactory Scroll",
+            ? "AI Recommendation: Safe to Release Payment"
+            : "AI Recommendation: Satisfactory Deliverable",
       };
 
   return (
-    <div className="rounded-2xl border border-amber-500/25 bg-[#0D0914]/95 p-4 sm:p-5 shadow-xl space-y-4">
-      {/* Top Header */}
-      <div className="flex items-center justify-between gap-3 border-b border-amber-500/15 pb-3">
+    <div className="rounded-xl border border-[#27272F] bg-[#09090B] p-4 sm:p-5 space-y-4">
+      <div className="flex items-center justify-between gap-3 border-b border-[#27272F] pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 text-white shadow-glow shrink-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C8925A] text-[#09090B] shrink-0">
             <Cpu className="h-4 w-4" />
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-display text-sm font-bold text-[#F6EFE0] truncate">
-                Shadow Dojo AI Oracle Audit
+              <h4 className="font-display text-sm font-bold text-[#F4F1EA] truncate">
+                AI Deliverable Oracle
               </h4>
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/35">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#18181D] px-2.5 py-0.5 text-[10px] font-bold text-[#C8925A] border border-[#27272F]">
                 <Sparkles className="h-2.5 w-2.5" />
                 {report?.metadata?.aiEngine || "AI Oracle"}
               </span>
             </div>
-            <p className="text-[11px] text-[#A99BB8] hidden sm:block">
-              Live repository &amp; endpoint inspection against quest acceptance scope
+            <p className="text-[11px] text-[#8F8E94] hidden sm:block">
+              Live repository &amp; endpoint inspection against client milestone requirements
             </p>
           </div>
         </div>
@@ -135,31 +134,30 @@ export function AiVerificationReport({
           type="button"
           onClick={() => handleVerify(true)}
           disabled={isVerifying}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-amber-500/30 bg-[#161022] px-3 py-1.5 text-xs font-semibold text-amber-200 hover:bg-amber-500/15 transition-all disabled:opacity-60 shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#27272F] bg-[#141418] px-3 py-1.5 text-xs font-semibold text-[#F4F1EA] hover:border-[#C8925A]/60 transition-colors disabled:opacity-60 shrink-0"
         >
           <RefreshCw
-            className={`h-3 w-3 ${isVerifying ? "animate-spin text-amber-400" : ""}`}
+            className={`h-3 w-3 ${isVerifying ? "animate-spin text-[#C8925A]" : ""}`}
           />
           <span>{isVerifying ? "Auditing..." : "Re-inspect"}</span>
         </button>
       </div>
 
       {isVerifying ? (
-        <div className="flex flex-col items-center justify-center py-6 text-[#A99BB8] space-y-2">
+        <div className="flex flex-col items-center justify-center py-6 text-[#8F8E94] space-y-2">
           <div className="flex items-center gap-2">
-            <Cpu className="h-5 w-5 text-amber-400 animate-pulse" />
-            <span className="text-xs font-semibold text-[#F6EFE0]">
+            <Cpu className="h-5 w-5 text-[#C8925A] animate-pulse" />
+            <span className="text-xs font-semibold text-[#F4F1EA]">
               Fetching live deliverable files &amp; running AI milestone audit...
             </span>
           </div>
-          <p className="text-[11px] text-[#A99BB8]">
+          <p className="text-[11px] text-[#8F8E94]">
             Inspecting languages, file tree, CI tests &amp; scope alignment
           </p>
         </div>
       ) : report ? (
         <div className="space-y-3.5">
-          {/* Score & Recommendation Banner */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 rounded-xl bg-[#161022] border border-amber-500/20 p-3 sm:p-3.5">
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 rounded-xl bg-[#111114] border border-[#27272F] p-3 sm:p-3.5">
             <div className="flex items-center gap-3 min-w-0">
               <div
                 className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 shrink-0 ${tone.box}`}
@@ -180,15 +178,15 @@ export function AiVerificationReport({
                   {isFailed || isWarning ? (
                     <ShieldAlert className={`h-4 w-4 shrink-0 ${tone.scoreText}`} />
                   ) : (
-                    <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+                    <ShieldCheck className="h-4 w-4 text-[#C8925A] shrink-0" />
                   )}
                   <span className={`text-xs font-bold truncate ${tone.titleText}`}>
                     {tone.recText}
                   </span>
                 </div>
-                <p className="text-[11px] text-[#A99BB8] mt-0.5 truncate">
+                <p className="text-[11px] text-[#8F8E94] mt-0.5 truncate">
                   Type:{" "}
-                  <span className="font-semibold text-[#F6EFE0] uppercase">
+                  <span className="font-semibold text-[#F4F1EA] uppercase">
                     {report.deliverableType.replace("_", " ")}
                   </span>
                   {typeof report.metadata?.filesInspected === "number"
@@ -206,7 +204,6 @@ export function AiVerificationReport({
             </span>
           </div>
 
-          {/* Summary */}
           {report.summary && (
             <div
               className={`rounded-xl border p-3 text-xs leading-relaxed ${tone.box} ${tone.titleText}`}
@@ -215,10 +212,9 @@ export function AiVerificationReport({
             </div>
           )}
 
-          {/* Checkpoints */}
           <div className="space-y-2">
-            <span className="text-[11px] font-bold text-[#A99BB8] uppercase tracking-wider block">
-              Inspection Trials (
+            <span className="text-[11px] font-bold text-[#8F8E94] uppercase tracking-wider block">
+              Inspection Checkpoints (
               {report.checks.filter((c) => c.status === "passed").length}/
               {report.checks.length} Passed)
             </span>
@@ -229,28 +225,28 @@ export function AiVerificationReport({
                   report.checks.length % 2 !== 0;
                 const scoreColor =
                   check.status === "passed"
-                    ? "text-emerald-300"
+                    ? "text-[#C8925A]"
                     : check.status === "warning"
-                    ? "text-amber-300"
-                    : "text-rose-300";
+                    ? "text-[#C8925A]"
+                    : "text-red-400";
 
                 return (
                   <div
                     key={check.id}
-                    className={`flex items-start gap-2.5 rounded-xl bg-[#161022]/90 border border-white/10 p-3 text-xs transition-colors hover:border-amber-500/35 ${
+                    className={`flex items-start gap-2.5 rounded-xl bg-[#111114] border border-[#27272F] p-3 text-xs transition-colors hover:border-[#C8925A]/40 ${
                       isLastOdd ? "sm:col-span-2" : ""
                     }`}
                   >
                     {check.status === "passed" ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="h-4 w-4 text-[#C8925A] shrink-0 mt-0.5" />
                     ) : check.status === "warning" ? (
-                      <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+                      <AlertTriangle className="h-4 w-4 text-[#C8925A] shrink-0 mt-0.5" />
                     ) : (
-                      <XCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
+                      <XCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
-                        <span className="font-semibold text-[#F6EFE0] truncate">
+                        <span className="font-semibold text-[#F4F1EA] truncate">
                           {check.name}
                         </span>
                         <span
@@ -259,7 +255,7 @@ export function AiVerificationReport({
                           {check.score}/100
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#A99BB8] mt-1 leading-snug">
+                      <p className="text-[11px] text-[#8F8E94] mt-1 leading-snug">
                         {check.detail}
                       </p>
                     </div>
@@ -269,15 +265,14 @@ export function AiVerificationReport({
             </div>
           </div>
 
-          {/* Oracle Metadata Footer */}
-          <div className="rounded-xl bg-[#161022] border border-white/10 p-2.5 text-[11px] text-[#A99BB8] flex items-center justify-between gap-2">
+          <div className="rounded-xl bg-[#111114] border border-[#27272F] p-2.5 text-[11px] text-[#8F8E94] flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 min-w-0">
-              <FileCode2 className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+              <FileCode2 className="h-3.5 w-3.5 text-[#C8925A] shrink-0" />
               <span className="truncate">
                 {report.metadata.oracleSignature ? (
                   <>
-                    Oracle Seal:{" "}
-                    <code className="font-mono text-amber-200 text-[10px]">
+                    Oracle Hash:{" "}
+                    <code className="font-mono text-[#F4F1EA] text-[10px]">
                       {report.metadata.oracleSignature}
                     </code>
                   </>
@@ -286,7 +281,7 @@ export function AiVerificationReport({
                 )}
               </span>
             </div>
-            <span className="text-[10px] text-[#A99BB8] shrink-0">
+            <span className="text-[10px] text-[#8F8E94] shrink-0">
               {new Date(report.metadata.inspectedAt).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
